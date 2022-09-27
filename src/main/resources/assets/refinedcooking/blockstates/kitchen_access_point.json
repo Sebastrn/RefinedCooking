@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "has_card=false": {
+      "model": "refinedcooking:block/kitchen_access_point"
+    },
+    "has_card=true": {
+      "model": "refinedcooking:block/kitchen_access_point_connected"
+    }
+  }
+}
