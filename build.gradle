@@ -34,7 +34,7 @@ repositories {
     }
 }
 
-version = '2.0.1'
+version = '2.0.2'
 def env = System.getenv()
 if (env.BUILD_NUMBER) {
     version = version + "+" + "${env.BUILD_NUMBER}"
