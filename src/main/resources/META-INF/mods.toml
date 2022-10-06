@@ -19,6 +19,6 @@ A mod to bridge Cooking For Blockheads with Refined Storage
 [[dependencies.refinedcooking]]
     modId="cookingforblockheads"
     mandatory=true
-    versionRange="[13.2.1,)"
+    versionRange="[13.2.3,)"
     ordering="BEFORE"
     side="BOTH"

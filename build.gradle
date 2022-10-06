@@ -35,7 +35,7 @@ repositories {
     }
 }
 
-version = '3.0.0'
+version = '3.0.1'
 def env = System.getenv()
 if (env.BUILD_NUMBER) {
     version = version + "+" + "${env.BUILD_NUMBER}"
@@ -117,7 +117,7 @@ dependencies {
     implementation fg.deobf("net.blay09.mods:balm:4.5.3+307")
 
     implementation fg.deobf('curse.maven:refined-storage-243076:4012621')
-    implementation fg.deobf('curse.maven:cooking-for-blockheads-231484:3914523')
+    implementation fg.deobf('curse.maven:cooking-for-blockheads-231484:4019981')
 
     runtimeOnly fg.deobf('curse.maven:jei-238222:3969039')
 
