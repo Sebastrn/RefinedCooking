@@ -61,9 +61,9 @@ public class KitchenStationBlockEntity extends NetworkNodeBlockEntity<KitchenSta
 
         if (provider.getProviderClass() == Container.class) {
             capabilities.put(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, LazyOptional.of(() -> new BalmInvWrapper((Container) provider.getInstance())));
-        } else if(provider.getProviderClass() == FluidTank.class) {
+        } else if (provider.getProviderClass() == FluidTank.class) {
             capabilities.put(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, LazyOptional.of(() -> new ForgeFluidTank((FluidTank) provider.getInstance())));
-        } else if(provider.getProviderClass() == EnergyStorage.class) {
+        } else if (provider.getProviderClass() == EnergyStorage.class) {
             capabilities.put(CapabilityEnergy.ENERGY, LazyOptional.of(() -> new ForgeEnergyStorage((EnergyStorage) provider.getInstance())));
         }
     }
@@ -110,9 +110,9 @@ public class KitchenStationBlockEntity extends NetworkNodeBlockEntity<KitchenSta
         if (result == null) {
             result = capabilities.get(cap);
         }
+
         return result != null ? result.cast() : super.getCapability(cap, side);
     }
-
 
     @Override
     @Nonnull

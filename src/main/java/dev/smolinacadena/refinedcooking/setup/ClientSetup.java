@@ -16,7 +16,7 @@ public final class ClientSetup {
     }
 
     @SubscribeEvent
-    public static void onClientSetup(FMLClientSetupEvent e){
+    public static void onClientSetup(FMLClientSetupEvent e) {
         e.enqueueWork(() -> {
             MenuScreens.register(RefinedCookingContainerMenus.KITCHEN_ACCESS_POINT.get(), KitchenAccessPointScreen::new);
         });

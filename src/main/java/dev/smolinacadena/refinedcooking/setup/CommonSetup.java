@@ -14,8 +14,8 @@ public final class CommonSetup {
 
     @SubscribeEvent
     public static void onCommonSetup(FMLCommonSetupEvent e) {
-        RSAPI.getNetworkNodeRegistry().add(KitchenStationNetworkNode.ID,(compoundNBT, world, blockPos) -> readAndReturn(compoundNBT, new KitchenStationNetworkNode(world, blockPos)));
-        RSAPI.getNetworkNodeRegistry().add(KitchenAccessPointNetworkNode.ID,(compoundNBT, world, blockPos) -> readAndReturn(compoundNBT, new KitchenAccessPointNetworkNode(world, blockPos)));
+        RSAPI.getNetworkNodeRegistry().add(KitchenStationNetworkNode.ID, (compoundNBT, world, blockPos) -> readAndReturn(compoundNBT, new KitchenStationNetworkNode(world, blockPos)));
+        RSAPI.getNetworkNodeRegistry().add(KitchenAccessPointNetworkNode.ID, (compoundNBT, world, blockPos) -> readAndReturn(compoundNBT, new KitchenAccessPointNetworkNode(world, blockPos)));
     }
 
     private static INetworkNode readAndReturn(CompoundTag tag, NetworkNode node) {

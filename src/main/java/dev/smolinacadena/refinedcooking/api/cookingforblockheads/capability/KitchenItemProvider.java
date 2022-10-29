@@ -2,8 +2,8 @@ package dev.smolinacadena.refinedcooking.api.cookingforblockheads.capability;
 
 import com.refinedmods.refinedstorage.api.network.INetwork;
 import com.refinedmods.refinedstorage.api.util.Action;
-import com.refinedmods.refinedstorage.api.util.StackListEntry;
 import dev.smolinacadena.refinedcooking.blockentity.KitchenStationBlockEntity;
+import net.blay09.mods.cookingforblockheads.api.IngredientPredicateWithCache;
 import net.blay09.mods.cookingforblockheads.api.SourceItem;
 import net.blay09.mods.cookingforblockheads.api.capability.IKitchenItemProvider;
 import net.blay09.mods.cookingforblockheads.api.capability.IngredientPredicate;
@@ -13,7 +13,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class KitchenItemProvider implements IKitchenItemProvider {
 
@@ -25,7 +24,7 @@ public class KitchenItemProvider implements IKitchenItemProvider {
         this.usedStackSizes = new HashMap<>();
     }
 
-    public INetwork getNetwork(){
+    public INetwork getNetwork() {
         return this.tile.getNode().getNetwork();
     }
 
@@ -81,13 +80,15 @@ public class KitchenItemProvider implements IKitchenItemProvider {
     @Nullable
     @Override
     public SourceItem findSource(IngredientPredicate predicate, int maxAmount, List<IKitchenItemProvider> inventories, boolean requireBucket, boolean simulate) {
-        if(getNetwork() != null) {
-            List<ItemStack> itemStackList = getNetwork().getItemStorageCache().getList().getStacks().stream().map(StackListEntry::getStack).collect(Collectors.toList());
-            for (ItemStack itemStack : itemStackList) {
-                String registryName = ForgeRegistries.ITEMS.getKey(itemStack.getItem()).toString();
-                if (!itemStack.isEmpty()
-                        && predicate.test(itemStack, itemStack.getCount() - getSimulatedUseCount(registryName))) {
-                    return new SourceItem(this, 0, itemStack.copy());
+        if (getNetwork() != null) {
+            if (predicate instanceof IngredientPredicateWithCache predicateWithItems) {
+                for (var ingredient : predicateWithItems.getItems()) {
+                    var ingredientStackFromNetwork = getNetwork().getItemStorageCache().getList().get(ingredient);
+                    if (ingredientStackFromNetwork != null) {
+                        if (!ingredientStackFromNetwork.isEmpty() && predicate.test(ingredientStackFromNetwork, ingredientStackFromNetwork.getCount() - getSimulatedUseCount(ingredientStackFromNetwork.getDescriptionId()))) {
+                            return new SourceItem(this, 0, ingredientStackFromNetwork.copy());
+                        }
+                    }
                 }
             }
         }

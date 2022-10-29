@@ -36,7 +36,7 @@ public class KitchenAccessPointNetworkNode extends NetworkNode {
                 if (card.isEmpty()) {
                     receiver = null;
                     receiverDimension = null;
-                    if(!reading) {
+                    if (!reading) {
                         BlockEntity tile = level.getBlockEntity(pos);
                         if (tile instanceof KitchenAccessPointBlockEntity) {
                             ((KitchenAccessPointBlockEntity) tile).setHasCard(false);
@@ -45,7 +45,7 @@ public class KitchenAccessPointNetworkNode extends NetworkNode {
                 } else {
                     receiver = KitchenNetworkCardItem.getReceiver(card);
                     receiverDimension = KitchenNetworkCardItem.getDimension(card);
-                    if(!reading) {
+                    if (!reading) {
                         BlockEntity tile = level.getBlockEntity(pos);
                         if (tile instanceof KitchenAccessPointBlockEntity) {
                             ((KitchenAccessPointBlockEntity) tile).setHasCard(true);
@@ -57,7 +57,6 @@ public class KitchenAccessPointNetworkNode extends NetworkNode {
                     network.getNodeGraph().invalidate(Action.PERFORM, network.getLevel(), network.getPosition());
                 }
             });
-
 
 
     public KitchenAccessPointNetworkNode(Level level, BlockPos pos) {
