@@ -1,9 +1,7 @@
 package dev.smolinacadena.refinedcooking.network;
 
-import com.refinedmods.refinedstorage.api.network.INetwork;
 import com.refinedmods.refinedstorage.api.network.INetworkNodeVisitor;
 import com.refinedmods.refinedstorage.api.util.Action;
-import com.refinedmods.refinedstorage.apiimpl.network.node.ConnectivityStateChangeCause;
 import com.refinedmods.refinedstorage.apiimpl.network.node.NetworkNode;
 import com.refinedmods.refinedstorage.inventory.item.BaseItemHandler;
 import com.refinedmods.refinedstorage.inventory.item.validator.ItemValidator;
@@ -38,7 +36,7 @@ public class KitchenAccessPointNetworkNode extends NetworkNode {
                 if (card.isEmpty()) {
                     receiver = null;
                     receiverDimension = null;
-                    if(!reading) {
+                    if (!reading) {
                         BlockEntity tile = level.getBlockEntity(pos);
                         if (tile instanceof KitchenAccessPointBlockEntity) {
                             ((KitchenAccessPointBlockEntity) tile).setHasCard(false);
@@ -47,7 +45,7 @@ public class KitchenAccessPointNetworkNode extends NetworkNode {
                 } else {
                     receiver = KitchenNetworkCardItem.getReceiver(card);
                     receiverDimension = KitchenNetworkCardItem.getDimension(card);
-                    if(!reading) {
+                    if (!reading) {
                         BlockEntity tile = level.getBlockEntity(pos);
                         if (tile instanceof KitchenAccessPointBlockEntity) {
                             ((KitchenAccessPointBlockEntity) tile).setHasCard(true);
@@ -61,32 +59,9 @@ public class KitchenAccessPointNetworkNode extends NetworkNode {
             });
 
 
-
     public KitchenAccessPointNetworkNode(Level level, BlockPos pos) {
         super(level, pos);
     }
-
-//    @Override
-//    public void onConnected(INetwork network) {
-//        super.onConnected(network);
-//
-//        BlockEntity tile = level.getBlockEntity(pos);
-//
-//        if(tile instanceof KitchenAccessPointBlockEntity){
-//            ((KitchenAccessPointBlockEntity)tile).setHasCard(!networkCard.isEmpty());
-//        }
-//    }
-
-//    @Override
-//    public void onDisconnected(INetwork network){
-//        super.onDisconnected(network);
-//
-//        BlockEntity tile = level.getBlockEntity(pos);
-//
-//        if(tile instanceof KitchenAccessPointBlockEntity){
-//            ((KitchenAccessPointBlockEntity)tile).setHasCard(false);
-//        }
-//    }
 
     @Override
     public CompoundTag write(CompoundTag tag) {

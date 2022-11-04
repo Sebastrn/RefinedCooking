@@ -66,14 +66,4 @@ public class KitchenAccessPointBlockEntity extends NetworkNodeBlockEntity<Kitche
 
         setChanged();
     }
-
-//    @Override
-//    public boolean triggerEvent(int id, int type) {
-//        if (id == 0) {
-//            BlockState state = level.getBlockState(worldPosition);
-//            level.markAndNotifyBlock(worldPosition, level.getChunkAt(worldPosition), state, state, 3, 512);
-//            return true;
-//        }
-//        return super.triggerEvent(id, type);
-//    }
 }

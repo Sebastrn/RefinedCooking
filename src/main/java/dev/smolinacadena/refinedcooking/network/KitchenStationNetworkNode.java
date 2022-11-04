@@ -23,20 +23,20 @@ public class KitchenStationNetworkNode extends NetworkNode {
         onConnectedStateChange(network, true, ConnectivityStateChangeCause.GRAPH_CHANGE);
         BlockEntity tile = level.getBlockEntity(pos);
 
-        if(tile instanceof KitchenStationBlockEntity){
-            ((KitchenStationBlockEntity)tile).setConnected(true);
+        if (tile instanceof KitchenStationBlockEntity) {
+            ((KitchenStationBlockEntity) tile).setConnected(true);
         }
         this.network = network;
     }
 
     @Override
-    public void onDisconnected(INetwork network){
+    public void onDisconnected(INetwork network) {
         super.onDisconnected(network);
 
         BlockEntity tile = level.getBlockEntity(pos);
 
-        if(tile instanceof KitchenStationBlockEntity){
-            ((KitchenStationBlockEntity)tile).setConnected(false);
+        if (tile instanceof KitchenStationBlockEntity) {
+            ((KitchenStationBlockEntity) tile).setConnected(false);
         }
     }
 

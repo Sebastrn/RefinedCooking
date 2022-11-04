@@ -1,7 +1,6 @@
 package dev.smolinacadena.refinedcooking.setup;
 
 import com.refinedmods.refinedstorage.api.network.node.INetworkNode;
-import com.refinedmods.refinedstorage.api.network.node.INetworkNodeProxy;
 import com.refinedmods.refinedstorage.apiimpl.network.node.NetworkNode;
 import com.refinedmods.refinedstorage.blockentity.BaseBlockEntity;
 import com.refinedmods.refinedstorage.blockentity.data.BlockEntitySynchronizationManager;
@@ -18,7 +17,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -30,8 +28,8 @@ public final class CommonSetup {
 
     @SubscribeEvent
     public static void onCommonSetup(FMLCommonSetupEvent e) {
-        RSAPI.getNetworkNodeRegistry().add(KitchenStationNetworkNode.ID,(compoundNBT, world, blockPos) -> readAndReturn(compoundNBT, new KitchenStationNetworkNode(world, blockPos)));
-        RSAPI.getNetworkNodeRegistry().add(KitchenAccessPointNetworkNode.ID,(compoundNBT, world, blockPos) -> readAndReturn(compoundNBT, new KitchenAccessPointNetworkNode(world, blockPos)));
+        RSAPI.getNetworkNodeRegistry().add(KitchenStationNetworkNode.ID, (compoundNBT, world, blockPos) -> readAndReturn(compoundNBT, new KitchenStationNetworkNode(world, blockPos)));
+        RSAPI.getNetworkNodeRegistry().add(KitchenAccessPointNetworkNode.ID, (compoundNBT, world, blockPos) -> readAndReturn(compoundNBT, new KitchenAccessPointNetworkNode(world, blockPos)));
     }
 
     private static INetworkNode readAndReturn(CompoundTag tag, NetworkNode node) {
@@ -49,7 +47,6 @@ public final class CommonSetup {
     public static void onRegisterContainerMenus(RegistryEvent.Register<MenuType<?>> e) {
         e.getRegistry().register(IForgeMenuType.create(new BlockEntityContainerFactory<KitchenAccessPointContainerMenu, KitchenAccessPointBlockEntity>((windowId, inv, tile) -> new KitchenAccessPointContainerMenu(tile, inv.player, windowId))).setRegistryName(RefinedCooking.ID, "kitchen_access_point"));
     }
-
 
 
     private static <T extends BlockEntity> BlockEntityType<T> registerSynchronizationParameters(BlockEntityType<T> t) {
