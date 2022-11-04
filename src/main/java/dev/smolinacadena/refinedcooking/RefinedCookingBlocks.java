@@ -20,7 +20,7 @@ public final class RefinedCookingBlocks {
         KITCHEN_ACCESS_POINT = BLOCKS.register("kitchen_access_point", KitchenAccessPointBlock::new);
     }
 
-    private RefinedCookingBlocks(){
+    private RefinedCookingBlocks() {
     }
 
     public static void register() {

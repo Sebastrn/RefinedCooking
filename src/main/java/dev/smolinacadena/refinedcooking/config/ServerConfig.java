@@ -9,7 +9,7 @@ public class ServerConfig {
     private final KitchenStation kitchenStation;
     private final KitchenAccessPoint kitchenAccessPoint;
 
-    public ServerConfig(){
+    public ServerConfig() {
         kitchenStation = new KitchenStation();
         kitchenAccessPoint = new KitchenAccessPoint();
 

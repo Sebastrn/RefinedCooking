@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.Block;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class KitchenNetworkCardItem extends Item{
+public class KitchenNetworkCardItem extends Item {
     private static final String NBT_RECEIVER_X = "ReceiverX";
     private static final String NBT_RECEIVER_Y = "ReceiverY";
     private static final String NBT_RECEIVER_Z = "ReceiverZ";

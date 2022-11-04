@@ -20,11 +20,9 @@ import net.blay09.mods.balm.forge.container.BalmInvWrapper;
 import net.blay09.mods.balm.forge.energy.ForgeEnergyStorage;
 import net.blay09.mods.balm.forge.fluid.ForgeFluidTank;
 import net.blay09.mods.balm.forge.provider.ForgeBalmProviders;
-import net.blay09.mods.cookingforblockheads.api.capability.DefaultKitchenItemProvider;
 import net.blay09.mods.cookingforblockheads.api.capability.IKitchenItemProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -58,9 +56,9 @@ public class KitchenStationBlockEntity extends NetworkNodeBlockEntity<KitchenSta
 
         if (provider.getProviderClass() == Container.class) {
             capabilities.put(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, LazyOptional.of(() -> new BalmInvWrapper((Container) provider.getInstance())));
-        } else if(provider.getProviderClass() == FluidTank.class) {
+        } else if (provider.getProviderClass() == FluidTank.class) {
             capabilities.put(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, LazyOptional.of(() -> new ForgeFluidTank((FluidTank) provider.getInstance())));
-        } else if(provider.getProviderClass() == EnergyStorage.class) {
+        } else if (provider.getProviderClass() == EnergyStorage.class) {
             capabilities.put(CapabilityEnergy.ENERGY, LazyOptional.of(() -> new ForgeEnergyStorage((EnergyStorage) provider.getInstance())));
         }
     }
@@ -107,9 +105,9 @@ public class KitchenStationBlockEntity extends NetworkNodeBlockEntity<KitchenSta
         if (result == null) {
             result = capabilities.get(cap);
         }
+
         return result != null ? result.cast() : super.getCapability(cap, side);
     }
-
 
     @Override
     @Nonnull
@@ -124,29 +122,4 @@ public class KitchenStationBlockEntity extends NetworkNodeBlockEntity<KitchenSta
         level.setBlockAndUpdate(worldPosition, state.setValue(KitchenStationBlock.CONNECTED, connected));
         setChanged();
     }
-
-//    @Override
-//    public boolean triggerEvent(int id, int type) {
-//        if (id == 0) {
-//            BlockState state = level.getBlockState(worldPosition);
-//            level.markAndNotifyBlock(worldPosition, level.getChunkAt(worldPosition), state, state, 3, 512);
-//            return true;
-//        }
-//        return super.triggerEvent(id, type);
-//    }
-
-//    public void load(CompoundTag tagCompound) {
-//        super.load(tagCompound);
-//        connected = tagCompound.getBoolean("Connected");
-//    }
-
-//    public void saveAdditional(CompoundTag tagCompound) {
-//        super.saveAdditional(tagCompound);
-//        tagCompound.putBoolean("Connected", connected);
-//    }
-
-//    @Override
-//    public void writeUpdateTag(CompoundTag tag) {
-//        saveAdditional(tag);
-//    }
 }

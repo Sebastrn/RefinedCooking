@@ -2,7 +2,6 @@ package dev.smolinacadena.refinedcooking.block;
 
 import com.refinedmods.refinedstorage.block.NetworkNodeBlock;
 import com.refinedmods.refinedstorage.container.factory.BlockEntityMenuProvider;
-import com.refinedmods.refinedstorage.util.BlockUtils;
 import com.refinedmods.refinedstorage.util.NetworkUtils;
 import dev.smolinacadena.refinedcooking.blockentity.KitchenAccessPointBlockEntity;
 import dev.smolinacadena.refinedcooking.container.KitchenAccessPointContainerMenu;
@@ -79,14 +78,4 @@ public class KitchenAccessPointBlock extends NetworkNodeBlock {
     public boolean hasConnectedState() {
         return true;
     }
-
-//    @Override
-//    public boolean triggerEvent(BlockState p_189539_1_, Level level, BlockPos pos, int id, int param) {
-//        BlockEntity blockEntity = level.getBlockEntity(pos);
-//        if (blockEntity != null) {
-//            return blockEntity.triggerEvent(id, param);
-//        }
-//
-//        return false;
-//    }
 }
