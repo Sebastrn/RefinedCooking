@@ -2,7 +2,6 @@ package dev.smolinacadena.refinedcooking.api.cookingforblockheads.capability;
 
 import com.refinedmods.refinedstorage.api.network.INetwork;
 import com.refinedmods.refinedstorage.api.util.Action;
-import com.refinedmods.refinedstorage.api.util.StackListEntry;
 import dev.smolinacadena.refinedcooking.blockentity.KitchenStationBlockEntity;
 import net.blay09.mods.cookingforblockheads.api.IngredientPredicateWithCache;
 import net.blay09.mods.cookingforblockheads.api.SourceItem;
@@ -13,7 +12,6 @@ import net.minecraft.world.item.ItemStack;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class KitchenItemProvider implements IKitchenItemProvider {
 
