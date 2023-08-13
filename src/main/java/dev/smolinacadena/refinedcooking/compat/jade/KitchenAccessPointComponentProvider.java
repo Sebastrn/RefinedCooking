@@ -5,16 +5,13 @@ import dev.smolinacadena.refinedcooking.blockentity.KitchenAccessPointBlockEntit
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
 
-public class KitchenAccessPointComponentProvider implements IBlockComponentProvider, IServerDataProvider<BlockEntity> {
+public class KitchenAccessPointComponentProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
 
     public static final ResourceLocation KITCHEN_ACCESS_POINT_UID = new ResourceLocation(RefinedCooking.ID, "kitchen_access_point");
 
@@ -30,8 +27,8 @@ public class KitchenAccessPointComponentProvider implements IBlockComponentProvi
     }
 
     @Override
-    public void appendServerData(CompoundTag data, ServerPlayer player, Level world, BlockEntity blockEntity, boolean showDetails) {
-        KitchenAccessPointBlockEntity kitchenAccessPoint = (KitchenAccessPointBlockEntity) blockEntity;
+    public void appendServerData(CompoundTag data, BlockAccessor accessor) {
+        KitchenAccessPointBlockEntity kitchenAccessPoint = (KitchenAccessPointBlockEntity) accessor.getBlockEntity();
         if (kitchenAccessPoint.getNode().getNetwork() != null) {
             data.putBoolean("isConnectedToNetwork", true);
             if (kitchenAccessPoint.getNode().getDistance() > -1) {
@@ -44,5 +41,4 @@ public class KitchenAccessPointComponentProvider implements IBlockComponentProvi
     public ResourceLocation getUid() {
         return KITCHEN_ACCESS_POINT_UID;
     }
-
 }

@@ -4,7 +4,7 @@ import com.refinedmods.refinedstorage.render.Styles;
 import dev.smolinacadena.refinedcooking.RefinedCooking;
 import dev.smolinacadena.refinedcooking.block.KitchenStationBlock;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -27,7 +27,7 @@ public class KitchenNetworkCardItem extends Item {
     private static final String NBT_DIMENSION = "Dimension";
 
     public KitchenNetworkCardItem() {
-        super(new Item.Properties().tab(RefinedCooking.CREATIVE_MODE_TAB).stacksTo(1));
+        super(new Item.Properties().stacksTo(1));
     }
 
     @Override
@@ -92,7 +92,7 @@ public class KitchenNetworkCardItem extends Item {
                 return null;
             }
 
-            return ResourceKey.create(Registry.DIMENSION_REGISTRY, name);
+            return ResourceKey.create(Registries.DIMENSION, name);
         }
 
         return null;

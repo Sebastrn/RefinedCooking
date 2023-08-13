@@ -4,6 +4,7 @@ import com.refinedmods.refinedstorage.blockentity.NetworkNodeBlockEntity;
 import com.refinedmods.refinedstorage.blockentity.data.BlockEntitySynchronizationParameter;
 import com.refinedmods.refinedstorage.blockentity.data.BlockEntitySynchronizationSpec;
 import com.refinedmods.refinedstorage.blockentity.data.RSSerializers;
+import dev.smolinacadena.refinedcooking.RefinedCooking;
 import dev.smolinacadena.refinedcooking.RefinedCookingBlockEntities;
 import dev.smolinacadena.refinedcooking.RefinedCookingBlocks;
 import dev.smolinacadena.refinedcooking.block.KitchenAccessPointBlock;
@@ -15,8 +16,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
@@ -25,8 +26,8 @@ import java.util.Optional;
 
 
 public class KitchenAccessPointBlockEntity extends NetworkNodeBlockEntity<KitchenAccessPointNetworkNode> {
-    public static final BlockEntitySynchronizationParameter<Integer, KitchenAccessPointBlockEntity> DISTANCE = new BlockEntitySynchronizationParameter<>(EntityDataSerializers.INT, 0, t -> t.getNode().getDistance());
-    public static final BlockEntitySynchronizationParameter<Optional<ResourceLocation>, KitchenAccessPointBlockEntity> RECEIVER_DIMENSION = new BlockEntitySynchronizationParameter<>(RSSerializers.OPTIONAL_RESOURCE_LOCATION_SERIALIZER, Optional.empty(), t -> {
+    public static final BlockEntitySynchronizationParameter<Integer, KitchenAccessPointBlockEntity> DISTANCE = new BlockEntitySynchronizationParameter<>(new ResourceLocation(RefinedCooking.ID, "distance"), EntityDataSerializers.INT, 0, t -> t.getNode().getDistance());
+    public static final BlockEntitySynchronizationParameter<Optional<ResourceLocation>, KitchenAccessPointBlockEntity> RECEIVER_DIMENSION = new BlockEntitySynchronizationParameter<>(new ResourceLocation(RefinedCooking.ID, "receiver_dimension"), RSSerializers.OPTIONAL_RESOURCE_LOCATION_SERIALIZER, Optional.empty(), t -> {
         if (t.getNode().getReceiverDimension() != null) {
             return Optional.of(t.getNode().getReceiverDimension().location());
         }
@@ -55,7 +56,7 @@ public class KitchenAccessPointBlockEntity extends NetworkNodeBlockEntity<Kitche
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction direction) {
-        if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+        if (cap == ForgeCapabilities.ITEM_HANDLER) {
             return networkCardCapability.cast();
         }
 

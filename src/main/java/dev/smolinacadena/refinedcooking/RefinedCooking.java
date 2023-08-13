@@ -4,12 +4,10 @@ import com.refinedmods.refinedstorage.api.IRSAPI;
 import com.refinedmods.refinedstorage.api.RSAPIInject;
 import dev.smolinacadena.refinedcooking.compat.theoneprobe.TheOneProbeAddon;
 import dev.smolinacadena.refinedcooking.config.ServerConfig;
-import dev.smolinacadena.refinedcooking.item.group.MainCreativeModeTab;
 import dev.smolinacadena.refinedcooking.setup.ClientSetup;
 import dev.smolinacadena.refinedcooking.setup.CommonSetup;
 import net.blay09.mods.balm.api.Balm;
 import net.blay09.mods.cookingforblockheads.compat.Compat;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -25,7 +23,6 @@ public final class RefinedCooking {
 
     public static final String ID = "refinedcooking";
     public static final ServerConfig SERVER_CONFIG = new ServerConfig();
-    public static final CreativeModeTab CREATIVE_MODE_TAB = new MainCreativeModeTab(RefinedCooking.ID);
 
     public RefinedCooking() {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
@@ -37,6 +34,7 @@ public final class RefinedCooking {
 
         RefinedCookingBlocks.register();
         RefinedCookingItems.register();
+        RefinedCookingCreativeTab.register();
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(CommonSetup::onCommonSetup);
         RefinedCookingContainerMenus.REGISTRY.register(FMLJavaModLoadingContext.get().getModEventBus());
