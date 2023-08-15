@@ -1,7 +1,6 @@
 package dev.smolinacadena.refinedcooking.item;
 
 import com.refinedmods.refinedstorage.render.Styles;
-import dev.smolinacadena.refinedcooking.RefinedCooking;
 import dev.smolinacadena.refinedcooking.block.KitchenStationBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
