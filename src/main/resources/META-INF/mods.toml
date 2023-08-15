@@ -1,30 +1,31 @@
 modLoader = "javafml"
-loaderVersion = "[40,)"
-license = "MIT"
+loaderVersion = "${loader_version_range}"
+license = "${mod_license}"
 [[mods]]
-modId = "refinedcooking"
-version = "${file.jarVersion}"
-displayName = "Refined Cooking"
+modId = "${mod_id}"
+version = "${mod_version}"
+displayName = "${mod_name}"
 logoFile = "logo.png"
-authors = "ItsSebastrn"
-description = '''
-A mod to bridge Cooking For Blockheads with Refined Storage
-'''
+authors = "${mod_authors}"
+description = '''${mod_description}'''
+
 [[dependencies.refinedcooking]]
 modId = "refinedstorage"
 mandatory = true
-versionRange = "[1.11.0,)"
+versionRange = "[1.12.0,)"
 ordering = "BEFORE"
 side = "BOTH"
+
 [[dependencies.refinedcooking]]
 modId = "cookingforblockheads"
 mandatory = true
-versionRange = "[13.3.0,)"
+versionRange = "[16.0.0,)"
 ordering = "BEFORE"
 side = "BOTH"
+
 [[dependencies.refinedcooking]]
 modId = "sebastrnlib"
 mandatory = true
-versionRange = "[2.0.0,)"
+versionRange = "[4.0.0,)"
 ordering = "AFTER"
 side = "BOTH"
