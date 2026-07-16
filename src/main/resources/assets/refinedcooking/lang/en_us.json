@@ -13,5 +13,7 @@
   "jade.refinedcooking:kitchen_station": "Connected to Network at %s",
   "jade.refinedcooking:online_transmitting": "Connected to Network - Transmitting",
   "jade.refinedcooking:online_no_transmission": "Connected to Network - Not Transmitting",
+  "jade.refinedcooking:online_no_card": "Connected to Network - No Card",
+  "jade.refinedcooking:offline_with_card": "Not Connected to Network - Card Inserted",
   "jade.refinedcooking:offline": "Not Connected to Network"
 }

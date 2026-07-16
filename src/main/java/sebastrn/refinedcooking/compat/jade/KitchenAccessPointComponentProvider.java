@@ -17,24 +17,28 @@ public class KitchenAccessPointComponentProvider implements IBlockComponentProvi
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-        if (accessor.getServerData().contains("isConnectedToNetwork") && accessor.getServerData().contains("isTransmitting")) {
-            tooltip.add(1, Component.translatable("jade.refinedcooking:online_transmitting"));
-        } else if (accessor.getServerData().contains("isConnectedToNetwork") && !accessor.getServerData().contains("isTransmitting")) {
-            tooltip.add(1, Component.translatable("jade.refinedcooking:online_no_transmission"));
+        CompoundTag data = accessor.getServerData();
+        boolean connected = data.getBoolean("connected");
+        boolean hasCard = data.getBoolean("hasCard");
+        boolean transmitting = data.getBoolean("transmitting");
+
+        String key;
+        if (connected) {
+            key = transmitting ? "online_transmitting" : hasCard ? "online_no_transmission" : "online_no_card";
         } else {
-            tooltip.add(1, Component.translatable("jade.refinedcooking:offline"));
+            key = hasCard ? "offline_with_card" : "offline";
         }
+        tooltip.add(1, Component.translatable("jade.refinedcooking:" + key));
     }
 
     @Override
     public void appendServerData(CompoundTag data, BlockAccessor accessor) {
         KitchenAccessPointBlockEntity kitchenAccessPoint = (KitchenAccessPointBlockEntity) accessor.getBlockEntity();
-        if (kitchenAccessPoint.getNode().getNetwork() != null) {
-            data.putBoolean("isConnectedToNetwork", true);
-            if (kitchenAccessPoint.getNode().getDistance() > -1) {
-                data.putBoolean("isTransmitting", true);
-            }
-        }
+        // Key "connected" off the node's active state (network + power + redstone) so the tooltip matches the block's
+        // lit antennas, and report card / transmission separately to cover all four states.
+        data.putBoolean("connected", kitchenAccessPoint.getNode().isConnected());
+        data.putBoolean("hasCard", kitchenAccessPoint.getNode().hasCard());
+        data.putBoolean("transmitting", kitchenAccessPoint.getNode().getDistance() > -1);
     }
 
     @Override

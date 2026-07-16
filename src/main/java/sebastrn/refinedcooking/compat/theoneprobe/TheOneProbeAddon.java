@@ -64,15 +64,19 @@ public class TheOneProbeAddon {
             } else if (state.getBlock() instanceof KitchenAccessPointBlock) {
                 var kitchenAccessPointBlockEntity = tryGetTileEntity(level, data.getPos(), KitchenAccessPointBlockEntity.class);
                 if (kitchenAccessPointBlockEntity != null) {
-                    if (kitchenAccessPointBlockEntity.getNode().getNetwork() != null && kitchenAccessPointBlockEntity.getNode().getDistance() > -1) {
-                        info.mcText(Component.translatable("jade.refinedcooking:online_transmitting").withStyle(ChatFormatting.GRAY));
-                    } else if (kitchenAccessPointBlockEntity.getNode().getNetwork() != null && kitchenAccessPointBlockEntity.getNode().getDistance() <= -1) {
-                        info.mcText(Component.translatable("jade.refinedcooking:online_no_transmission").withStyle(ChatFormatting.GRAY));
-                    } else {
-                        info.mcText(Component.translatable("jade.refinedcooking:offline").withStyle(ChatFormatting.GRAY));
-                    }
+                    var node = kitchenAccessPointBlockEntity.getNode();
+                    boolean connected = node.isConnected();
+                    boolean transmitting = node.getDistance() > -1;
 
-                    var networkCardItem = kitchenAccessPointBlockEntity.getNode().getNetworkCard().getStackInSlot(0);
+                    String key;
+                    if (connected) {
+                        key = transmitting ? "online_transmitting" : node.hasCard() ? "online_no_transmission" : "online_no_card";
+                    } else {
+                        key = node.hasCard() ? "offline_with_card" : "offline";
+                    }
+                    info.mcText(Component.translatable("jade.refinedcooking:" + key).withStyle(ChatFormatting.GRAY));
+
+                    var networkCardItem = node.getNetworkCard().getStackInSlot(0);
                     if (networkCardItem.is(RefinedCookingItems.KITCHEN_NETWORK_CARD.get())) {
                         info.horizontal(new LayoutStyle().alignment(ElementAlignment.ALIGN_CENTER))
                                 .item(networkCardItem, new ItemStyle().width(16).height(16))
