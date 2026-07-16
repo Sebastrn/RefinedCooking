@@ -1,8 +1,9 @@
 plugins {
+    id 'java'
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'net.neoforged.moddev' version '2.0.141'
 }
 
 version = mod_version
@@ -14,85 +15,96 @@ base {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
-minecraft {
-    mappings channel: mapping_channel, version: mapping_version
-    copyIdeResources = true
-
-    runs {
-
-        configureEach {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                "${mod_id}" {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        client {
-            property 'forge.enabledGameTestNamespaces', mod_id
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-        }
-
-        server {
-            property 'forge.enabledGameTestNamespaces', mod_id
-            args '--nogui'
-        }
-
-        gameTestServer {
-            property 'forge.enabledGameTestNamespaces', mod_id
-        }
-
-        data {
-            workingDirectory project.file('run-data')
-
-            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-        }
+repositories {
+    mavenCentral()
+    maven {
+        name = 'NeoForged'
+        url = 'https://maven.neoforged.net/releases'
+    }
+    maven {
+        name = 'TwelveIterations (Balm, Cooking for Blockheads)'
+        url = 'https://maven.twelveiterations.com/repository/maven-public/'
+    }
+    maven {
+        name = 'k-4u (The One Probe)'
+        url = 'https://maven.k-4u.nl'
+    }
+    maven {
+        name = 'Modrinth (Refined Storage, Jade, dev test mods)'
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+    }
+    maven {
+        name = 'BlameJared (Patchouli)'
+        url = 'https://maven.blamejared.com'
+    }
+    maven {
+        name = 'FTB (dev test mods)'
+        url = 'https://maven.ftb.dev/releases'
+    }
+    maven {
+        name = 'Architectury (transitive dep of FTB Library)'
+        url = 'https://maven.architectury.dev/'
     }
 }
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
+neoForge {
+    version = project.neo_version
 
-repositories {
-    maven {
-        url 'https://maven.blamejared.com'
+    runs {
+        client {
+            client()
+        }
+        server {
+            server()
+        }
+        data {
+            data()
+        }
     }
-    maven {
-        url "https://cursemaven.com"
-        content {
-            includeGroup "curse.maven"
+
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
         }
     }
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    // Core integrations (compile + dev runtime). Refined Storage is pulled from Modrinth's maven by the
+    // NeoForge-1.20.4 build's version *id* (9qoWFpaq = RS v1.13.0-beta.4) — RefinedMods' own maven
+    // (CreeperHost) doesn't host the v1 beta develop builds, and pinning the id (not the number) avoids
+    // resolving a wrong-loader file, the same catch as Jade below.
+    implementation "maven.modrinth:refined-storage:${rs_version}"
+    implementation "net.blay09.mods:balm-neoforge:${balm_version}"
+    implementation "net.blay09.mods:cookingforblockheads-neoforge:${cfb_version}"
 
-    implementation fg.deobf("curse.maven:balm-531761:4670591")
-    implementation fg.deobf('curse.maven:refined-storage-243076:4630564')
-    implementation fg.deobf('curse.maven:cooking-for-blockheads-231484:4583999')
+    // Optional integrations — compiled against (the compat/ classes reference them) and loaded in the dev
+    // client so they can be tested. The mod still runs without them: the TOP addon is guarded by
+    // Balm.isModLoaded, and the Jade @WailaPlugin class is only loaded by Jade's own plugin scan.
+    implementation "mcjty.theoneprobe:theoneprobe:${top_version}"
+    implementation "maven.modrinth:jade:${jade_version}"
 
-    implementation fg.deobf("curse.maven:jade-324717:4681833")
-    implementation fg.deobf("curse.maven:the-one-probe-245211:4629624")
-    runtimeOnly fg.deobf('curse.maven:jei-238222:4690097')
+    // Patchouli — optional, powers the in-game guide book. Resources only (no code dependency), so it is
+    // only needed at runtime; pulled into the dev client here.
+    runtimeOnly "vazkii.patchouli:Patchouli:${patchouli_version}"
 
-    runtimeOnly fg.deobf("curse.maven:aquaculture-60028:4608454")
-    runtimeOnly fg.deobf("curse.maven:farmers-delight-398521:4679319")
-    runtimeOnly fg.deobf("curse.maven:croptopia-415438:4636036")
+    // Dev-only test mods — loaded in the dev client to make debugging easier. Not shipped.
+    // FTB Library pulls Architectury transitively via its POM.
+    runtimeOnly "dev.ftb.mods:ftb-library-neoforge:${ftb_library_version}"
 
-    runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:1.20.1-81-FORGE")
-    runtimeOnly fg.deobf("curse.maven:sebastrnlib-709936:4706669")
+    // Pam's HarvestCraft 2 — piles of extra food recipes to exercise the kitchen. Food Core is the base;
+    // Crops/Trees/Food Extended build on it. (Croptopia has no NeoForge 1.20.4 build, so it's omitted.)
+    runtimeOnly "maven.modrinth:pams-harvestcraft-2-food-core:${harvestcraft_foodcore_version}"
+    runtimeOnly "maven.modrinth:pams-harvestcraft-2-crops:${harvestcraft_crops_version}"
+    runtimeOnly "maven.modrinth:pams-harvestcraft-2-trees:${harvestcraft_trees_version}"
+    runtimeOnly "maven.modrinth:pams-harvestcraft-2-food-extended:${harvestcraft_foodextended_version}"
 }
 
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = [
             minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,
-            forge_version       : forge_version, forge_version_range: forge_version_range,
+            neo_version         : neo_version, neo_version_range: neo_version_range,
             loader_version_range: loader_version_range,
             mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
             mod_authors         : mod_authors, mod_description: mod_description,
@@ -100,40 +112,10 @@ tasks.named('processResources', ProcessResources).configure {
     inputs.properties replaceProperties
 
     filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
-        expand replaceProperties + [project: project]
-    }
-}
-
-tasks.named('jar', Jar).configure {
-    manifest {
-        attributes([
-                'Specification-Title'     : mod_id,
-                'Specification-Vendor'    : mod_authors,
-                'Specification-Version'   : '1', // We are version 1 of ourselves
-                'Implementation-Title'    : project.name,
-                'Implementation-Version'  : project.jar.archiveVersion,
-                'Implementation-Vendor'   : mod_authors,
-                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
-    }
-
-    // This is the preferred method to reobfuscate your jar file
-    finalizedBy 'reobfJar'
-}
-
-publishing {
-    publications {
-        register('mavenJava', MavenPublication) {
-            artifact jar
-        }
-    }
-    repositories {
-        maven {
-            url "file://${project.projectDir}/mcmodsrepo"
-        }
+        expand replaceProperties
     }
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+    options.encoding = 'UTF-8'
 }

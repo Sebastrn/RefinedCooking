@@ -10,22 +10,62 @@ authors = "${mod_authors}"
 description = '''${mod_description}'''
 
 [[dependencies.refinedcooking]]
+modId = "neoforge"
+type = "required"
+versionRange = "${neo_version_range}"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.refinedcooking]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft_version_range}"
+ordering = "NONE"
+side = "BOTH"
+
+# RS's final 1.20.4 build is v1.13.0-beta.4 (the 1.20.4 line ends there; later versions are RS2). A "[1.13,)"
+# bound would reject it, since the prerelease 1.13.0-beta.4 sorts below the 1.13.0 release. "[1.12,)" accepts
+# the beta and matches the RS v1 API surface this mod builds on.
+[[dependencies.refinedcooking]]
 modId = "refinedstorage"
-mandatory = true
-versionRange = "[1.12.0,)"
-ordering = "BEFORE"
+type = "required"
+versionRange = "[1.12,)"
+ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.refinedcooking]]
 modId = "cookingforblockheads"
-mandatory = true
-versionRange = "[16.0.0,)"
-ordering = "BEFORE"
+type = "required"
+versionRange = "[18,)"
+ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.refinedcooking]]
-modId = "sebastrnlib"
-mandatory = true
-versionRange = "[4.0.0,)"
+modId = "balm"
+type = "required"
+versionRange = "[9,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.refinedcooking]]
+modId = "patchouli"
+type = "optional"
+versionRange = "*"
+ordering = "AFTER"
+side = "BOTH"
+
+# Soft integrations — discovered by each mod's own plugin system (Jade @WailaPlugin) or via IMC guarded by
+# Balm.isModLoaded (TOP). Declared optional only for documentation + load order.
+[[dependencies.refinedcooking]]
+modId = "jade"
+type = "optional"
+versionRange = "*"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.refinedcooking]]
+modId = "theoneprobe"
+type = "optional"
+versionRange = "*"
 ordering = "AFTER"
 side = "BOTH"
