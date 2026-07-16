@@ -69,3 +69,10 @@ type = "optional"
 versionRange = "*"
 ordering = "AFTER"
 side = "BOTH"
+
+[[dependencies.refinedcooking]]
+modId = "jei"
+type = "optional"
+versionRange = "*"
+ordering = "AFTER"
+side = "BOTH"

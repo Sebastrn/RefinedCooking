@@ -1,0 +1,62 @@
+{
+  "name": "entry.refinedcooking.kitchenaccesspoint.name",
+  "icon": "refinedcooking:kitchen_access_point",
+  "category": "refinedcooking:main",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "entry.refinedcooking.kitchenaccesspoint.intro"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "refinedcooking:kitchen_access_point",
+      "text": "entry.refinedcooking.kitchenaccesspoint.craft"
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "entry.refinedcooking.kitchenaccesspoint.placement.title",
+      "multiblock": {
+        "pattern": [
+          [
+            "G",
+            "A"
+          ],
+          [
+            "0",
+            "D"
+          ]
+        ],
+        "mapping": {
+          "G": "refinedstorage:grid",
+          "A": "refinedcooking:kitchen_access_point[connected=true,has_card=true]",
+          "0": "refinedstorage:controller",
+          "D": "refinedstorage:disk_drive"
+        }
+      },
+      "text": "entry.refinedcooking.kitchenaccesspoint.placement"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "entry.refinedcooking.kitchenaccesspoint.states.title",
+      "text": "entry.refinedcooking.kitchenaccesspoint.states"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "entry.refinedcooking.kitchenaccesspoint.connected.title",
+      "images": [
+        "refinedcooking:textures/gui/entries/kitchenaccesspoint-connected.png"
+      ]
+    },
+    {
+      "type": "patchouli:image",
+      "title": "entry.refinedcooking.kitchenaccesspoint.disconnected.title",
+      "images": [
+        "refinedcooking:textures/gui/entries/kitchenaccesspoint-disconnected.png"
+      ]
+    }
+  ],
+  "extra_recipe_mappings": {
+    "refinedcooking:kitchen_access_point": 0
+  },
+  "sortnum": 1
+}

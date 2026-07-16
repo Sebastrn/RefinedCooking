@@ -1,0 +1,64 @@
+{
+  "name": "entry.refinedcooking.kitchenstation.name",
+  "icon": "refinedcooking:kitchen_station",
+  "category": "refinedcooking:main",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "entry.refinedcooking.kitchenstation.intro"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "refinedcooking:kitchen_station",
+      "text": "entry.refinedcooking.kitchenstation.craft"
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "entry.refinedcooking.kitchenstation.placement.title",
+      "multiblock": {
+        "pattern": [
+          [
+            " S ",
+            "   ",
+            "   "
+          ],
+          [
+            " O ",
+            " 0 ",
+            " T "
+          ]
+        ],
+        "mapping": {
+          "S": "refinedcooking:kitchen_station[connected=true,facing=south]",
+          "O": "cookingforblockheads:connector[facing=north]",
+          "0": "cookingforblockheads:counter[facing=south]",
+          "T": "cookingforblockheads:cooking_table[facing=south]"
+        }
+      },
+      "text": "entry.refinedcooking.kitchenstation.placement"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "entry.refinedcooking.kitchenstation.states.title",
+      "text": "entry.refinedcooking.kitchenstation.states"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "entry.refinedcooking.kitchenstation.connected.title",
+      "images": [
+        "refinedcooking:textures/gui/entries/kitchenstation-connected.png"
+      ]
+    },
+    {
+      "type": "patchouli:image",
+      "title": "entry.refinedcooking.kitchenstation.disconnected.title",
+      "images": [
+        "refinedcooking:textures/gui/entries/kitchenstation-disconnected.png"
+      ]
+    }
+  ],
+  "extra_recipe_mappings": {
+    "refinedcooking:kitchen_station": 0
+  },
+  "sortnum": 0
+}

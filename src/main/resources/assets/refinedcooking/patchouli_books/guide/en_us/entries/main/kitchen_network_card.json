@@ -1,0 +1,25 @@
+{
+  "name": "entry.refinedcooking.kitchennetworkcard.name",
+  "icon": "refinedcooking:kitchen_network_card",
+  "category": "refinedcooking:main",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "entry.refinedcooking.kitchennetworkcard.intro"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "refinedcooking:kitchen_network_card",
+      "text": "entry.refinedcooking.kitchennetworkcard.craft"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "entry.refinedcooking.kitchennetworkcard.link.title",
+      "text": "entry.refinedcooking.kitchennetworkcard.link"
+    }
+  ],
+  "extra_recipe_mappings": {
+    "refinedcooking:kitchen_network_card": 0
+  },
+  "sortnum": 2
+}

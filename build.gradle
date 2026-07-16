@@ -81,17 +81,14 @@ dependencies {
 
     // Optional integrations — compiled against (the compat/ classes reference them) and loaded in the dev
     // client so they can be tested. The mod still runs without them: the TOP addon is guarded by
-    // Balm.isModLoaded, and the Jade @WailaPlugin class is only loaded by Jade's own plugin scan.
+    // Balm.isModLoaded, and the Jade @WailaPlugin / JEI @JeiPlugin classes are only loaded by each mod's own scan.
     implementation "mcjty.theoneprobe:theoneprobe:${top_version}"
     implementation "maven.modrinth:jade:${jade_version}"
+    implementation "mezz.jei:jei-1.20.4-neoforge:${jei_version}"
 
     // Patchouli — optional, powers the in-game guide book. Resources only (no code dependency), so it is
     // only needed at runtime; pulled into the dev client here.
     runtimeOnly "vazkii.patchouli:Patchouli:${patchouli_version}"
-
-    // JEI — runtimeOnly for now (browse recipes/items while testing). Promote to `implementation` when the
-    // RC JEI info-page plugin lands (step 4), the way Applied Cooking ships it.
-    runtimeOnly "mezz.jei:jei-1.20.4-neoforge:${jei_version}"
 
     // Dev-only test mods — loaded in the dev client to make debugging easier. Not shipped.
     // FTB Library pulls Architectury transitively via its POM.

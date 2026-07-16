@@ -1,0 +1,12 @@
+{
+  "name": "item.refinedcooking.guide",
+  "landing_text": "refinedcooking.guide.landing",
+  "show_progress": false,
+  "version": 1,
+  "book_texture": "refinedcooking:textures/gui/book_maroon.png",
+  "model": "refinedcooking:guidebook",
+  "i18n": true,
+  "index_icon": "refinedcooking:kitchen_station",
+  "creative_tab": "minecraft:tools_and_utilities",
+  "use_resource_pack": true
+}
