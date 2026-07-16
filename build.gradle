@@ -35,7 +35,7 @@ repositories {
         content { includeGroup 'maven.modrinth' }
     }
     maven {
-        name = 'BlameJared (Patchouli)'
+        name = 'BlameJared (Patchouli, JEI)'
         url = 'https://maven.blamejared.com'
     }
     maven {
@@ -88,6 +88,10 @@ dependencies {
     // Patchouli — optional, powers the in-game guide book. Resources only (no code dependency), so it is
     // only needed at runtime; pulled into the dev client here.
     runtimeOnly "vazkii.patchouli:Patchouli:${patchouli_version}"
+
+    // JEI — runtimeOnly for now (browse recipes/items while testing). Promote to `implementation` when the
+    // RC JEI info-page plugin lands (step 4), the way Applied Cooking ships it.
+    runtimeOnly "mezz.jei:jei-1.20.4-neoforge:${jei_version}"
 
     // Dev-only test mods — loaded in the dev client to make debugging easier. Not shipped.
     // FTB Library pulls Architectury transitively via its POM.
