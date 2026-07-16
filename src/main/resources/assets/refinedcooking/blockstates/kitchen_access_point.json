@@ -1,9 +1,15 @@
 {
   "variants": {
-    "has_card=false": {
+    "connected=false,has_card=false": {
       "model": "refinedcooking:block/kitchen_access_point"
     },
-    "has_card=true": {
+    "connected=false,has_card=true": {
+      "model": "refinedcooking:block/kitchen_access_point_card"
+    },
+    "connected=true,has_card=false": {
+      "model": "refinedcooking:block/kitchen_access_point_connected_empty"
+    },
+    "connected=true,has_card=true": {
       "model": "refinedcooking:block/kitchen_access_point_connected"
     }
   }

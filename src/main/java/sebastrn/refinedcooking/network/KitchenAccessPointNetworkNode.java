@@ -1,8 +1,11 @@
 package sebastrn.refinedcooking.network;
 
+import com.refinedmods.refinedstorage.api.network.INetwork;
 import com.refinedmods.refinedstorage.api.network.INetworkNodeVisitor;
 import com.refinedmods.refinedstorage.api.util.Action;
+import com.refinedmods.refinedstorage.apiimpl.network.node.ConnectivityStateChangeCause;
 import com.refinedmods.refinedstorage.apiimpl.network.node.NetworkNode;
+import com.refinedmods.refinedstorage.block.NetworkNodeBlock;
 import com.refinedmods.refinedstorage.inventory.item.BaseItemHandler;
 import com.refinedmods.refinedstorage.inventory.item.validator.ItemValidator;
 import com.refinedmods.refinedstorage.inventory.listener.NetworkNodeInventoryListener;
@@ -19,6 +22,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nullable;
@@ -63,6 +67,26 @@ public class KitchenAccessPointNetworkNode extends NetworkNode {
         super(level, pos);
     }
 
+    /**
+     * Keep the block's {@code connected} state in sync with whether the node is actually active. RS only writes
+     * that blockstate from {@link #update()}, which stops running once the node leaves the network — so on
+     * disconnect the antennas would stay lit. This hook fires on every connectivity change (connect, disconnect,
+     * power/redstone flip), so we re-derive the real active state from {@link #canUpdate()} and darken the block
+     * when it drops off the network.
+     */
+    @Override
+    protected void onConnectedStateChange(INetwork network, boolean state, ConnectivityStateChangeCause cause) {
+        super.onConnectedStateChange(network, state, cause);
+
+        boolean active = canUpdate();
+        BlockState blockState = level.getBlockState(pos);
+        if (blockState.getBlock() instanceof NetworkNodeBlock networkNodeBlock
+                && networkNodeBlock.hasConnectedState()
+                && blockState.getValue(NetworkNodeBlock.CONNECTED) != active) {
+            level.setBlockAndUpdate(pos, blockState.setValue(NetworkNodeBlock.CONNECTED, active));
+        }
+    }
+
     @Override
     public CompoundTag write(CompoundTag tag) {
         super.write(tag);
@@ -91,6 +115,16 @@ public class KitchenAccessPointNetworkNode extends NetworkNode {
 
     public BaseItemHandler getNetworkCard() {
         return networkCard;
+    }
+
+    /** True when the node is actually active — on a network, powered, and redstone-enabled (mirrors the block's lit state). */
+    public boolean isConnected() {
+        return canUpdate();
+    }
+
+    /** True when a network card is inserted (independent of whether it points at a reachable station). */
+    public boolean hasCard() {
+        return !networkCard.getStackInSlot(0).isEmpty();
     }
 
     @Override

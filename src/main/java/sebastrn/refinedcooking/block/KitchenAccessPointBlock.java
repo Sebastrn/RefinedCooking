@@ -34,7 +34,11 @@ public class KitchenAccessPointBlock extends NetworkNodeBlock {
 
     public KitchenAccessPointBlock() {
         super(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).sound(SoundType.METAL).strength(2.5f));
-        registerDefaultState(getStateDefinition().any().setValue(HAS_CARD, false));
+        // Pin CONNECTED false too: any() defaults booleans to true, and NetworkNodeBlock's own default (which does
+        // set CONNECTED false) is clobbered by this call — so without this a freshly placed block reads "connected".
+        registerDefaultState(getStateDefinition().any()
+                .setValue(NetworkNodeBlock.CONNECTED, false)
+                .setValue(HAS_CARD, false));
     }
 
     @Override
