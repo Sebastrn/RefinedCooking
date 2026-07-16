@@ -1,0 +1,25 @@
+# Changelog
+
+All notable changes to **Refined Cooking** are listed here.
+
+## 5.0.0
+
+First **NeoForge 1.20.4** release, ported from Forge 1.20.1.
+
+### Added
+- **Fluids from your network.** The Kitchen Station can now satisfy recipes that need **water and milk** by draining them straight from your Refined Storage fluid storage (matched by tag, like a Sink or Milk Jar), with a network-driven fallback for other fluids such as lava.
+- **JEI info pages** for the Kitchen Station, Kitchen Access Point, and Kitchen Network Card, explaining how they link and work.
+- **Its own in-game guide.** Refined Cooking now ships its own Patchouli book with an entry per block, including 3D previews of both the kitchen and the network side. It no longer needs SebastrnLib.
+- **The Kitchen Access Point can now be rotated**, and faces you when placed.
+- **10 translations:** German, Spanish, French, Italian, Korean, Dutch, Brazilian Portuguese, Russian, and Simplified & Traditional Chinese.
+
+### Changed
+- **The Access Point's antennas now mean something.** They light up only when it is actually powered and running on the network, while the card shows in its slot independently — so a card in a dark Access Point reads as "configured, not running". Redstone state is reflected too.
+- **Energy use now matches Refined Storage's own devices:** the Access Point draws like a Network Transmitter and the Station like a Network Receiver. Both remain configurable.
+- Jade and The One Probe now report the Access Point's real state (powered/active, card, transmitting) instead of just "on the network".
+- Cooking for Blockheads counters and cabinets now relay the kitchen network, so a station wired in through them is found.
+- Refined Cooking now depends on **Balm** directly. **Jade, The One Probe, JEI, and Patchouli are all optional** — the mod runs fine without any of them.
+- **SebastrnLib is no longer required.**
+
+### Fixed
+- The Kitchen Access Point no longer reads as "connected" when freshly placed, and now goes dark when it drops off the network.
