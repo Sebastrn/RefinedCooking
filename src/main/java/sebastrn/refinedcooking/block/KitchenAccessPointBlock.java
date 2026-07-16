@@ -1,11 +1,13 @@
 package sebastrn.refinedcooking.block;
 
+import com.refinedmods.refinedstorage.block.BlockDirection;
 import com.refinedmods.refinedstorage.block.NetworkNodeBlock;
 import com.refinedmods.refinedstorage.container.factory.BlockEntityMenuProvider;
 import com.refinedmods.refinedstorage.util.NetworkUtils;
 import sebastrn.refinedcooking.blockentity.KitchenAccessPointBlockEntity;
 import sebastrn.refinedcooking.container.KitchenAccessPointContainerMenu;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -29,7 +31,9 @@ import javax.annotation.Nullable;
 
 public class KitchenAccessPointBlock extends NetworkNodeBlock {
 
-    private static final VoxelShape SHAPE = Block.box(3, 0, 4, 13, 6.4, 12);
+    /** The block is 10 wide by 8 deep, so the hitbox swaps axes when it faces east/west. */
+    private static final VoxelShape SHAPE_NORTH_SOUTH = Block.box(3, 0, 4, 13, 6.4, 12);
+    private static final VoxelShape SHAPE_EAST_WEST = Block.box(4, 0, 3, 12, 6.4, 13);
     public static final BooleanProperty HAS_CARD = BooleanProperty.create("has_card");
 
     public KitchenAccessPointBlock() {
@@ -37,8 +41,20 @@ public class KitchenAccessPointBlock extends NetworkNodeBlock {
         // Pin CONNECTED false too: any() defaults booleans to true, and NetworkNodeBlock's own default (which does
         // set CONNECTED false) is clobbered by this call — so without this a freshly placed block reads "connected".
         registerDefaultState(getStateDefinition().any()
+                .setValue(getDirection().getProperty(), Direction.NORTH)
                 .setValue(NetworkNodeBlock.CONNECTED, false)
                 .setValue(HAS_CARD, false));
+    }
+
+    /**
+     * Makes the block rotatable. RS's {@link com.refinedmods.refinedstorage.block.BaseBlock} adds the {@code direction}
+     * property (and handles rotation) for anything that isn't {@link BlockDirection#NONE}, and its
+     * {@code BaseBlockItem} turns the block to face the player on placement — so the item must be a
+     * {@code BaseBlockItem} for placement to set this (see RefinedCookingItems).
+     */
+    @Override
+    public BlockDirection getDirection() {
+        return BlockDirection.HORIZONTAL;
     }
 
     @Override
@@ -56,7 +72,7 @@ public class KitchenAccessPointBlock extends NetworkNodeBlock {
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-        return SHAPE;
+        return state.getValue(getDirection().getProperty()).getAxis() == Direction.Axis.X ? SHAPE_EAST_WEST : SHAPE_NORTH_SOUTH;
     }
 
     @Override

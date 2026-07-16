@@ -1,16 +1,68 @@
 {
   "variants": {
-    "connected=false,has_card=false": {
-      "model": "refinedcooking:block/kitchen_access_point"
+    "direction=north,connected=false,has_card=false": {
+      "model": "refinedcooking:block/kitchen_access_point",
+      "y": 0
     },
-    "connected=false,has_card=true": {
-      "model": "refinedcooking:block/kitchen_access_point_card"
+    "direction=north,connected=false,has_card=true": {
+      "model": "refinedcooking:block/kitchen_access_point_card",
+      "y": 0
     },
-    "connected=true,has_card=false": {
-      "model": "refinedcooking:block/kitchen_access_point_connected_empty"
+    "direction=north,connected=true,has_card=false": {
+      "model": "refinedcooking:block/kitchen_access_point_connected_empty",
+      "y": 0
     },
-    "connected=true,has_card=true": {
-      "model": "refinedcooking:block/kitchen_access_point_connected"
+    "direction=north,connected=true,has_card=true": {
+      "model": "refinedcooking:block/kitchen_access_point_connected",
+      "y": 0
+    },
+    "direction=east,connected=false,has_card=false": {
+      "model": "refinedcooking:block/kitchen_access_point",
+      "y": 90
+    },
+    "direction=east,connected=false,has_card=true": {
+      "model": "refinedcooking:block/kitchen_access_point_card",
+      "y": 90
+    },
+    "direction=east,connected=true,has_card=false": {
+      "model": "refinedcooking:block/kitchen_access_point_connected_empty",
+      "y": 90
+    },
+    "direction=east,connected=true,has_card=true": {
+      "model": "refinedcooking:block/kitchen_access_point_connected",
+      "y": 90
+    },
+    "direction=south,connected=false,has_card=false": {
+      "model": "refinedcooking:block/kitchen_access_point",
+      "y": 180
+    },
+    "direction=south,connected=false,has_card=true": {
+      "model": "refinedcooking:block/kitchen_access_point_card",
+      "y": 180
+    },
+    "direction=south,connected=true,has_card=false": {
+      "model": "refinedcooking:block/kitchen_access_point_connected_empty",
+      "y": 180
+    },
+    "direction=south,connected=true,has_card=true": {
+      "model": "refinedcooking:block/kitchen_access_point_connected",
+      "y": 180
+    },
+    "direction=west,connected=false,has_card=false": {
+      "model": "refinedcooking:block/kitchen_access_point",
+      "y": 270
+    },
+    "direction=west,connected=false,has_card=true": {
+      "model": "refinedcooking:block/kitchen_access_point_card",
+      "y": 270
+    },
+    "direction=west,connected=true,has_card=false": {
+      "model": "refinedcooking:block/kitchen_access_point_connected_empty",
+      "y": 270
+    },
+    "direction=west,connected=true,has_card=true": {
+      "model": "refinedcooking:block/kitchen_access_point_connected",
+      "y": 270
     }
   }
 }
