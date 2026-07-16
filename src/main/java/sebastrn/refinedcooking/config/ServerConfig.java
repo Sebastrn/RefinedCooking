@@ -1,10 +1,10 @@
 package sebastrn.refinedcooking.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class ServerConfig {
-    private final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
-    private final ForgeConfigSpec spec;
+    private final ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
+    private final ModConfigSpec spec;
 
     private final KitchenStation kitchenStation;
     private final KitchenAccessPoint kitchenAccessPoint;
@@ -16,7 +16,7 @@ public class ServerConfig {
         spec = builder.build();
     }
 
-    public ForgeConfigSpec getSpec() {
+    public ModConfigSpec getSpec() {
         return spec;
     }
 
@@ -29,7 +29,7 @@ public class ServerConfig {
     }
 
     public class KitchenStation {
-        private final ForgeConfigSpec.IntValue usage;
+        private final ModConfigSpec.IntValue usage;
 
         public KitchenStation() {
             builder.push("kitchenStation");
@@ -45,7 +45,7 @@ public class ServerConfig {
     }
 
     public class KitchenAccessPoint {
-        private final ForgeConfigSpec.IntValue usage;
+        private final ModConfigSpec.IntValue usage;
 
         public KitchenAccessPoint() {
             builder.push("kitchenAccessPoint");

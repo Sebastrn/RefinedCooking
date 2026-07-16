@@ -24,7 +24,6 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 
@@ -60,8 +59,7 @@ public class KitchenAccessPointBlock extends NetworkNodeBlock {
     @SuppressWarnings("deprecation")
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (!level.isClientSide) {
-            return NetworkUtils.attemptModify(level, pos, player, () -> NetworkHooks.openScreen(
-                    (ServerPlayer) player,
+            return NetworkUtils.attemptModify(level, pos, player, () -> ((ServerPlayer) player).openMenu(
                     new BlockEntityMenuProvider<KitchenAccessPointBlockEntity>(
                             Component.translatable("gui.refinedcooking.kitchen_access_point"),
                             (blockEntity, windowId, inventory, p) -> new KitchenAccessPointContainerMenu(blockEntity, player, windowId),

@@ -4,7 +4,7 @@ import com.refinedmods.refinedstorage.container.BaseContainerMenu;
 import sebastrn.refinedcooking.RefinedCookingContainerMenus;
 import sebastrn.refinedcooking.blockentity.KitchenAccessPointBlockEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class KitchenAccessPointContainerMenu extends BaseContainerMenu {
     public KitchenAccessPointContainerMenu(KitchenAccessPointBlockEntity kitchenAccessPoint, Player player, int windowId) {

@@ -4,26 +4,18 @@ import com.refinedmods.refinedstorage.blockentity.NetworkNodeBlockEntity;
 import com.refinedmods.refinedstorage.blockentity.data.BlockEntitySynchronizationParameter;
 import com.refinedmods.refinedstorage.blockentity.data.BlockEntitySynchronizationSpec;
 import com.refinedmods.refinedstorage.blockentity.data.RSSerializers;
-import sebastrn.refinedcooking.RefinedCooking;
-import sebastrn.refinedcooking.RefinedCookingBlockEntities;
-import sebastrn.refinedcooking.RefinedCookingBlocks;
-import sebastrn.refinedcooking.block.KitchenAccessPointBlock;
-import sebastrn.refinedcooking.network.KitchenAccessPointNetworkNode;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
+import sebastrn.refinedcooking.RefinedCooking;
+import sebastrn.refinedcooking.RefinedCookingBlockEntities;
+import sebastrn.refinedcooking.block.KitchenAccessPointBlock;
+import sebastrn.refinedcooking.network.KitchenAccessPointNetworkNode;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Optional;
-
 
 public class KitchenAccessPointBlockEntity extends NetworkNodeBlockEntity<KitchenAccessPointNetworkNode> {
     public static final BlockEntitySynchronizationParameter<Integer, KitchenAccessPointBlockEntity> DISTANCE = new BlockEntitySynchronizationParameter<>(new ResourceLocation(RefinedCooking.ID, "distance"), EntityDataSerializers.INT, 0, t -> t.getNode().getDistance());
@@ -35,8 +27,6 @@ public class KitchenAccessPointBlockEntity extends NetworkNodeBlockEntity<Kitche
         return Optional.empty();
     });
 
-    private final LazyOptional<IItemHandler> networkCardCapability = LazyOptional.of(() -> getNode().getNetworkCard());
-
     public static BlockEntitySynchronizationSpec SPEC = BlockEntitySynchronizationSpec.builder()
             .addWatchedParameter(REDSTONE_MODE)
             .addWatchedParameter(DISTANCE)
@@ -44,7 +34,7 @@ public class KitchenAccessPointBlockEntity extends NetworkNodeBlockEntity<Kitche
             .build();
 
     public KitchenAccessPointBlockEntity(BlockPos pos, BlockState state) {
-        super(RefinedCookingBlockEntities.KITCHEN_ACCESS_POINT.get(), pos, state, SPEC);
+        super(RefinedCookingBlockEntities.KITCHEN_ACCESS_POINT.get(), pos, state, SPEC, KitchenAccessPointNetworkNode.class);
     }
 
     @Override
@@ -53,19 +43,7 @@ public class KitchenAccessPointBlockEntity extends NetworkNodeBlockEntity<Kitche
         return new KitchenAccessPointNetworkNode(level, pos);
     }
 
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction direction) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            return networkCardCapability.cast();
-        }
-
-        return super.getCapability(cap, direction);
-    }
-
     public void setHasCard(boolean hasCard) {
-        level.blockEvent(worldPosition, RefinedCookingBlocks.KITCHEN_ACCESS_POINT.get(), 0, 0);
-
         BlockState state = level.getBlockState(worldPosition);
         level.setBlockAndUpdate(worldPosition, state.setValue(KitchenAccessPointBlock.HAS_CARD, hasCard));
 
