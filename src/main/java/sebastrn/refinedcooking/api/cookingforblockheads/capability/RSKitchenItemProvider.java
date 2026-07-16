@@ -8,10 +8,13 @@ import net.blay09.mods.cookingforblockheads.api.CacheHint;
 import net.blay09.mods.cookingforblockheads.api.IngredientToken;
 import net.blay09.mods.cookingforblockheads.api.KitchenItemProvider;
 import net.blay09.mods.cookingforblockheads.tag.ModItemTags;
+import net.minecraft.core.BlockPos;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.Containers;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -190,6 +193,19 @@ public class RSKitchenItemProvider implements KitchenItemProvider {
         return null;
     }
 
+    /**
+     * Drop {@code stack} at the Kitchen Station. Only used when the network refuses a crafting remainder, so the item
+     * ends up on the floor rather than being voided. A no-op for an empty stack, so it can wrap an insert's leftover.
+     */
+    private void dropAtStation(ItemStack stack) {
+        Level level = blockEntity.getLevel();
+        if (level == null || level.isClientSide || stack.isEmpty()) {
+            return;
+        }
+        BlockPos pos = blockEntity.getBlockPos();
+        Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
+    }
+
     /** Total fluid (mB) already reserved for {@code fluid} by the fluid tokens issued this operation. */
     private long reservedFluid(Fluid fluid, Collection<IngredientToken> ingredientTokens) {
         long reserved = 0;
@@ -235,7 +251,9 @@ public class RSKitchenItemProvider implements KitchenItemProvider {
             // Return crafting remainders (e.g. empty buckets) to the network.
             ItemStack remainder = Balm.getHooks().getCraftingRemainingItem(consumed);
             if (!remainder.isEmpty()) {
-                network.insertItem(remainder, remainder.getCount(), Action.PERFORM);
+                // insertItem hands back whatever wouldn't fit. If the network won't take it — full, or filtered so
+                // nothing accepts it — drop it at the station rather than silently destroying the player's bucket.
+                dropAtStation(network.insertItem(remainder, remainder.getCount(), Action.PERFORM));
             }
             return consumed;
         }

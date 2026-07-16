@@ -23,3 +23,4 @@ First **NeoForge 1.20.4** release, ported from Forge 1.20.1.
 
 ### Fixed
 - The Kitchen Access Point no longer reads as "connected" when freshly placed, and now goes dark when it drops off the network.
+- An empty bucket left over from cooking (milk, water) could be destroyed if your network had nowhere to put it back — full, or filtered so nothing accepted it. It's now dropped at the Station instead of vanishing.
