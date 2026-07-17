@@ -6,18 +6,10 @@
     "EEE"
   ],
   "key": {
-    "E": {
-      "item": "refinedstorage:quartz_enriched_iron"
-    },
-    "B": {
-      "item": "cookingforblockheads:recipe_book"
-    },
-    "P": {
-      "item": "minecraft:paper"
-    },
-    "A": {
-      "item": "refinedstorage:advanced_processor"
-    }
+    "E": "refinedstorage:quartz_enriched_iron",
+    "B": "cookingforblockheads:recipe_book",
+    "P": "minecraft:paper",
+    "A": "refinedstorage:advanced_processor"
   },
   "result": {
     "id": "refinedcooking:kitchen_network_card",

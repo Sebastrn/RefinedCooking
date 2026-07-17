@@ -6,27 +6,13 @@
     "ANA"
   ],
   "key": {
-    "E": {
-      "tag": "c:ender_pearls"
-    },
-    "B": {
-      "item": "cookingforblockheads:recipe_book"
-    },
-    "C": {
-      "item": "refinedstorage:construction_core"
-    },
-    "M": {
-      "item": "refinedstorage:machine_casing"
-    },
-    "D": {
-      "item": "refinedstorage:destruction_core"
-    },
-    "A": {
-      "item": "refinedstorage:advanced_processor"
-    },
-    "N": {
-      "item": "minecraft:netherite_ingot"
-    }
+    "E": "#c:ender_pearls",
+    "B": "cookingforblockheads:recipe_book",
+    "C": "refinedstorage:construction_core",
+    "M": "refinedstorage:machine_casing",
+    "D": "refinedstorage:destruction_core",
+    "A": "refinedstorage:advanced_processor",
+    "N": "minecraft:netherite_ingot"
   },
   "result": {
     "id": "refinedcooking:kitchen_access_point",

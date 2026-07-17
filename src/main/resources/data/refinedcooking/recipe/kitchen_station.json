@@ -6,27 +6,13 @@
     "PDG"
   ],
   "key": {
-    "P": {
-      "item": "refinedstorage:improved_processor"
-    },
-    "C": {
-      "item": "refinedstorage:construction_core"
-    },
-    "G": {
-      "tag": "c:glass_blocks"
-    },
-    "B": {
-      "item": "cookingforblockheads:recipe_book"
-    },
-    "E": {
-      "item": "refinedstorage:quartz_enriched_iron"
-    },
-    "M": {
-      "item": "refinedstorage:machine_casing"
-    },
-    "D": {
-      "item": "refinedstorage:destruction_core"
-    }
+    "P": "refinedstorage:improved_processor",
+    "C": "refinedstorage:construction_core",
+    "G": "#c:glass_blocks",
+    "B": "cookingforblockheads:recipe_book",
+    "E": "refinedstorage:quartz_enriched_iron",
+    "M": "refinedstorage:machine_casing",
+    "D": "refinedstorage:destruction_core"
   },
   "result": {
     "id": "refinedcooking:kitchen_station",
