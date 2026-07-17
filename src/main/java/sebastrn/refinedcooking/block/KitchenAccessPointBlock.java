@@ -9,6 +9,7 @@ import com.refinedmods.refinedstorage.common.support.direction.HorizontalDirecti
 import com.refinedmods.refinedstorage.common.support.network.NetworkNodeBlockEntityTicker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -66,6 +67,30 @@ public class KitchenAccessPointBlock extends AbstractDirectionalBlock<Horizontal
     @Override
     protected DirectionType<HorizontalDirection> getDirectionType() {
         return HorizontalDirectionType.INSTANCE;
+    }
+
+    /**
+     * Faces the block towards whoever placed it, which is what it did on RS1 and what its models are drawn for.
+     * <p>
+     * RS quietly flipped this convention between versions: RS1's {@code BlockDirection.HORIZONTAL} stored
+     * {@code player.getDirection().getOpposite()}, whereas RS2's {@code HorizontalDirectionType} stores the player's
+     * facing as-is — while both map {@code direction} to the same model rotations. Inheriting RS2's behaviour would
+     * therefore turn this block 180° from where it has always sat, with nothing to show for it in a compile.
+     */
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        return defaultBlockState().setValue(getDirectionType().getProperty(), toHorizontal(
+                ctx.getHorizontalDirection().getOpposite()
+        ));
+    }
+
+    private static HorizontalDirection toHorizontal(Direction direction) {
+        return switch (direction) {
+            case EAST -> HorizontalDirection.EAST;
+            case SOUTH -> HorizontalDirection.SOUTH;
+            case WEST -> HorizontalDirection.WEST;
+            default -> HorizontalDirection.NORTH;
+        };
     }
 
     @Override
