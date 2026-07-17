@@ -6,6 +6,8 @@
   "gui.refinedcooking.kitchen_access_point": "Küchen-Zugangspunkt",
   "gui.refinedcooking.kitchen_access_point.distance": "%d Block/Blöcke",
   "gui.refinedcooking.kitchen_access_point.missing_card": "Keine Küchenkarte",
+  "gui.refinedcooking.kitchen_access_point.inactive": "Inaktiv",
+  "gui.refinedcooking.kitchen_access_point.unreachable": "Unerreichbar",
   "misc.refinedcooking.kitchen_network_card.tooltip": "Verbunden mit %d, %d, %d in %s.",
   "tooltip.refinedcooking:kitchen_station.description": "Netzwerkknoten, der sich mit Refined-Storage-Netzwerken verbindet",
   "jei.refinedcooking.kitchen_station.1": "Mit der Küchenstation kocht dein Kochtisch aus Cooking for Blockheads mit Gegenständen — und Flüssigkeiten wie Wasser und Milch — direkt aus deinem Refined-Storage-Netzwerk.",

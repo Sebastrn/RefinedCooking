@@ -6,6 +6,8 @@
   "gui.refinedcooking.kitchen_access_point": "주방 액세스 포인트",
   "gui.refinedcooking.kitchen_access_point.distance": "%d 블록",
   "gui.refinedcooking.kitchen_access_point.missing_card": "주방 카드 없음",
+  "gui.refinedcooking.kitchen_access_point.inactive": "비활성",
+  "gui.refinedcooking.kitchen_access_point.unreachable": "도달할 수 없음",
   "misc.refinedcooking.kitchen_network_card.tooltip": "%4$s의 %1$d, %2$d, %3$d에 연결됨.",
   "tooltip.refinedcooking:kitchen_station.description": "Refined Storage 네트워크에 연결되는 네트워크 노드",
   "jei.refinedcooking.kitchen_station.1": "주방 스테이션을 사용하면 Cooking for Blockheads의 요리 테이블이 Refined Storage 네트워크에 있는 아이템은 물론 물과 우유 같은 유체까지 바로 사용해 요리할 수 있습니다.",

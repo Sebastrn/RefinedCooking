@@ -46,9 +46,24 @@ public class KitchenAccessPointScreen extends AbstractBaseScreen<KitchenAccessPo
         graphics.drawString(font, getStatusText(), 51, 24, 4210752, false);
     }
 
+    /**
+     * The status itself is synced (only the server can tell "unreachable" from "transmitting"), but the distance and
+     * dimension are read straight off the card in the slot — so they stay live as the card is inserted or removed
+     * without anything extra crossing the wire.
+     */
     private String getStatusText() {
+        return switch (getMenu().getStatus()) {
+            case INACTIVE -> I18n.get("gui.refinedcooking.kitchen_access_point.inactive");
+            case MISSING_CARD -> I18n.get("gui.refinedcooking.kitchen_access_point.missing_card");
+            case UNREACHABLE -> I18n.get("gui.refinedcooking.kitchen_access_point.unreachable");
+            case TRANSMITTING -> getTransmittingText();
+        };
+    }
+
+    private String getTransmittingText() {
         Optional<GlobalPos> station = getBoundStation();
         if (station.isEmpty()) {
+            // The card was pulled in the same tick the status arrived; the next sync corrects it.
             return I18n.get("gui.refinedcooking.kitchen_access_point.missing_card");
         }
         GlobalPos stationPos = station.get();

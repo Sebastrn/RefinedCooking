@@ -1,0 +1,31 @@
+package sebastrn.refinedcooking.blockentity;
+
+/**
+ * What the Access Point's GUI reports, mirroring the states RS's own Network Transmitter shows.
+ * <p>
+ * Only the server can tell {@link #UNREACHABLE} from {@link #TRANSMITTING} — that needs the network graph — so this
+ * is synced to the client as a menu property (an int over a vanilla {@code DataSlot}, the same mechanism the
+ * redstone mode already uses). The distance and dimension shown for {@link #TRANSMITTING} are *not* synced: the
+ * client reads those off the card in the slot.
+ */
+public enum KitchenAccessPointStatus {
+    /** Off the network, unpowered, or disabled by redstone. */
+    INACTIVE,
+    /** No card, or a card that has not been bound to a station yet. */
+    MISSING_CARD,
+    /** Bound to a station that is not in our network — broken, unloaded, or on a different network. */
+    UNREACHABLE,
+    /** Bound to a station that really is in our network. */
+    TRANSMITTING;
+
+    private static final KitchenAccessPointStatus[] VALUES = values();
+
+    public static int toId(KitchenAccessPointStatus status) {
+        return status.ordinal();
+    }
+
+    /** Falls back to {@link #INACTIVE} rather than throwing: the id arrives over the network. */
+    public static KitchenAccessPointStatus fromId(int id) {
+        return id >= 0 && id < VALUES.length ? VALUES[id] : INACTIVE;
+    }
+}

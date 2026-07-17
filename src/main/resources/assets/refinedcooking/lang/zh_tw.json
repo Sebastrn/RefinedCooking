@@ -6,6 +6,8 @@
   "gui.refinedcooking.kitchen_access_point": "廚房存取點",
   "gui.refinedcooking.kitchen_access_point.distance": "%d 格",
   "gui.refinedcooking.kitchen_access_point.missing_card": "缺少廚房卡",
+  "gui.refinedcooking.kitchen_access_point.inactive": "未啟用",
+  "gui.refinedcooking.kitchen_access_point.unreachable": "無法存取",
   "misc.refinedcooking.kitchen_network_card.tooltip": "已連結至 %4$s 的 %1$d, %2$d, %3$d。",
   "tooltip.refinedcooking:kitchen_station.description": "連接到 Refined Storage 網路的網路節點",
   "jei.refinedcooking.kitchen_station.1": "廚房終端站讓你的 Cooking for Blockheads 烹飪桌可以直接使用 Refined Storage 網路中的物品——以及水和牛奶之類的流體——來烹飪。",

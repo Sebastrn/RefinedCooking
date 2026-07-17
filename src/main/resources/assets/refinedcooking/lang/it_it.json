@@ -6,6 +6,8 @@
   "gui.refinedcooking.kitchen_access_point": "Punto di Accesso da Cucina",
   "gui.refinedcooking.kitchen_access_point.distance": "%d blocco/i",
   "gui.refinedcooking.kitchen_access_point.missing_card": "Scheda da cucina mancante",
+  "gui.refinedcooking.kitchen_access_point.inactive": "Inattivo",
+  "gui.refinedcooking.kitchen_access_point.unreachable": "Irraggiungibile",
   "misc.refinedcooking.kitchen_network_card.tooltip": "Collegata a %d, %d, %d in %s.",
   "tooltip.refinedcooking:kitchen_station.description": "Nodo di rete che si connette alle reti di Refined Storage",
   "jei.refinedcooking.kitchen_station.1": "La Stazione da Cucina permette al tuo Tavolo da Cucina di Cooking for Blockheads di cucinare con oggetti — e fluidi come acqua e latte — direttamente dalla tua rete Refined Storage.",

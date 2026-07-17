@@ -6,6 +6,8 @@
   "gui.refinedcooking.kitchen_access_point": "Кухонная точка доступа",
   "gui.refinedcooking.kitchen_access_point.distance": "%d блок(ов)",
   "gui.refinedcooking.kitchen_access_point.missing_card": "Нет кухонной карты",
+  "gui.refinedcooking.kitchen_access_point.inactive": "Неактивна",
+  "gui.refinedcooking.kitchen_access_point.unreachable": "Недоступна",
   "misc.refinedcooking.kitchen_network_card.tooltip": "Привязана к %d, %d, %d в %s.",
   "tooltip.refinedcooking:kitchen_station.description": "Сетевой узел, подключающийся к сетям Refined Storage",
   "jei.refinedcooking.kitchen_station.1": "Кухонная станция позволяет кухонному столу из Cooking for Blockheads готовить из предметов — и жидкостей вроде воды и молока — прямо из вашей сети Refined Storage.",

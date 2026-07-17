@@ -6,6 +6,8 @@
   "gui.refinedcooking.kitchen_access_point": "Kitchen Access Point",
   "gui.refinedcooking.kitchen_access_point.distance": "%d block(s)",
   "gui.refinedcooking.kitchen_access_point.missing_card": "Missing Kitchen Card",
+  "gui.refinedcooking.kitchen_access_point.inactive": "Inactive",
+  "gui.refinedcooking.kitchen_access_point.unreachable": "Unreachable",
   "misc.refinedcooking.kitchen_network_card.tooltip": "Linked to %d, %d, %d in %s.",
   "tooltip.refinedcooking:kitchen_station.description": "Station node that connects to Refined Storage networks",
   "jei.refinedcooking.kitchen_station.1": "The Kitchen Station lets your Cooking for Blockheads cooking table craft with items — and fluids like water and milk — straight from your Refined Storage network.",

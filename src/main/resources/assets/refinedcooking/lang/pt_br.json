@@ -6,6 +6,8 @@
   "gui.refinedcooking.kitchen_access_point": "Ponto de Acesso de Cozinha",
   "gui.refinedcooking.kitchen_access_point.distance": "%d bloco(s)",
   "gui.refinedcooking.kitchen_access_point.missing_card": "Cartão de cozinha ausente",
+  "gui.refinedcooking.kitchen_access_point.inactive": "Inativo",
+  "gui.refinedcooking.kitchen_access_point.unreachable": "Inacessível",
   "misc.refinedcooking.kitchen_network_card.tooltip": "Vinculado a %d, %d, %d em %s.",
   "tooltip.refinedcooking:kitchen_station.description": "Nó de rede que se conecta a redes do Refined Storage",
   "jei.refinedcooking.kitchen_station.1": "A Estação de Cozinha permite que sua Mesa de Cozinha do Cooking for Blockheads cozinhe com itens — e fluidos como água e leite — direto da sua rede do Refined Storage.",

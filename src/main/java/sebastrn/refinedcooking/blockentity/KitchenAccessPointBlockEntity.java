@@ -178,12 +178,28 @@ public class KitchenAccessPointBlockEntity
         return (int) Math.sqrt(worldPosition.distSqr(stationPos.pos()));
     }
 
+    /**
+     * What the GUI shows, following the same order RS's Network Transmitter uses. Server-side only: telling
+     * {@code UNREACHABLE} from {@code TRANSMITTING} needs the network graph, which is why this is synced to the
+     * client as a menu property rather than derived there.
+     */
+    public KitchenAccessPointStatus getStatus() {
+        Network network = mainNetworkNode.getNetwork();
+        if (!mainNetworkNode.isActive() || network == null) {
+            return KitchenAccessPointStatus.INACTIVE;
+        }
+        GlobalPos stationPos = mainNetworkNode.getStationPos();
+        if (stationPos == null) {
+            return KitchenAccessPointStatus.MISSING_CARD;
+        }
+        return isStationInNetwork(network, stationPos)
+                ? KitchenAccessPointStatus.TRANSMITTING
+                : KitchenAccessPointStatus.UNREACHABLE;
+    }
+
     /** True when a bound card names a station that is actually present in our network. */
     public boolean isTransmitting() {
-        Network network = mainNetworkNode.getNetwork();
-        GlobalPos stationPos = mainNetworkNode.getStationPos();
-        return stationPos != null && mainNetworkNode.isActive() && network != null
-                && isStationInNetwork(network, stationPos);
+        return getStatus() == KitchenAccessPointStatus.TRANSMITTING;
     }
 
     public ItemStack getNetworkCard() {

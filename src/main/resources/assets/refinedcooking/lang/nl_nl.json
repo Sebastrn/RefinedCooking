@@ -6,6 +6,8 @@
   "gui.refinedcooking.kitchen_access_point": "Keuken-toegangspunt",
   "gui.refinedcooking.kitchen_access_point.distance": "%d blok(ken)",
   "gui.refinedcooking.kitchen_access_point.missing_card": "Keukenkaart ontbreekt",
+  "gui.refinedcooking.kitchen_access_point.inactive": "Inactief",
+  "gui.refinedcooking.kitchen_access_point.unreachable": "Onbereikbaar",
   "misc.refinedcooking.kitchen_network_card.tooltip": "Gekoppeld aan %d, %d, %d in %s.",
   "tooltip.refinedcooking:kitchen_station.description": "Netwerkknooppunt dat verbinding maakt met Refined Storage-netwerken",
   "jei.refinedcooking.kitchen_station.1": "Met het Keukenstation kookt je Kooktafel uit Cooking for Blockheads met voorwerpen — en vloeistoffen zoals water en melk — rechtstreeks uit je Refined Storage-netwerk.",

@@ -3,17 +3,21 @@ package sebastrn.refinedcooking.container;
 import com.refinedmods.refinedstorage.common.support.AbstractBaseContainerMenu;
 import com.refinedmods.refinedstorage.common.support.RedstoneMode;
 import com.refinedmods.refinedstorage.common.support.containermenu.ClientProperty;
+import com.refinedmods.refinedstorage.common.support.containermenu.PropertyType;
 import com.refinedmods.refinedstorage.common.support.containermenu.PropertyTypes;
 import com.refinedmods.refinedstorage.common.support.containermenu.ServerProperty;
 import com.refinedmods.refinedstorage.common.support.containermenu.ValidatedSlot;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import sebastrn.refinedcooking.RefinedCooking;
 import sebastrn.refinedcooking.RefinedCookingContainerMenus;
 import sebastrn.refinedcooking.blockentity.KitchenAccessPointBlockEntity;
+import sebastrn.refinedcooking.blockentity.KitchenAccessPointStatus;
 import sebastrn.refinedcooking.inventory.KitchenNetworkCardInventory;
 
 import javax.annotation.Nullable;
@@ -24,6 +28,17 @@ import javax.annotation.Nullable;
  * data, the screen can work out everything it displays without a packet. See {@code KitchenAccessPointScreen}.
  */
 public class KitchenAccessPointContainerMenu extends AbstractBaseContainerMenu {
+
+    /**
+     * Carries {@link KitchenAccessPointStatus} to the client. Properties are int-backed over a vanilla
+     * {@code DataSlot}, so this syncs live and only when it changes — no packet of our own, which is why the status
+     * is an enum rather than the richer record RS's Transmitter pushes.
+     */
+    public static final PropertyType<KitchenAccessPointStatus> STATUS = new PropertyType<>(
+            ResourceLocation.fromNamespaceAndPath(RefinedCooking.ID, "kitchen_access_point_status"),
+            KitchenAccessPointStatus::toId,
+            KitchenAccessPointStatus::fromId
+    );
 
     @Nullable
     private final KitchenAccessPointBlockEntity blockEntity;
@@ -39,6 +54,9 @@ public class KitchenAccessPointContainerMenu extends AbstractBaseContainerMenu {
                 blockEntity::getRedstoneMode,
                 blockEntity::setRedstoneMode
         ));
+        // Read-only: the status is ours to report, so a change arriving from a client is ignored.
+        registerProperty(new ServerProperty<>(STATUS, blockEntity::getStatus, status -> {
+        }));
         this.blockEntity = blockEntity;
         this.accessPointPos = blockEntity.getMenuData();
         addSlots(playerInventory, blockEntity.getNetworkCardInventory());
@@ -48,9 +66,14 @@ public class KitchenAccessPointContainerMenu extends AbstractBaseContainerMenu {
     public KitchenAccessPointContainerMenu(int syncId, Inventory playerInventory, GlobalPos accessPointPos) {
         super(RefinedCookingContainerMenus.KITCHEN_ACCESS_POINT.get(), syncId);
         registerProperty(new ClientProperty<>(PropertyTypes.REDSTONE_MODE, RedstoneMode.IGNORE));
+        registerProperty(new ClientProperty<>(STATUS, KitchenAccessPointStatus.INACTIVE));
         this.blockEntity = null;
         this.accessPointPos = accessPointPos;
         addSlots(playerInventory, new KitchenNetworkCardInventory());
+    }
+
+    public KitchenAccessPointStatus getStatus() {
+        return getProperty(STATUS).getValue();
     }
 
     private void addSlots(Inventory playerInventory, Container networkCardInventory) {
