@@ -2,6 +2,12 @@
 
 All notable changes to **Refined Cooking** are listed here.
 
+## 5.1.1
+
+### Fixed
+- Corrected the guide book: the Kitchen Station **can** be wired into the network with cable, like Refined
+  Storage's own Network Receiver, so the entry no longer says it can't.
+
 ## 5.1.0
 
 ### Added
