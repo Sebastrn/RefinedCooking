@@ -2,6 +2,29 @@
 
 All notable changes to **Refined Cooking** are listed here.
 
+## 6.0.0
+
+Updated to **Minecraft 1.21.1** on NeoForge, and rebuilt on **Refined Storage 2**. Everything from 5.1.0 carries
+over: network items and fluids in the Cooking Table, the configurable power draw, the guide book, JEI, and
+Jade/The One Probe.
+
+### Added
+- **The Kitchen Access Point's screen shows its full status now**, like Refined Storage's own Network Transmitter:
+  inactive, no card, an unbound card, a Station it can't reach, or transmitting with the distance.
+
+### Changed
+- **Requires Refined Storage 2.** Refined Storage 1 has no Minecraft 1.21.1 release, so the whole storage
+  integration was rebuilt against Refined Storage 2.
+- **Requires Cooking for Blockheads 21.1.7 or newer.** From that version on, Cooking for Blockheads hands leftover
+  containers back itself — the empty bucket from a water or milk recipe — so Refined Cooking no longer drops them
+  at the Station.
+- **Energy use now matches Refined Storage 2's own devices:** the Access Point draws like a Network Transmitter and
+  the Station like a Network Receiver. Both remain configurable.
+- A **Kitchen Network Card bound in an older version loses its link** and needs re-binding on the Station.
+  Minecraft 1.21 replaced item NBT with data components, and the card's target moved with it.
+- The guide book no longer says the Station can't join the network by cable — it can, like Refined Storage's own
+  Network Receiver.
+
 ## 5.1.0
 
 ### Added
