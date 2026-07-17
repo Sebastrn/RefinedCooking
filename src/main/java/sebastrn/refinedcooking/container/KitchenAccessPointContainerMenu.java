@@ -15,7 +15,6 @@ import net.minecraft.world.item.ItemStack;
 import sebastrn.refinedcooking.RefinedCookingContainerMenus;
 import sebastrn.refinedcooking.blockentity.KitchenAccessPointBlockEntity;
 import sebastrn.refinedcooking.inventory.KitchenNetworkCardInventory;
-import sebastrn.refinedcooking.item.KitchenNetworkCardItem;
 
 import javax.annotation.Nullable;
 
@@ -61,7 +60,7 @@ public class KitchenAccessPointContainerMenu extends AbstractBaseContainerMenu {
                 0,
                 8,
                 20,
-                stack -> stack.getItem() instanceof KitchenNetworkCardItem card && card.isBound(stack)
+                KitchenNetworkCardInventory.IS_CARD
         ));
         transferManager.addBiTransfer(playerInventory, networkCardInventory);
     }
