@@ -6,6 +6,7 @@
   "gui.refinedcooking.kitchen_access_point": "Point d'accès de cuisine",
   "gui.refinedcooking.kitchen_access_point.distance": "%d bloc(s)",
   "gui.refinedcooking.kitchen_access_point.missing_card": "Carte de cuisine manquante",
+  "gui.refinedcooking.kitchen_access_point.unbound_card": "Carte de cuisine non liée",
   "gui.refinedcooking.kitchen_access_point.inactive": "Inactif",
   "gui.refinedcooking.kitchen_access_point.unreachable": "Inaccessible",
   "misc.refinedcooking.kitchen_network_card.tooltip": "Liée à %d, %d, %d dans %s.",

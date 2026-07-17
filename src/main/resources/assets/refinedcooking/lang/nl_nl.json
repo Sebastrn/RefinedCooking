@@ -6,6 +6,7 @@
   "gui.refinedcooking.kitchen_access_point": "Keuken-toegangspunt",
   "gui.refinedcooking.kitchen_access_point.distance": "%d blok(ken)",
   "gui.refinedcooking.kitchen_access_point.missing_card": "Keukenkaart ontbreekt",
+  "gui.refinedcooking.kitchen_access_point.unbound_card": "Keukenkaart niet gekoppeld",
   "gui.refinedcooking.kitchen_access_point.inactive": "Inactief",
   "gui.refinedcooking.kitchen_access_point.unreachable": "Onbereikbaar",
   "misc.refinedcooking.kitchen_network_card.tooltip": "Gekoppeld aan %d, %d, %d in %s.",

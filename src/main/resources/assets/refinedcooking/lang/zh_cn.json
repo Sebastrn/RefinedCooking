@@ -6,6 +6,7 @@
   "gui.refinedcooking.kitchen_access_point": "厨房访问点",
   "gui.refinedcooking.kitchen_access_point.distance": "%d 格",
   "gui.refinedcooking.kitchen_access_point.missing_card": "缺少厨房卡",
+  "gui.refinedcooking.kitchen_access_point.unbound_card": "厨房卡未绑定",
   "gui.refinedcooking.kitchen_access_point.inactive": "未激活",
   "gui.refinedcooking.kitchen_access_point.unreachable": "无法访问",
   "misc.refinedcooking.kitchen_network_card.tooltip": "已链接至 %4$s 的 %1$d, %2$d, %3$d。",

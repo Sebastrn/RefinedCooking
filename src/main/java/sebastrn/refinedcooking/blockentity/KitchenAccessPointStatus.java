@@ -11,8 +11,14 @@ package sebastrn.refinedcooking.blockentity;
 public enum KitchenAccessPointStatus {
     /** Off the network, unpowered, or disabled by redstone. */
     INACTIVE,
-    /** No card, or a card that has not been bound to a station yet. */
+    /** The slot is empty. */
     MISSING_CARD,
+    /**
+     * A card is in the slot, but it has not been right-clicked on a station yet. RS avoids needing this state by
+     * refusing unbound cards outright; ours accepts them, so it has to say so — reporting "missing card" with a card
+     * plainly sitting in the slot reads as a bug.
+     */
+    UNBOUND_CARD,
     /** Bound to a station that is not in our network — broken, unloaded, or on a different network. */
     UNREACHABLE,
     /** Bound to a station that really is in our network. */

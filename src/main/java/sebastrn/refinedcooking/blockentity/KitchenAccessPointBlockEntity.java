@@ -190,7 +190,7 @@ public class KitchenAccessPointBlockEntity
         }
         GlobalPos stationPos = mainNetworkNode.getStationPos();
         if (stationPos == null) {
-            return KitchenAccessPointStatus.MISSING_CARD;
+            return hasCard() ? KitchenAccessPointStatus.UNBOUND_CARD : KitchenAccessPointStatus.MISSING_CARD;
         }
         return isStationInNetwork(network, stationPos)
                 ? KitchenAccessPointStatus.TRANSMITTING

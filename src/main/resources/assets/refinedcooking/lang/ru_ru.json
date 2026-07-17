@@ -6,6 +6,7 @@
   "gui.refinedcooking.kitchen_access_point": "Кухонная точка доступа",
   "gui.refinedcooking.kitchen_access_point.distance": "%d блок(ов)",
   "gui.refinedcooking.kitchen_access_point.missing_card": "Нет кухонной карты",
+  "gui.refinedcooking.kitchen_access_point.unbound_card": "Кухонная карта не привязана",
   "gui.refinedcooking.kitchen_access_point.inactive": "Неактивна",
   "gui.refinedcooking.kitchen_access_point.unreachable": "Недоступна",
   "misc.refinedcooking.kitchen_network_card.tooltip": "Привязана к %d, %d, %d в %s.",

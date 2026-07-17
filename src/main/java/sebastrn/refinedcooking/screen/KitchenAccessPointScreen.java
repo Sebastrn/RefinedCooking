@@ -55,6 +55,7 @@ public class KitchenAccessPointScreen extends AbstractBaseScreen<KitchenAccessPo
         return switch (getMenu().getStatus()) {
             case INACTIVE -> I18n.get("gui.refinedcooking.kitchen_access_point.inactive");
             case MISSING_CARD -> I18n.get("gui.refinedcooking.kitchen_access_point.missing_card");
+            case UNBOUND_CARD -> I18n.get("gui.refinedcooking.kitchen_access_point.unbound_card");
             case UNREACHABLE -> I18n.get("gui.refinedcooking.kitchen_access_point.unreachable");
             case TRANSMITTING -> getTransmittingText();
         };

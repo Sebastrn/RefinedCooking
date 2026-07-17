@@ -6,6 +6,7 @@
   "gui.refinedcooking.kitchen_access_point": "주방 액세스 포인트",
   "gui.refinedcooking.kitchen_access_point.distance": "%d 블록",
   "gui.refinedcooking.kitchen_access_point.missing_card": "주방 카드 없음",
+  "gui.refinedcooking.kitchen_access_point.unbound_card": "주방 카드 미연결",
   "gui.refinedcooking.kitchen_access_point.inactive": "비활성",
   "gui.refinedcooking.kitchen_access_point.unreachable": "도달할 수 없음",
   "misc.refinedcooking.kitchen_network_card.tooltip": "%4$s의 %1$d, %2$d, %3$d에 연결됨.",
