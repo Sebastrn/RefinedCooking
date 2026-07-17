@@ -58,6 +58,10 @@ public class TheOneProbeAddon {
                                         accessPointPos.get().getY(),
                                         accessPointPos.get().getZ()))
                                 .withStyle(ChatFormatting.GRAY));
+                    } else if (kitchenStationBlockEntity.isActive()) {
+                        // On the network without an Access Point — cabled straight to it. See the Jade provider.
+                        info.mcText(Component.translatable("jade.refinedcooking:kitchen_station_connected")
+                                .withStyle(ChatFormatting.GRAY));
                     } else {
                         info.mcText(Component.translatable("jade.refinedcooking:offline").withStyle(ChatFormatting.GRAY));
                     }

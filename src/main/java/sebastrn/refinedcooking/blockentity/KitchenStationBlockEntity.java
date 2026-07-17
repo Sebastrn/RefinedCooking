@@ -69,6 +69,28 @@ public class KitchenStationBlockEntity extends AbstractBaseNetworkNodeContainerB
         return false;
     }
 
+    /**
+     * Adds "and something else is actually on my network" to RS's own check, which is what drives the lit screen.
+     * <p>
+     * RS's {@code calculateActive} only distinguishes a real network from a lone one by testing
+     * {@code stored >= energyUsage} — every RS2 node always <em>has</em> a network, forming one containing just
+     * itself when nothing links it. That test is useless the moment the energy usage is zero: {@code 0 >= 0} passes,
+     * so an unlinked Station would report itself active and sit there lit from the moment it was placed. Our default
+     * is no longer zero, but a player may set it to zero to opt out of energy costs, and the screen must not start
+     * lying when they do.
+     */
+    @Override
+    protected boolean calculateActive() {
+        return super.calculateActive() && isAttachedToNetwork();
+    }
+
+    /** Whether our network holds anything besides us — an Access Point's link, a cable, anything. */
+    private boolean isAttachedToNetwork() {
+        Network network = mainNetworkNode.getNetwork();
+        return network != null
+                && network.getComponent(GraphNetworkComponent.class).getContainers().size() > 1;
+    }
+
     public RSKitchenItemProvider getItemProvider() {
         return itemProvider;
     }
@@ -76,6 +98,11 @@ public class KitchenStationBlockEntity extends AbstractBaseNetworkNodeContainerB
     @Nullable
     public Network getNetwork() {
         return mainNetworkNode.getNetwork();
+    }
+
+    /** On a network with something else on it, and powered — i.e. exactly when the screen is lit. */
+    public boolean isActive() {
+        return mainNetworkNode.isActive();
     }
 
     /** For {@code RSKitchenItemProvider}, which attributes its storage operations to this node like RS's own do. */

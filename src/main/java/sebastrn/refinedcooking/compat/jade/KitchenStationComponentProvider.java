@@ -16,10 +16,20 @@ public class KitchenStationComponentProvider implements IBlockComponentProvider,
     public static final ResourceLocation KITCHEN_STATION_UID =
             ResourceLocation.fromNamespaceAndPath(RefinedCooking.ID, "kitchen_station");
 
+    /**
+     * Three readings, because being on the network and being linked by an Access Point are not the same thing: the
+     * Station is a network node itself, so cabling it straight to the network connects it with no card involved.
+     * Naming the Access Point is the useful case, but claiming "not connected" for a cabled Station would contradict
+     * its own lit screen.
+     */
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-        if (accessor.getServerData().contains("isConnectedToNetwork")) {
-            tooltip.add(Component.translatable("jade.refinedcooking:kitchen_station", accessor.getServerData().getString("RSNetworkPosition")));
+        CompoundTag data = accessor.getServerData();
+        if (data.contains("RSNetworkPosition")) {
+            tooltip.add(Component.translatable("jade.refinedcooking:kitchen_station",
+                    data.getString("RSNetworkPosition")));
+        } else if (data.getBoolean("isConnectedToNetwork")) {
+            tooltip.add(Component.translatable("jade.refinedcooking:kitchen_station_connected"));
         } else {
             tooltip.add(Component.translatable("jade.refinedcooking:offline"));
         }
@@ -28,10 +38,9 @@ public class KitchenStationComponentProvider implements IBlockComponentProvider,
     @Override
     public void appendServerData(CompoundTag data, BlockAccessor accessor) {
         KitchenStationBlockEntity kitchenStation = (KitchenStationBlockEntity) accessor.getBlockEntity();
-        kitchenStation.getLinkedAccessPointPos().ifPresent(pos -> {
-            data.putBoolean("isConnectedToNetwork", true);
-            data.putString("RSNetworkPosition", "%d, %d, %d".formatted(pos.getX(), pos.getY(), pos.getZ()));
-        });
+        data.putBoolean("isConnectedToNetwork", kitchenStation.isActive());
+        kitchenStation.getLinkedAccessPointPos().ifPresent(pos ->
+                data.putString("RSNetworkPosition", "%d, %d, %d".formatted(pos.getX(), pos.getY(), pos.getZ())));
     }
 
     @Override
