@@ -1,6 +1,5 @@
 package sebastrn.refinedcooking;
 
-import com.refinedmods.refinedstorage.item.blockitem.BaseBlockItem;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -17,13 +16,12 @@ public final class RefinedCookingItems {
     public static final DeferredHolder<Item, BlockItem> KITCHEN_STATION =
             registerBlockItemFor(RefinedCookingBlocks.KITCHEN_STATION);
     /**
-     * The Access Point is rotatable, and RS's {@link BaseBlockItem} is what turns the block to face the player on
-     * placement — a plain BlockItem would leave it stuck on the default facing. (The Station doesn't need this: CFB's
-     * BaseKitchenBlock sets its own facing on placement.)
+     * A plain BlockItem is enough now. On RS1 this had to be RS's own {@code BaseBlockItem}, because that was what
+     * turned the rotatable Access Point to face the player on placement; RS2's {@code AbstractDirectionalBlock} does
+     * it itself in {@code getStateForPlacement}.
      */
-    public static final DeferredHolder<Item, BaseBlockItem> KITCHEN_ACCESS_POINT =
-            ITEMS.register("kitchen_access_point", () -> new BaseBlockItem(
-                    RefinedCookingBlocks.KITCHEN_ACCESS_POINT.get(), new Item.Properties().stacksTo(1)));
+    public static final DeferredHolder<Item, BlockItem> KITCHEN_ACCESS_POINT =
+            registerBlockItemFor(RefinedCookingBlocks.KITCHEN_ACCESS_POINT);
 
     public static final DeferredHolder<Item, KitchenNetworkCardItem> KITCHEN_NETWORK_CARD =
             ITEMS.register("kitchen_network_card", KitchenNetworkCardItem::new);

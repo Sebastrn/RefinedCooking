@@ -1,29 +1,32 @@
 package sebastrn.refinedcooking.item;
 
-import com.refinedmods.refinedstorage.render.Styles;
-import sebastrn.refinedcooking.block.KitchenStationBlock;
+import com.refinedmods.refinedstorage.common.content.DataComponents;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import sebastrn.refinedcooking.block.KitchenStationBlock;
 
-import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 
+/**
+ * Binds an Access Point to a Kitchen Station: right-click a placed Station to record its position, then insert the
+ * card into an Access Point on the network.
+ * <p>
+ * The position lives in a data component rather than item NBT, which no longer exists for this. We reuse Refined
+ * Storage's own {@code networkLocation} component instead of registering one: it is public, typed exactly
+ * {@code DataComponentType<GlobalPos>}, and is what RS's own Network Card stores. (Applied Cooking does the same
+ * with AE2's {@code WIRELESS_LINK_TARGET}.) Only ever read inside a method, never a static initialiser — the
+ * component is supplied by RS at mod init, so touching it earlier would throw.
+ */
 public class KitchenNetworkCardItem extends Item {
-    private static final String NBT_RECEIVER_X = "ReceiverX";
-    private static final String NBT_RECEIVER_Y = "ReceiverY";
-    private static final String NBT_RECEIVER_Z = "ReceiverZ";
-    private static final String NBT_DIMENSION = "Dimension";
 
     public KitchenNetworkCardItem() {
         super(new Item.Properties().stacksTo(1));
@@ -32,69 +35,39 @@ public class KitchenNetworkCardItem extends Item {
     @Override
     public InteractionResult useOn(UseOnContext ctx) {
         Block block = ctx.getLevel().getBlockState(ctx.getClickedPos()).getBlock();
-
-        if (block instanceof KitchenStationBlock) {
-            CompoundTag tag = new CompoundTag();
-
-            tag.putInt(NBT_RECEIVER_X, ctx.getClickedPos().getX());
-            tag.putInt(NBT_RECEIVER_Y, ctx.getClickedPos().getY());
-            tag.putInt(NBT_RECEIVER_Z, ctx.getClickedPos().getZ());
-            tag.putString(NBT_DIMENSION, ctx.getLevel().dimension().location().toString());
-
-            ctx.getPlayer().getItemInHand(ctx.getHand()).setTag(tag);
-
+        if (!(block instanceof KitchenStationBlock)) {
+            return InteractionResult.PASS;
+        }
+        if (ctx.getLevel().isClientSide()) {
             return InteractionResult.SUCCESS;
         }
-
-        return InteractionResult.PASS;
+        ctx.getItemInHand().set(
+                DataComponents.INSTANCE.getNetworkLocation(),
+                GlobalPos.of(ctx.getLevel().dimension(), ctx.getClickedPos())
+        );
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, level, tooltip, flag);
-
-        BlockPos pos = getReceiver(stack);
-        ResourceKey<Level> type = getDimension(stack);
-
-        if (pos != null && type != null) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, context, tooltip, flag);
+        getLocation(stack).ifPresent(location -> {
+            BlockPos pos = location.pos();
             tooltip.add(Component.translatable(
                     "misc.refinedcooking.kitchen_network_card.tooltip",
                     pos.getX(),
                     pos.getY(),
                     pos.getZ(),
-                    type.location().toString()
-            ).setStyle(Styles.GRAY));
-        }
+                    location.dimension().location().toString()
+            ).withStyle(ChatFormatting.GRAY));
+        });
     }
 
-    @Nullable
-    public static BlockPos getReceiver(ItemStack stack) {
-        if (stack.hasTag() &&
-                stack.getTag().contains(NBT_RECEIVER_X) &&
-                stack.getTag().contains(NBT_RECEIVER_Y) &&
-                stack.getTag().contains(NBT_RECEIVER_Z)) {
-            return new BlockPos(
-                    stack.getTag().getInt(NBT_RECEIVER_X),
-                    stack.getTag().getInt(NBT_RECEIVER_Y),
-                    stack.getTag().getInt(NBT_RECEIVER_Z)
-            );
-        }
-
-        return null;
+    public Optional<GlobalPos> getLocation(ItemStack stack) {
+        return Optional.ofNullable(stack.get(DataComponents.INSTANCE.getNetworkLocation()));
     }
 
-    @Nullable
-    public static ResourceKey<Level> getDimension(ItemStack stack) {
-        if (stack.hasTag() && stack.getTag().contains(NBT_DIMENSION)) {
-            ResourceLocation name = ResourceLocation.tryParse(stack.getTag().getString(NBT_DIMENSION));
-            if (name == null) {
-                return null;
-            }
-
-            return ResourceKey.create(Registries.DIMENSION, name);
-        }
-
-        return null;
+    public boolean isBound(ItemStack stack) {
+        return stack.has(DataComponents.INSTANCE.getNetworkLocation());
     }
-
 }

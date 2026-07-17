@@ -43,7 +43,7 @@ public class TheOneProbeAddon {
     public static class ProbeInfoProvider implements IProbeInfoProvider {
         @Override
         public ResourceLocation getID() {
-            return new ResourceLocation(RefinedCooking.ID, RefinedCooking.ID);
+            return ResourceLocation.fromNamespaceAndPath(RefinedCooking.ID, RefinedCooking.ID);
         }
 
         @Override
@@ -51,11 +51,12 @@ public class TheOneProbeAddon {
             if (state.getBlock() instanceof KitchenStationBlock) {
                 var kitchenStationBlockEntity = tryGetTileEntity(level, data.getPos(), KitchenStationBlockEntity.class);
                 if (kitchenStationBlockEntity != null) {
-                    if (kitchenStationBlockEntity.getNode().getNetwork() != null) {
+                    var controllerPos = kitchenStationBlockEntity.getNetworkControllerPos();
+                    if (controllerPos.isPresent()) {
                         info.mcText(Component.translatable("jade.refinedcooking:kitchen_station", "%d, %d, %d".formatted(
-                                        kitchenStationBlockEntity.getNode().getNetwork().getPosition().getX(),
-                                        kitchenStationBlockEntity.getNode().getNetwork().getPosition().getY(),
-                                        kitchenStationBlockEntity.getNode().getNetwork().getPosition().getZ()))
+                                        controllerPos.get().getX(),
+                                        controllerPos.get().getY(),
+                                        controllerPos.get().getZ()))
                                 .withStyle(ChatFormatting.GRAY));
                     } else {
                         info.mcText(Component.translatable("jade.refinedcooking:offline").withStyle(ChatFormatting.GRAY));
@@ -64,19 +65,19 @@ public class TheOneProbeAddon {
             } else if (state.getBlock() instanceof KitchenAccessPointBlock) {
                 var kitchenAccessPointBlockEntity = tryGetTileEntity(level, data.getPos(), KitchenAccessPointBlockEntity.class);
                 if (kitchenAccessPointBlockEntity != null) {
-                    var node = kitchenAccessPointBlockEntity.getNode();
-                    boolean connected = node.isConnected();
-                    boolean transmitting = node.getDistance() > -1;
+                    boolean connected = kitchenAccessPointBlockEntity.isConnected();
+                    boolean hasCard = kitchenAccessPointBlockEntity.hasCard();
+                    boolean transmitting = kitchenAccessPointBlockEntity.isTransmitting();
 
                     String key;
                     if (connected) {
-                        key = transmitting ? "online_transmitting" : node.hasCard() ? "online_no_transmission" : "online_no_card";
+                        key = transmitting ? "online_transmitting" : hasCard ? "online_no_transmission" : "online_no_card";
                     } else {
-                        key = node.hasCard() ? "offline_with_card" : "offline";
+                        key = hasCard ? "offline_with_card" : "offline";
                     }
                     info.mcText(Component.translatable("jade.refinedcooking:" + key).withStyle(ChatFormatting.GRAY));
 
-                    var networkCardItem = node.getNetworkCard().getStackInSlot(0);
+                    var networkCardItem = kitchenAccessPointBlockEntity.getNetworkCard();
                     if (networkCardItem.is(RefinedCookingItems.KITCHEN_NETWORK_CARD.get())) {
                         info.horizontal(new LayoutStyle().alignment(ElementAlignment.ALIGN_CENTER))
                                 .item(networkCardItem, new ItemStyle().width(16).height(16))

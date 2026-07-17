@@ -1,59 +1,75 @@
 package sebastrn.refinedcooking.screen;
 
-import com.refinedmods.refinedstorage.blockentity.NetworkNodeBlockEntity;
-import com.refinedmods.refinedstorage.screen.BaseScreen;
-import com.refinedmods.refinedstorage.screen.widget.sidebutton.RedstoneModeSideButton;
-import sebastrn.refinedcooking.RefinedCooking;
-import sebastrn.refinedcooking.blockentity.KitchenAccessPointBlockEntity;
-import sebastrn.refinedcooking.container.KitchenAccessPointContainerMenu;
+import com.refinedmods.refinedstorage.common.support.AbstractBaseScreen;
+import com.refinedmods.refinedstorage.common.support.containermenu.PropertyTypes;
+import com.refinedmods.refinedstorage.common.support.widget.RedstoneModeSideButtonWidget;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+import sebastrn.refinedcooking.RefinedCooking;
+import sebastrn.refinedcooking.container.KitchenAccessPointContainerMenu;
+import sebastrn.refinedcooking.item.KitchenNetworkCardItem;
 
 import java.util.Optional;
 
-public class KitchenAccessPointScreen extends BaseScreen<KitchenAccessPointContainerMenu> {
-    private static final ResourceLocation BACKGROUND = new ResourceLocation(RefinedCooking.ID, "textures/gui/kitchen_access_point.png");
+/**
+ * Derives everything it shows from state the client already has: the card in slot 0 (whose bound position rides along
+ * as a data component on the synced stack) and the Access Point's own position from the menu's extended data. That
+ * keeps the label live as a card is inserted or taken out, with no status packet — where RS1 needed two watched
+ * block-entity parameters to do the same job.
+ */
+public class KitchenAccessPointScreen extends AbstractBaseScreen<KitchenAccessPointContainerMenu> {
 
-    public KitchenAccessPointScreen(KitchenAccessPointContainerMenu container, Inventory inventory, Component title) {
-        super(container, 176, 137, inventory, title);
+    private static final ResourceLocation TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(RefinedCooking.ID, "textures/gui/kitchen_access_point.png");
+
+    public KitchenAccessPointScreen(KitchenAccessPointContainerMenu menu, Inventory inventory, Component title) {
+        super(menu, inventory, title);
+        this.inventoryLabelY = 42;
+        this.imageWidth = 176;
+        this.imageHeight = 137;
     }
 
     @Override
-    public void onPostInit(int x, int y) {
-        addSideButton(new RedstoneModeSideButton(this, NetworkNodeBlockEntity.REDSTONE_MODE));
+    protected void init() {
+        super.init();
+        addSideButton(new RedstoneModeSideButtonWidget(getMenu().getProperty(PropertyTypes.REDSTONE_MODE)));
     }
 
     @Override
-    public void tick(int x, int y) {
-        // NO OP
+    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+        super.renderLabels(graphics, mouseX, mouseY);
+        graphics.drawString(font, getStatusText(), 51, 24, 4210752, false);
     }
 
-    @Override
-    public void renderBackground(GuiGraphics guiGraphics, int x, int y, int mouseX, int mouseY) {
-        guiGraphics.blit(BACKGROUND, x, y, 0, 0, imageWidth, imageHeight);
-    }
-
-    @Override
-    public void renderForeground(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        renderString(guiGraphics, 7, 7, title.getString());
-
-        String text;
-
-        Optional<ResourceLocation> receiverDim = KitchenAccessPointBlockEntity.RECEIVER_DIMENSION.getValue();
-        int distance = KitchenAccessPointBlockEntity.DISTANCE.getValue();
-
-        if (!receiverDim.isPresent()) {
-            text = I18n.get("gui.refinedcooking.kitchen_access_point.missing_card");
-        } else if (distance != -1) {
-            text = I18n.get("gui.refinedcooking.kitchen_access_point.distance", distance);
-        } else {
-            text = receiverDim.get().toString();
+    private String getStatusText() {
+        Optional<GlobalPos> station = getBoundStation();
+        if (station.isEmpty()) {
+            return I18n.get("gui.refinedcooking.kitchen_access_point.missing_card");
         }
+        GlobalPos stationPos = station.get();
+        GlobalPos self = getMenu().getAccessPointPos();
+        if (!self.dimension().equals(stationPos.dimension())) {
+            return stationPos.dimension().location().toString();
+        }
+        int distance = (int) Math.sqrt(self.pos().distSqr(stationPos.pos()));
+        return I18n.get("gui.refinedcooking.kitchen_access_point.distance", distance);
+    }
 
-        renderString(guiGraphics, 51, 24, text);
-        renderString(guiGraphics, 7, 42, I18n.get("container.inventory"));
+    private Optional<GlobalPos> getBoundStation() {
+        ItemStack card = getMenu().getNetworkCard();
+        if (card.getItem() instanceof KitchenNetworkCardItem cardItem) {
+            return cardItem.getLocation(card);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    protected ResourceLocation getTexture() {
+        return TEXTURE;
     }
 }

@@ -18,7 +18,7 @@ import sebastrn.refinedcooking.RefinedCookingItems;
 @JeiPlugin
 public class JEIPlugin implements IModPlugin {
 
-    private static final ResourceLocation UID = new ResourceLocation(RefinedCooking.ID, "jei");
+    private static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(RefinedCooking.ID, "jei");
 
     @Override
     public ResourceLocation getPluginUid() {

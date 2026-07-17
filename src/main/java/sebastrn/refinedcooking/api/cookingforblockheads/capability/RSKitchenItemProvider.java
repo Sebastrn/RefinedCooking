@@ -1,112 +1,143 @@
 package sebastrn.refinedcooking.api.cookingforblockheads.capability;
 
-import com.refinedmods.refinedstorage.api.network.INetwork;
-import com.refinedmods.refinedstorage.api.util.Action;
-import com.refinedmods.refinedstorage.api.util.StackListEntry;
+import com.refinedmods.refinedstorage.api.core.Action;
+import com.refinedmods.refinedstorage.api.network.Network;
+import com.refinedmods.refinedstorage.api.network.node.NetworkNodeActor;
+import com.refinedmods.refinedstorage.api.network.storage.StorageNetworkComponent;
+import com.refinedmods.refinedstorage.api.resource.ResourceAmount;
+import com.refinedmods.refinedstorage.api.resource.ResourceKey;
+import com.refinedmods.refinedstorage.api.storage.Actor;
+import com.refinedmods.refinedstorage.common.Platform;
+import com.refinedmods.refinedstorage.common.support.resource.FluidResource;
+import com.refinedmods.refinedstorage.common.support.resource.ItemResource;
 import net.blay09.mods.balm.api.Balm;
 import net.blay09.mods.cookingforblockheads.api.CacheHint;
 import net.blay09.mods.cookingforblockheads.api.IngredientToken;
 import net.blay09.mods.cookingforblockheads.api.KitchenItemProvider;
 import net.blay09.mods.cookingforblockheads.tag.ModItemTags;
-import net.minecraft.core.BlockPos;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.Containers;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidType;
 import sebastrn.refinedcooking.blockentity.KitchenStationBlockEntity;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.function.Predicate;
 
 /**
  * Supplies ingredients to Cooking for Blockheads from the Refined Storage network the Kitchen Station is part of.
- * Implements CFB's {@link KitchenItemProvider} contract. Three ways to satisfy a wanted ingredient, tried in order:
+ * Implements CFB's {@link KitchenItemProvider} contract.
+ * <p>
+ * Three ways to satisfy a wanted ingredient, tried in order:
  * <ul>
- *     <li><b>Item</b> — the network's item storage holds the matching item directly (extract/insert as normal).</li>
+ *     <li><b>Item</b> — the network holds the matching item directly (extract/insert as normal).</li>
  *     <li><b>Water/milk fast-path</b> — the fluids CFB recipes actually request, identified by item <em>tag</em>
  *     ({@link ModItemTags#WATER}/{@link ModItemTags#MILK}, mirroring CFB's Sink / Milk Jar): if a wanted item carries
- *     the tag and the network's fluid storage holds ≥1000mB of the fluid, drain a bucket and yield the requested item.
- *     Yielding the requested item (not the fluid's own bucket) satisfies modded variants (water bottles,
- *     {@code freshmilkitem}, …), and milk is reliable via Balm's milk fluid rather than a bucket lookup.</li>
- *     <li><b>Fluid (network-driven fallback)</b> — for any other fluid stored (lava, modded), build its bucket and
- *     ask the recipe whether it satisfies the ingredient; if so, synthesize the bucket by draining 1000mB. CFB
- *     produces no recipe remainders, so the container is virtual: {@code consume()} spends the fluid and hands back
- *     the item, {@code restore()} refunds it.</li>
+ *     the tag and the network holds ≥1 bucket of the fluid, drain a bucket and yield the requested item. Yielding the
+ *     requested item (not the fluid's own bucket) satisfies modded variants (water bottles, {@code freshmilkitem}, …),
+ *     and milk is reliable this way because it never depends on the milk fluid's {@code getBucket()}.</li>
+ *     <li><b>Fluid (network-driven fallback)</b> — for any other fluid stored (lava, modded), build its bucket and ask
+ *     the recipe whether it satisfies the ingredient; if so, synthesize the bucket by draining a bucket's worth.</li>
  * </ul>
- * The item path is tried first, so real stored items are preferred over synthesized fluid containers. RS keeps its
- * item/fluid storage lists live, so (unlike AE2) no per-tick snapshot is needed — the lists are queried directly.
+ * The item path is tried first, so real stored items are preferred over synthesized fluid containers.
+ * <p>
+ * <b>Refined Storage 2 is resource-agnostic</b>, so items and fluids are both {@link ResourceKey}s read through one
+ * {@code RootStorage} — RS1's separate {@code getItemStorageCache()}/{@code getFluidStorageCache()} are gone, and with
+ * them the duplicated fluid plumbing this class used to carry.
+ * <p>
+ * <b>Crafting remainders belong to CFB, not to us.</b> Its crafting handler assembles the recipe and then offers each
+ * remainder back through {@link IngredientToken#restore}, once per crafting-grid slot — passing {@code EMPTY} for the
+ * slots that left no remainder. So {@code consume()} must not return remainders itself, and {@code restore()} must key
+ * off the stack it is handed rather than assume it means "undo". CFB did neither at 18.0.9 (its handler ignored
+ * remainders entirely), which is why this class used to do both; doing them now would refund everything twice. This is
+ * why the mod requires CFB 21.1.7+ — below that neither side returns remainders and they would simply be voided.
  */
 public class RSKitchenItemProvider implements KitchenItemProvider {
 
     private final KitchenStationBlockEntity blockEntity;
+    private final Actor actor;
 
     public RSKitchenItemProvider(KitchenStationBlockEntity blockEntity) {
         this.blockEntity = blockEntity;
+        this.actor = new NetworkNodeActor(blockEntity.getMainNetworkNode());
     }
 
-    private INetwork getNetwork() {
-        return blockEntity.getNode().getNetwork();
+    /**
+     * The network's storage, or null when the Station isn't on a network. RS keeps this live, so — unlike Applied
+     * Cooking against AE2 — there is no snapshot to cache: every lookup reads the real thing.
+     */
+    @Nullable
+    private StorageNetworkComponent getStorage() {
+        Network network = blockEntity.getNetwork();
+        return network == null ? null : network.getComponent(StorageNetworkComponent.class);
+    }
+
+    private static long bucketAmount() {
+        return Platform.INSTANCE.getBucketAmount();
     }
 
     @Override
-    public IngredientToken findIngredient(Ingredient ingredient, Collection<IngredientToken> ingredientTokens, CacheHint cacheHint) {
-        INetwork network = getNetwork();
-        if (network == null) {
+    public IngredientToken findIngredient(Ingredient ingredient, Collection<IngredientToken> ingredientTokens,
+                                          CacheHint cacheHint) {
+        StorageNetworkComponent storage = getStorage();
+        if (storage == null) {
             return null;
         }
 
         // Item path first — real stored items are preferred over synthesized fluid containers.
         ItemStack[] items = ingredient.getItems();
         for (ItemStack candidate : items) {
-            IngredientToken token = findMatching(network, candidate, ingredientTokens);
+            IngredientToken token = findMatching(storage, candidate, ingredientTokens);
             if (token != null) {
                 return token;
             }
         }
 
         // Water/milk fast-paths (requested by item tag) before the generic loop, for the reasons in the class doc.
-        IngredientToken water = findTaggedFluidIngredient(network, items, ModItemTags.WATER, Fluids.WATER, ingredientTokens);
+        IngredientToken water = findTaggedFluidIngredient(storage, items, ModItemTags.WATER, Fluids.WATER,
+                ingredientTokens);
         if (water != null) {
             return water;
         }
-        IngredientToken milk = findTaggedFluidIngredient(network, items, ModItemTags.MILK, Balm.getRegistries().getMilkFluid(), ingredientTokens);
+        IngredientToken milk = findTaggedFluidIngredient(storage, items, ModItemTags.MILK,
+                Balm.getRegistries().getMilkFluid(), ingredientTokens);
         if (milk != null) {
             return milk;
         }
 
         // Generic fluid fallback (lava, modded fluids).
-        return findFluidIngredient(network, ingredient::test, ingredientTokens);
+        return findFluidIngredient(storage, ingredient::test, ingredientTokens);
     }
 
     @Override
-    public IngredientToken findIngredient(ItemStack itemStack, Collection<IngredientToken> ingredientTokens, CacheHint cacheHint) {
-        INetwork network = getNetwork();
-        if (network == null) {
+    public IngredientToken findIngredient(ItemStack itemStack, Collection<IngredientToken> ingredientTokens,
+                                          CacheHint cacheHint) {
+        StorageNetworkComponent storage = getStorage();
+        if (storage == null) {
             return null;
         }
 
-        IngredientToken item = findMatching(network, itemStack, ingredientTokens);
+        IngredientToken item = findMatching(storage, itemStack, ingredientTokens);
         if (item != null) {
             return item;
         }
 
         ItemStack[] candidates = {itemStack};
-        IngredientToken water = findTaggedFluidIngredient(network, candidates, ModItemTags.WATER, Fluids.WATER, ingredientTokens);
+        IngredientToken water = findTaggedFluidIngredient(storage, candidates, ModItemTags.WATER, Fluids.WATER,
+                ingredientTokens);
         if (water != null) {
             return water;
         }
-        IngredientToken milk = findTaggedFluidIngredient(network, candidates, ModItemTags.MILK, Balm.getRegistries().getMilkFluid(), ingredientTokens);
+        IngredientToken milk = findTaggedFluidIngredient(storage, candidates, ModItemTags.MILK,
+                Balm.getRegistries().getMilkFluid(), ingredientTokens);
         if (milk != null) {
             return milk;
         }
 
-        return findFluidIngredient(network, candidate -> ItemStack.isSameItem(candidate, itemStack), ingredientTokens);
+        return findFluidIngredient(storage, candidate -> ItemStack.isSameItem(candidate, itemStack), ingredientTokens);
     }
 
     @Override
@@ -117,28 +148,28 @@ public class RSKitchenItemProvider implements KitchenItemProvider {
     // ---- item path ----
 
     /**
-     * @return a token for {@code wanted} if the network stores at least one more than the tokens already issued
-     * for it this operation, otherwise null.
+     * @return a token for {@code wanted} if the network stores at least one more than the tokens already issued for it
+     * this operation, otherwise null.
      */
-    private IngredientToken findMatching(INetwork network, ItemStack wanted, Collection<IngredientToken> ingredientTokens) {
+    @Nullable
+    private IngredientToken findMatching(StorageNetworkComponent storage, ItemStack wanted,
+                                         Collection<IngredientToken> ingredientTokens) {
         if (wanted.isEmpty()) {
             return null;
         }
-        ItemStack stored = network.getItemStorageCache().getList().get(wanted);
-        if (stored == null || stored.isEmpty()) {
+        ItemResource resource = ItemResource.ofItemStack(wanted);
+        long available = storage.get(resource);
+        if (available - reserved(resource, ingredientTokens) <= 0) {
             return null;
         }
-        if (stored.getCount() - reserved(stored, ingredientTokens) <= 0) {
-            return null;
-        }
-        return new RSIngredientToken(stored.copy());
+        return new RSIngredientToken(resource);
     }
 
-    /** How many items of {@code stored} the tokens already handed out this operation have laid claim to. */
-    private long reserved(ItemStack stored, Collection<IngredientToken> ingredientTokens) {
+    /** How many of {@code resource} the tokens already handed out this operation have laid claim to. */
+    private long reserved(ResourceKey resource, Collection<IngredientToken> ingredientTokens) {
         long count = 0;
         for (IngredientToken token : ingredientTokens) {
-            if (token instanceof RSIngredientToken rsToken && ItemStack.isSameItemSameTags(rsToken.stack, stored)) {
+            if (token instanceof RSIngredientToken rsToken && resource.equals(rsToken.resource)) {
                 count++;
             }
         }
@@ -148,23 +179,26 @@ public class RSKitchenItemProvider implements KitchenItemProvider {
     // ---- fluid paths ----
 
     /**
-     * Water/milk fast-path: if the network holds at least a bucket of {@code fluid} (after fluid tokens already
-     * issued) and one of {@code candidates} carries {@code tag}, return a token that drains a bucket and yields that
-     * requested item. Returns null (leaving the fluid to {@link #findFluidIngredient}) when the fluid is absent or
+     * Water/milk fast-path: if the network holds at least a bucket of {@code fluid} (after fluid tokens already issued)
+     * and one of {@code candidates} carries {@code tag}, return a token that drains a bucket and yields that requested
+     * item. Returns null — leaving the fluid to {@link #findFluidIngredient} — when the fluid is absent or
      * unregistered, or no candidate carries the tag.
      */
-    private IngredientToken findTaggedFluidIngredient(INetwork network, ItemStack[] candidates, TagKey<Item> tag, Fluid fluid, Collection<IngredientToken> ingredientTokens) {
+    @Nullable
+    private IngredientToken findTaggedFluidIngredient(StorageNetworkComponent storage, ItemStack[] candidates,
+                                                      TagKey<Item> tag, Fluid fluid,
+                                                      Collection<IngredientToken> ingredientTokens) {
         if (fluid == null || fluid == Fluids.EMPTY) {
             return null;
         }
-        FluidStack stored = network.getFluidStorageCache().getList().get(new FluidStack(fluid, FluidType.BUCKET_VOLUME));
-        long available = stored != null ? stored.getAmount() : 0;
-        if (available - reservedFluid(fluid, ingredientTokens) < FluidType.BUCKET_VOLUME) {
+        FluidResource resource = new FluidResource(fluid);
+        long bucket = bucketAmount();
+        if (storage.get(resource) - reservedFluid(resource, ingredientTokens) < bucket) {
             return null;
         }
         for (ItemStack candidate : candidates) {
             if (candidate.is(tag)) {
-                return new RSFluidIngredientToken(fluid, FluidType.BUCKET_VOLUME, candidate.copyWithCount(1));
+                return new RSFluidIngredientToken(resource, bucket, candidate.copyWithCount(1));
             }
         }
         return null;
@@ -176,41 +210,30 @@ public class RSKitchenItemProvider implements KitchenItemProvider {
      * return a token that synthesizes the bucket from the network fluid. The fluid-agnostic fallback for lava and
      * modded fluids; water and milk are handled first by {@link #findTaggedFluidIngredient}.
      */
-    private IngredientToken findFluidIngredient(INetwork network, Predicate<ItemStack> matches, Collection<IngredientToken> ingredientTokens) {
-        for (StackListEntry<FluidStack> entry : network.getFluidStorageCache().getList().getStacks()) {
-            FluidStack stored = entry.getStack();
-            if (stored.getAmount() < FluidType.BUCKET_VOLUME) {
+    @Nullable
+    private IngredientToken findFluidIngredient(StorageNetworkComponent storage, Predicate<ItemStack> matches,
+                                                Collection<IngredientToken> ingredientTokens) {
+        long bucket = bucketAmount();
+        for (ResourceAmount entry : storage.getAll()) {
+            if (!(entry.resource() instanceof FluidResource resource) || entry.amount() < bucket) {
                 continue;
             }
-            ItemStack bucket = new ItemStack(stored.getFluid().getBucket());
-            if (bucket.isEmpty() || !matches.test(bucket)) {
+            ItemStack bucketStack = new ItemStack(resource.fluid().getBucket());
+            if (bucketStack.isEmpty() || !matches.test(bucketStack)) {
                 continue;
             }
-            if (stored.getAmount() - reservedFluid(stored.getFluid(), ingredientTokens) >= FluidType.BUCKET_VOLUME) {
-                return new RSFluidIngredientToken(stored.getFluid(), FluidType.BUCKET_VOLUME, bucket);
+            if (entry.amount() - reservedFluid(resource, ingredientTokens) >= bucket) {
+                return new RSFluidIngredientToken(resource, bucket, bucketStack);
             }
         }
         return null;
     }
 
-    /**
-     * Drop {@code stack} at the Kitchen Station. Only used when the network refuses a crafting remainder, so the item
-     * ends up on the floor rather than being voided. A no-op for an empty stack, so it can wrap an insert's leftover.
-     */
-    private void dropAtStation(ItemStack stack) {
-        Level level = blockEntity.getLevel();
-        if (level == null || level.isClientSide || stack.isEmpty()) {
-            return;
-        }
-        BlockPos pos = blockEntity.getBlockPos();
-        Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
-    }
-
-    /** Total fluid (mB) already reserved for {@code fluid} by the fluid tokens issued this operation. */
-    private long reservedFluid(Fluid fluid, Collection<IngredientToken> ingredientTokens) {
+    /** Total fluid already reserved for {@code resource} by the fluid tokens issued this operation. */
+    private long reservedFluid(ResourceKey resource, Collection<IngredientToken> ingredientTokens) {
         long reserved = 0;
         for (IngredientToken token : ingredientTokens) {
-            if (token instanceof RSFluidIngredientToken fluidToken && fluidToken.fluid == fluid) {
+            if (token instanceof RSFluidIngredientToken fluidToken && resource.equals(fluidToken.resource)) {
                 reserved += fluidToken.amountPerItem;
             }
         }
@@ -219,105 +242,121 @@ public class RSKitchenItemProvider implements KitchenItemProvider {
 
     // ---- tokens ----
 
-    /** A reference to one item located in the RS network. Doubles as its own {@link CacheHint}. */
+    /** A reference to one item in the RS network. Doubles as its own {@link CacheHint}. */
     public class RSIngredientToken implements IngredientToken, CacheHint {
-        private final ItemStack stack;
+        private final ItemResource resource;
 
-        private RSIngredientToken(ItemStack stack) {
-            this.stack = stack;
+        private RSIngredientToken(ItemResource resource) {
+            this.resource = resource;
         }
 
         @Override
         public ItemStack peek() {
-            INetwork network = getNetwork();
-            if (network == null) {
+            StorageNetworkComponent storage = getStorage();
+            if (storage == null) {
                 return ItemStack.EMPTY;
             }
-            ItemStack stored = network.getItemStorageCache().getList().get(stack);
-            return stored != null ? stored.copy() : ItemStack.EMPTY;
+            long available = storage.get(resource);
+            return available > 0 ? resource.toItemStack(Math.min(available, Integer.MAX_VALUE)) : ItemStack.EMPTY;
         }
 
         @Override
         public ItemStack consume() {
-            INetwork network = getNetwork();
-            if (network == null) {
+            StorageNetworkComponent storage = getStorage();
+            if (storage == null) {
                 return ItemStack.EMPTY;
             }
-            ItemStack consumed = network.extractItem(stack, 1, Action.PERFORM);
-            if (consumed.isEmpty()) {
+            long extracted = storage.extract(resource, 1, Action.EXECUTE, actor);
+            if (extracted <= 0) {
                 return ItemStack.EMPTY;
             }
-
-            // Return crafting remainders (e.g. empty buckets) to the network.
-            ItemStack remainder = Balm.getHooks().getCraftingRemainingItem(consumed);
-            if (!remainder.isEmpty()) {
-                // insertItem hands back whatever wouldn't fit. If the network won't take it — full, or filtered so
-                // nothing accepts it — drop it at the station rather than silently destroying the player's bucket.
-                dropAtStation(network.insertItem(remainder, remainder.getCount(), Action.PERFORM));
-            }
-            return consumed;
+            // Crafting remainders are NOT handled here: CFB hands each one back through restore(). Returning them
+            // here as well would insert every remainder twice — see the class note on restore().
+            return resource.toItemStack(extracted);
         }
 
         @Override
         public ItemStack restore(ItemStack itemStack) {
-            INetwork network = getNetwork();
-            if (network == null || itemStack.isEmpty()) {
+            StorageNetworkComponent storage = getStorage();
+            if (storage == null || itemStack.isEmpty()) {
                 return itemStack;
             }
-            return network.insertItem(itemStack, itemStack.getCount(), Action.PERFORM);
+            ItemResource insertResource = ItemResource.ofItemStack(itemStack);
+            long inserted = storage.insert(insertResource, itemStack.getCount(), Action.EXECUTE, actor);
+            if (inserted >= itemStack.getCount()) {
+                return ItemStack.EMPTY;
+            }
+            ItemStack remainder = itemStack.copy();
+            remainder.shrink((int) inserted);
+            return remainder;
         }
     }
 
     /**
      * A container synthesized from a fluid in the RS network. The container is virtual: {@code consume()} drains the
-     * fluid and yields the item; {@code restore()} refunds the fluid. Mirrors CFB's {@code SinkBlockEntity}.
+     * fluid and yields the item; {@code restore()} refunds it only when the item genuinely comes back. Mirrors CFB's
+     * {@code SinkBlockEntity}.
      */
     public class RSFluidIngredientToken implements IngredientToken, CacheHint {
-        private final Fluid fluid;
-        private final int amountPerItem;
+        private final FluidResource resource;
+        private final long amountPerItem;
         private final ItemStack resultItem;
 
-        private RSFluidIngredientToken(Fluid fluid, int amountPerItem, ItemStack resultItem) {
-            this.fluid = fluid;
+        private RSFluidIngredientToken(FluidResource resource, long amountPerItem, ItemStack resultItem) {
+            this.resource = resource;
             this.amountPerItem = amountPerItem;
             this.resultItem = resultItem;
         }
 
         @Override
         public ItemStack peek() {
-            INetwork network = getNetwork();
-            if (network == null) {
+            StorageNetworkComponent storage = getStorage();
+            if (storage == null) {
                 return ItemStack.EMPTY;
             }
-            FluidStack stored = network.getFluidStorageCache().getList().get(new FluidStack(fluid, amountPerItem));
-            return stored != null && stored.getAmount() >= amountPerItem ? resultItem.copy() : ItemStack.EMPTY;
+            return storage.get(resource) >= amountPerItem ? resultItem.copy() : ItemStack.EMPTY;
         }
 
         @Override
         public ItemStack consume() {
-            INetwork network = getNetwork();
-            if (network == null) {
+            StorageNetworkComponent storage = getStorage();
+            if (storage == null) {
                 return ItemStack.EMPTY;
             }
-            FluidStack extracted = network.extractFluid(new FluidStack(fluid, amountPerItem), amountPerItem, Action.PERFORM);
-            if (extracted.getAmount() < amountPerItem) {
+            long extracted = storage.extract(resource, amountPerItem, Action.EXECUTE, actor);
+            if (extracted < amountPerItem) {
                 // Not enough after all — put back whatever we drained and give up (no partial loss).
-                if (extracted.getAmount() > 0) {
-                    network.insertFluid(extracted, extracted.getAmount(), Action.PERFORM);
+                if (extracted > 0) {
+                    storage.insert(resource, extracted, Action.EXECUTE, actor);
                 }
                 return ItemStack.EMPTY;
             }
-            // CFB produces no recipe remainders, so the container is virtual: spend the fluid, hand back the item.
             return resultItem.copy();
         }
 
         @Override
         public ItemStack restore(ItemStack itemStack) {
-            INetwork network = getNetwork();
-            if (network != null) {
-                // Undo the fluid that consume() spent.
-                network.insertFluid(new FluidStack(fluid, amountPerItem), amountPerItem, Action.PERFORM);
+            // CFB calls restore() once per crafting-grid slot, passing EMPTY wherever the recipe left no remainder,
+            // so an unconditional refund here would hand the fluid straight back and the ingredient would never be
+            // spent at all.
+            if (itemStack.isEmpty()) {
+                return ItemStack.EMPTY;
             }
+
+            StorageNetworkComponent storage = getStorage();
+            if (storage == null) {
+                return itemStack;
+            }
+
+            if (ItemStack.isSameItemSameComponents(itemStack, resultItem)) {
+                // The item consume() handed out is coming back untouched (e.g. the oven was full), so undo the drain.
+                storage.insert(resource, amountPerItem, Action.EXECUTE, actor);
+                return ItemStack.EMPTY;
+            }
+
+            // Anything else is the recipe's remainder for the container we synthesized — the empty bucket left behind
+            // by a water bucket we made out of stored fluid. That container never existed, so putting it in the
+            // network would mint a bucket from nothing. Swallow it; the fluid stays spent, as it should.
             return ItemStack.EMPTY;
         }
     }

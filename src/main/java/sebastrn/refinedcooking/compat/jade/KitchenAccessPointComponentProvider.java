@@ -13,7 +13,8 @@ import snownee.jade.api.config.IPluginConfig;
 
 public class KitchenAccessPointComponentProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
 
-    public static final ResourceLocation KITCHEN_ACCESS_POINT_UID = new ResourceLocation(RefinedCooking.ID, "kitchen_access_point");
+    public static final ResourceLocation KITCHEN_ACCESS_POINT_UID =
+            ResourceLocation.fromNamespaceAndPath(RefinedCooking.ID, "kitchen_access_point");
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
@@ -36,9 +37,9 @@ public class KitchenAccessPointComponentProvider implements IBlockComponentProvi
         KitchenAccessPointBlockEntity kitchenAccessPoint = (KitchenAccessPointBlockEntity) accessor.getBlockEntity();
         // Key "connected" off the node's active state (network + power + redstone) so the tooltip matches the block's
         // lit antennas, and report card / transmission separately to cover all four states.
-        data.putBoolean("connected", kitchenAccessPoint.getNode().isConnected());
-        data.putBoolean("hasCard", kitchenAccessPoint.getNode().hasCard());
-        data.putBoolean("transmitting", kitchenAccessPoint.getNode().getDistance() > -1);
+        data.putBoolean("connected", kitchenAccessPoint.isConnected());
+        data.putBoolean("hasCard", kitchenAccessPoint.hasCard());
+        data.putBoolean("transmitting", kitchenAccessPoint.isTransmitting());
     }
 
     @Override

@@ -13,7 +13,8 @@ import snownee.jade.api.config.IPluginConfig;
 
 public class KitchenStationComponentProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
 
-    public static final ResourceLocation KITCHEN_STATION_UID = new ResourceLocation(RefinedCooking.ID, "kitchen_station");
+    public static final ResourceLocation KITCHEN_STATION_UID =
+            ResourceLocation.fromNamespaceAndPath(RefinedCooking.ID, "kitchen_station");
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
@@ -27,13 +28,10 @@ public class KitchenStationComponentProvider implements IBlockComponentProvider,
     @Override
     public void appendServerData(CompoundTag data, BlockAccessor accessor) {
         KitchenStationBlockEntity kitchenStation = (KitchenStationBlockEntity) accessor.getBlockEntity();
-        if (kitchenStation.getNode().getNetwork() != null) {
+        kitchenStation.getNetworkControllerPos().ifPresent(pos -> {
             data.putBoolean("isConnectedToNetwork", true);
-            data.putString("RSNetworkPosition", "%d, %d, %d".formatted(
-                    kitchenStation.getNode().getNetwork().getPosition().getX(),
-                    kitchenStation.getNode().getNetwork().getPosition().getY(),
-                    kitchenStation.getNode().getNetwork().getPosition().getZ()));
-        }
+            data.putString("RSNetworkPosition", "%d, %d, %d".formatted(pos.getX(), pos.getY(), pos.getZ()));
+        });
     }
 
     @Override
