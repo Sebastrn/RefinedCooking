@@ -60,8 +60,10 @@ public class KitchenAccessPointBlock extends AbstractDirectionalBlock<Horizontal
                 }
             };
 
-    public KitchenAccessPointBlock() {
-        super(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).sound(SoundType.METAL).strength(2.5f));
+    // 26.1 requires the registry id on the Properties (setId), so registration passes the built Properties in
+    // (via DeferredRegister.Blocks#registerBlock) rather than the block building its own.
+    public KitchenAccessPointBlock(BlockBehaviour.Properties properties) {
+        super(properties);
     }
 
     @Override

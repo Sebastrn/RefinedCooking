@@ -1,5 +1,10 @@
 package sebastrn.refinedcooking.compat.theoneprobe;
 
+// ⚠ DISABLED for 26.1.2 — The One Probe has no 26.1 build (k-4u maven ends at 1.21_neo), so its API is not on
+// the classpath and this class cannot compile. Body block-commented; re-enable with the TOP dependency in
+// build.gradle and the wiring in RefinedCooking when a 26.1 TOP ships. Kept verbatim.
+/*
+
 import sebastrn.refinedcooking.RefinedCooking;
 import sebastrn.refinedcooking.RefinedCookingItems;
 import sebastrn.refinedcooking.block.KitchenAccessPointBlock;
@@ -103,3 +108,4 @@ public class TheOneProbeAddon {
         }
     }
 }
+*/

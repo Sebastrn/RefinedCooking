@@ -9,12 +9,13 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
 import sebastrn.refinedcooking.block.KitchenStationBlock;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * Binds an Access Point to a Kitchen Station: right-click a placed Station to record its position, then insert the
@@ -28,8 +29,8 @@ import java.util.Optional;
  */
 public class KitchenNetworkCardItem extends Item {
 
-    public KitchenNetworkCardItem() {
-        super(new Item.Properties().stacksTo(1));
+    public KitchenNetworkCardItem(Item.Properties properties) {
+        super(properties);
     }
 
     @Override
@@ -49,16 +50,16 @@ public class KitchenNetworkCardItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, context, tooltip, flag);
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, context, display, tooltip, flag);
         getLocation(stack).ifPresent(location -> {
             BlockPos pos = location.pos();
-            tooltip.add(Component.translatable(
+            tooltip.accept(Component.translatable(
                     "misc.refinedcooking.kitchen_network_card.tooltip",
                     pos.getX(),
                     pos.getY(),
                     pos.getZ(),
-                    location.dimension().location().toString()
+                    location.dimension().identifier().toString()
             ).withStyle(ChatFormatting.GRAY));
         });
     }

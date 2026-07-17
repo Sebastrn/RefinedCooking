@@ -14,8 +14,8 @@ import snownee.jade.api.WailaPlugin;
 public class JadePlugin implements IWailaPlugin {
     @Override
     public void register(IWailaCommonRegistration registration) {
-        registration.registerBlockDataProvider(new KitchenStationComponentProvider(), KitchenStationBlockEntity.class);
-        registration.registerBlockDataProvider(new KitchenAccessPointComponentProvider(), KitchenAccessPointBlockEntity.class);
+        registration.registerBlockDataProvider(new KitchenStationServerDataProvider(), KitchenStationBlockEntity.class);
+        registration.registerBlockDataProvider(new KitchenAccessPointServerDataProvider(), KitchenAccessPointBlockEntity.class);
     }
 
     @Override

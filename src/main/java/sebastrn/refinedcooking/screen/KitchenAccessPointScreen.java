@@ -3,11 +3,11 @@ package sebastrn.refinedcooking.screen;
 import com.refinedmods.refinedstorage.common.support.AbstractBaseScreen;
 import com.refinedmods.refinedstorage.common.support.containermenu.PropertyTypes;
 import com.refinedmods.refinedstorage.common.support.widget.RedstoneModeSideButtonWidget;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import sebastrn.refinedcooking.RefinedCooking;
@@ -24,14 +24,13 @@ import java.util.Optional;
  */
 public class KitchenAccessPointScreen extends AbstractBaseScreen<KitchenAccessPointContainerMenu> {
 
-    private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(RefinedCooking.ID, "textures/gui/kitchen_access_point.png");
+    private static final Identifier TEXTURE =
+            Identifier.fromNamespaceAndPath(RefinedCooking.ID, "textures/gui/kitchen_access_point.png");
 
     public KitchenAccessPointScreen(KitchenAccessPointContainerMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title);
+        // 26.1's imageWidth/imageHeight are final ctor params now, not assignable fields.
+        super(menu, inventory, title, 176, 137);
         this.inventoryLabelY = 42;
-        this.imageWidth = 176;
-        this.imageHeight = 137;
     }
 
     @Override
@@ -40,10 +39,12 @@ public class KitchenAccessPointScreen extends AbstractBaseScreen<KitchenAccessPo
         addSideButton(new RedstoneModeSideButtonWidget(getMenu().getProperty(PropertyTypes.REDSTONE_MODE)));
     }
 
+    // RS2 3.2.1 routes screen drawing through its own GuiGraphicsExtractor and renamed the label hook to extractLabels;
+    // graphics.text replaces drawString.
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        super.renderLabels(graphics, mouseX, mouseY);
-        graphics.drawString(font, getStatusText(), 51, 24, 4210752, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        super.extractLabels(graphics, mouseX, mouseY);
+        graphics.text(font, getStatusText(), 51, 24, 4210752, false);
     }
 
     /**
@@ -70,7 +71,7 @@ public class KitchenAccessPointScreen extends AbstractBaseScreen<KitchenAccessPo
         GlobalPos stationPos = station.get();
         GlobalPos self = getMenu().getAccessPointPos();
         if (!self.dimension().equals(stationPos.dimension())) {
-            return stationPos.dimension().location().toString();
+            return stationPos.dimension().identifier().toString();
         }
         int distance = (int) Math.sqrt(self.pos().distSqr(stationPos.pos()));
         return I18n.get("gui.refinedcooking.kitchen_access_point.distance", distance);
@@ -85,7 +86,7 @@ public class KitchenAccessPointScreen extends AbstractBaseScreen<KitchenAccessPo
     }
 
     @Override
-    protected ResourceLocation getTexture() {
+    protected Identifier getTexture() {
         return TEXTURE;
     }
 }

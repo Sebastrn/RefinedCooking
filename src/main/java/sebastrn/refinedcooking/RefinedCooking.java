@@ -2,23 +2,23 @@ package sebastrn.refinedcooking;
 
 import com.refinedmods.refinedstorage.common.api.support.network.AbstractNetworkNodeContainerBlockEntity;
 import com.refinedmods.refinedstorage.neoforge.api.RefinedStorageNeoForgeApi;
-import net.blay09.mods.balm.api.Balm;
-import net.blay09.mods.balm.neoforge.provider.NeoForgeBalmProviders;
 import net.blay09.mods.cookingforblockheads.api.KitchenItemProvider;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
+// The One Probe integration is disabled for 26.1.2 (no 26.1 TOP build). Imports kept, commented, for easy re-enable.
+// import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
-import sebastrn.refinedcooking.compat.Compat;
-import sebastrn.refinedcooking.compat.theoneprobe.TheOneProbeAddon;
+import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
+// import sebastrn.refinedcooking.compat.Compat;
+// import sebastrn.refinedcooking.compat.theoneprobe.TheOneProbeAddon;
 import sebastrn.refinedcooking.config.ServerConfig;
 import sebastrn.refinedcooking.setup.ClientSetup;
 
@@ -38,9 +38,9 @@ public final class RefinedCooking {
         RefinedCookingCreativeTab.register(modEventBus);
 
         modEventBus.addListener(this::registerCapabilities);
-        modEventBus.addListener(this::enqueueIMC);
+        // modEventBus.addListener(this::enqueueIMC);  // TOP integration disabled for 26.1.2
 
-        if (FMLEnvironment.dist == Dist.CLIENT) {
+        if (FMLEnvironment.getDist() == Dist.CLIENT) {
             modEventBus.addListener(ClientSetup::onRegisterMenuScreens);
         }
     }
@@ -60,18 +60,21 @@ public final class RefinedCooking {
         registerNetworkNodeContainerProvider(event, RefinedCookingBlockEntities.KITCHEN_STATION.get());
         registerNetworkNodeContainerProvider(event, RefinedCookingBlockEntities.KITCHEN_ACCESS_POINT.get());
 
-        @SuppressWarnings("unchecked")
-        BlockCapability<KitchenItemProvider, Void> kitchenItemProvider =
-                (BlockCapability<KitchenItemProvider, Void>) ((NeoForgeBalmProviders) Balm.getProviders())
-                        .getBlockCapability(KitchenItemProvider.class);
+        // Balm 26.1 dropped the getProviders()/NeoForgeBalmProviders route; CFB now backs its kitchen_item_provider
+        // capability with a plain NeoForge BlockCapability. Those are singletons keyed by name+type+context, so
+        // re-creating CFB's exact one here returns the very object CFB's scanner looks up, independent of init order.
+        BlockCapability<KitchenItemProvider, Void> kitchenItemProvider = BlockCapability.create(
+                Identifier.fromNamespaceAndPath("cookingforblockheads", "kitchen_item_provider"),
+                KitchenItemProvider.class, Void.class);
 
         event.registerBlockEntity(kitchenItemProvider, RefinedCookingBlockEntities.KITCHEN_STATION.get(),
                 (blockEntity, context) -> blockEntity.getItemProvider());
 
-        // RS2's card slot is a vanilla Container, where RS1's was an IItemHandler — wrap it so hoppers and pipes can
-        // still insert and pull the card, as they could before.
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, RefinedCookingBlockEntities.KITCHEN_ACCESS_POINT.get(),
-                (blockEntity, context) -> new InvWrapper(blockEntity.getNetworkCardInventory()));
+        // Expose the card slot (a vanilla Container) as the item capability so hoppers and pipes can still insert and
+        // pull the card. 26.1's Capabilities.Item.BLOCK is the new ResourceHandler<ItemResource>, not IItemHandler, so
+        // wrap via NeoForge's VanillaContainerWrapper (the same adapter RS2 uses for its own disk inventories).
+        event.registerBlockEntity(Capabilities.Item.BLOCK, RefinedCookingBlockEntities.KITCHEN_ACCESS_POINT.get(),
+                (blockEntity, context) -> VanillaContainerWrapper.of(blockEntity.getNetworkCardInventory()));
     }
 
     /**
@@ -94,9 +97,11 @@ public final class RefinedCooking {
         );
     }
 
-    private void enqueueIMC(InterModEnqueueEvent event) {
-        if (Balm.isModLoaded(Compat.THEONEPROBE)) {
-            TheOneProbeAddon.register();
-        }
-    }
+    // The One Probe integration — disabled for 26.1.2 (no 26.1 TOP build). Re-enable with the imports, the
+    // addListener call above, and TheOneProbeAddon when McJty ships a 26.1 TOP.
+    // private void enqueueIMC(InterModEnqueueEvent event) {
+    //     if (Balm.isModLoaded(Compat.THEONEPROBE)) {
+    //         TheOneProbeAddon.register();
+    //     }
+    // }
 }

@@ -8,7 +8,7 @@ import com.refinedmods.refinedstorage.common.support.containermenu.PropertyTypes
 import com.refinedmods.refinedstorage.common.support.containermenu.ServerProperty;
 import com.refinedmods.refinedstorage.common.support.containermenu.ValidatedSlot;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -35,7 +35,7 @@ public class KitchenAccessPointContainerMenu extends AbstractBaseContainerMenu {
      * is an enum rather than the richer record RS's Transmitter pushes.
      */
     public static final PropertyType<KitchenAccessPointStatus> STATUS = new PropertyType<>(
-            ResourceLocation.fromNamespaceAndPath(RefinedCooking.ID, "kitchen_access_point_status"),
+            Identifier.fromNamespaceAndPath(RefinedCooking.ID, "kitchen_access_point_status"),
             KitchenAccessPointStatus::toId,
             KitchenAccessPointStatus::fromId
     );

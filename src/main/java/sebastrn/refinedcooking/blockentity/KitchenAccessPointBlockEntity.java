@@ -6,27 +6,26 @@ import com.refinedmods.refinedstorage.api.network.node.GraphNetworkComponent;
 import com.refinedmods.refinedstorage.common.api.RefinedStorageApi;
 import com.refinedmods.refinedstorage.common.api.support.network.ConnectionSink;
 import com.refinedmods.refinedstorage.common.api.support.network.InWorldNetworkNodeContainer;
-import com.refinedmods.refinedstorage.common.support.BlockEntityWithDrops;
 import com.refinedmods.refinedstorage.common.support.containermenu.NetworkNodeExtendedMenuProvider;
 import com.refinedmods.refinedstorage.common.support.network.AbstractBaseNetworkNodeContainerBlockEntity;
 import com.refinedmods.refinedstorage.common.support.network.SimpleConnectionStrategy;
-import com.refinedmods.refinedstorage.common.util.ContainerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamEncoder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.Container;
+import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import sebastrn.refinedcooking.RefinedCooking;
 import sebastrn.refinedcooking.RefinedCookingBlockEntities;
 import sebastrn.refinedcooking.block.KitchenAccessPointBlock;
@@ -53,25 +52,29 @@ import javax.annotation.Nullable;
  */
 public class KitchenAccessPointBlockEntity
         extends AbstractBaseNetworkNodeContainerBlockEntity<KitchenAccessPointNetworkNode>
-        implements NetworkNodeExtendedMenuProvider<GlobalPos>, BlockEntityWithDrops {
+        implements NetworkNodeExtendedMenuProvider<GlobalPos> {
 
     private static final String TAG_NETWORK_CARD_INVENTORY = "nc";
 
-    private final KitchenNetworkCardInventory networkCardInventory = new KitchenNetworkCardInventory();
+    // 26.1 removed SimpleContainer's listener API; hook card changes by overriding setChanged, the way RS's own
+    // Network Transmitter does. The card decides where we connect, so a change has to rebuild the network graph.
+    private final KitchenNetworkCardInventory networkCardInventory = new KitchenNetworkCardInventory() {
+        @Override
+        public void setChanged() {
+            super.setChanged();
+            updateStationLocation();
+            if (level != null && !level.isClientSide()) {
+                KitchenAccessPointBlockEntity.this.setChanged();
+                containers.update(level);
+            }
+        }
+    };
     private final RateLimiter stateChangeRateLimiter = RateLimiter.create(1);
     private final RateLimiter networkRebuildRetryRateLimiter = RateLimiter.create(1 / 5D);
 
     public KitchenAccessPointBlockEntity(BlockPos pos, BlockState state) {
         super(RefinedCookingBlockEntities.KITCHEN_ACCESS_POINT.get(), pos, state,
                 new KitchenAccessPointNetworkNode(RefinedCooking.SERVER_CONFIG.getKitchenAccessPoint().getUsage()));
-        networkCardInventory.addListener(container -> {
-            updateStationLocation();
-            if (level != null) {
-                // The card decides where we connect, so the graph has to be rebuilt when it changes.
-                setChanged();
-                containers.update(level);
-            }
-        });
     }
 
     @Override
@@ -212,19 +215,21 @@ public class KitchenAccessPointBlockEntity
 
     // ---- persistence ----
 
+    // 26.1 BE serialization is ValueInput/ValueOutput, and RS2 3.2.1 dropped ContainerUtil — the card slot round-trips
+    // through the vanilla ItemContainerContents data component, exactly as RS's own Network Transmitter does.
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put(TAG_NETWORK_CARD_INVENTORY, ContainerUtil.write(networkCardInventory, provider));
+    public void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.store(TAG_NETWORK_CARD_INVENTORY, ItemContainerContents.CODEC,
+                ItemContainerContents.fromItems(networkCardInventory.getItems()));
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains(TAG_NETWORK_CARD_INVENTORY)) {
-            ContainerUtil.read(tag.getCompound(TAG_NETWORK_CARD_INVENTORY), networkCardInventory, provider);
-        }
+    public void loadAdditional(ValueInput input) {
+        input.read(TAG_NETWORK_CARD_INVENTORY, ItemContainerContents.CODEC)
+                .ifPresent(contents -> contents.copyInto(networkCardInventory.getItems()));
         updateStationLocation();
+        super.loadAdditional(input);
     }
 
     // ---- menu ----
@@ -251,8 +256,15 @@ public class KitchenAccessPointBlockEntity
         return overrideName(Component.translatable("gui.refinedcooking.kitchen_access_point"));
     }
 
+    /**
+     * Drops the inserted card when the block is broken. RS2 3.2.1 dropped the {@code BlockEntityWithDrops} interface,
+     * so the card is dropped here the vanilla way — the same as RS's own Network Transmitter.
+     */
     @Override
-    public NonNullList<ItemStack> getDrops() {
-        return NonNullList.of(ItemStack.EMPTY, networkCardInventory.getNetworkCard());
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        if (level != null) {
+            Containers.dropContents(level, pos, networkCardInventory);
+        }
     }
 }
