@@ -24,6 +24,17 @@ public enum KitchenAccessPointStatus {
     /** Bound to a station that really is in our network. */
     TRANSMITTING;
 
+    /** True when actively projecting to a station — the state that animates the transmitting icon. */
+    public boolean transmitting() {
+        return this == TRANSMITTING;
+    }
+
+    /** True for the states that warrant the warning marker (a card problem), matching RS's Transmitter. INACTIVE is not
+     * an error — it renders as a plain static icon, exactly as RS shows it. */
+    public boolean error() {
+        return this == MISSING_CARD || this == UNBOUND_CARD || this == UNREACHABLE;
+    }
+
     private static final KitchenAccessPointStatus[] VALUES = values();
 
     public static int toId(KitchenAccessPointStatus status) {

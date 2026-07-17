@@ -1,6 +1,17 @@
 {
   "parent": "item/generated",
-  "textures": {
-    "layer0": "refinedcooking:item/kitchen_network_card"
-  }
+  "overrides": [
+    {
+      "predicate": {
+        "refinedcooking:network_card_bound": 0
+      },
+      "model": "refinedcooking:item/kitchen_network_card/unbound"
+    },
+    {
+      "predicate": {
+        "refinedcooking:network_card_bound": 1
+      },
+      "model": "refinedcooking:item/kitchen_network_card/bound"
+    }
+  ]
 }

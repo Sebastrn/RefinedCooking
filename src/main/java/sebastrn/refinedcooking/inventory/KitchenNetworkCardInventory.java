@@ -12,14 +12,13 @@ import java.util.function.Predicate;
  * The Access Point's single card slot. Mirrors RS's own {@code NetworkCardInventory}, which is package-private and so
  * cannot be reused — but {@code FilteredContainer} is public, which is all it was built on.
  * <p>
- * Unbound cards are accepted, which is where this parts company with RS: RS's card slot takes bound cards only, but
- * ours has always taken any card, and the block has a state for exactly that ("card inserted, not transmitting").
- * Rejecting them outright would also be silent — RS's card tooltip says "Unbound", ours says nothing at all, so a
- * card that simply refused to go in would leave nothing to explain why.
+ * Bound-only, exactly like RS's slot: an unbound card cannot be inserted. This is discoverable rather than silent
+ * because the card carries a distinct bound/unbound item texture, so a card that won't go in shows why in the hand.
  */
 public class KitchenNetworkCardInventory extends FilteredContainer {
 
-    public static final Predicate<ItemStack> IS_CARD = stack -> stack.getItem() instanceof KitchenNetworkCardItem;
+    public static final Predicate<ItemStack> IS_CARD =
+            stack -> stack.getItem() instanceof KitchenNetworkCardItem card && card.isBound(stack);
 
     public KitchenNetworkCardInventory() {
         super(1, IS_CARD);

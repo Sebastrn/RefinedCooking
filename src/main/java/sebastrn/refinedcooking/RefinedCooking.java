@@ -42,6 +42,7 @@ public final class RefinedCooking {
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
             modEventBus.addListener(ClientSetup::onRegisterMenuScreens);
+            modEventBus.addListener(ClientSetup::onClientSetup);
         }
     }
 
