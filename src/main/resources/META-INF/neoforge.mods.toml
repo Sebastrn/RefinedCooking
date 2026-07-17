@@ -23,9 +23,9 @@ versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
 
-# RS's final 1.20.4 build is v1.13.0-beta.4 (the 1.20.4 line ends there; later versions are RS2). A "[1.13,)"
-# bound would reject it, since the prerelease 1.13.0-beta.4 sorts below the 1.13.0 release. "[1.12,)" accepts
-# the beta and matches the RS v1 API surface this mod builds on.
+# Refined Storage 2. Its modId is still "refinedstorage" and it declares a plain "2.0.9" — no prerelease
+# qualifier — so the "[1.12,)" bound the 1.20.4 branch needed (to accept RS v1's final v1.13.0-beta.4, which
+# sorted below its own release) retires with it.
 [[dependencies.refinedcooking]]
 modId = "refinedstorage"
 type = "required"
