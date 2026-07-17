@@ -1,6 +1,5 @@
 package sebastrn.refinedcooking.block;
 
-import com.refinedmods.refinedstorage.api.network.impl.node.SimpleNetworkNode;
 import com.refinedmods.refinedstorage.common.support.AbstractBlockEntityTicker;
 import com.refinedmods.refinedstorage.common.support.AbstractDirectionalBlock;
 import com.refinedmods.refinedstorage.common.support.direction.DirectionType;
@@ -27,6 +26,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import sebastrn.refinedcooking.RefinedCookingBlockEntities;
 import sebastrn.refinedcooking.blockentity.KitchenAccessPointBlockEntity;
+import sebastrn.refinedcooking.network.KitchenAccessPointNetworkNode;
 
 import javax.annotation.Nullable;
 
@@ -51,7 +51,7 @@ public class KitchenAccessPointBlock extends AbstractDirectionalBlock<Horizontal
      * fighting over the blockstate.
      */
     private static final AbstractBlockEntityTicker<KitchenAccessPointBlockEntity> TICKER =
-            new NetworkNodeBlockEntityTicker<SimpleNetworkNode, KitchenAccessPointBlockEntity>(
+            new NetworkNodeBlockEntityTicker<KitchenAccessPointNetworkNode, KitchenAccessPointBlockEntity>(
                     RefinedCookingBlockEntities.KITCHEN_ACCESS_POINT::get) {
                 @Override
                 public void tick(Level level, BlockPos pos, BlockState state, KitchenAccessPointBlockEntity be) {

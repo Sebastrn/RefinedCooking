@@ -2,7 +2,6 @@ package sebastrn.refinedcooking.blockentity;
 
 import com.refinedmods.refinedstorage.api.network.Network;
 import com.refinedmods.refinedstorage.api.network.impl.node.SimpleNetworkNode;
-import com.refinedmods.refinedstorage.api.network.impl.node.controller.ControllerNetworkNode;
 import com.refinedmods.refinedstorage.api.network.node.GraphNetworkComponent;
 import com.refinedmods.refinedstorage.common.api.RefinedStorageApi;
 import com.refinedmods.refinedstorage.common.api.support.network.InWorldNetworkNodeContainer;
@@ -15,6 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import sebastrn.refinedcooking.RefinedCooking;
 import sebastrn.refinedcooking.RefinedCookingBlockEntities;
 import sebastrn.refinedcooking.api.cookingforblockheads.capability.RSKitchenItemProvider;
+import sebastrn.refinedcooking.network.KitchenAccessPointNetworkNode;
 import sebastrn.refinedcooking.network.KitchenStationKey;
 
 import javax.annotation.Nullable;
@@ -84,17 +84,26 @@ public class KitchenStationBlockEntity extends AbstractBaseNetworkNodeContainerB
     }
 
     /**
-     * A controller in our network, for the Jade / The One Probe tooltips — the closest thing RS2 has to RS1's
-     * {@code INetwork.getPosition()}, which is gone: an RS2 network is a graph with no single anchor, and may hold
-     * more than one controller (RS1 allowed exactly one), so we report the first the graph gives us.
+     * The Access Point that linked us, for the Jade / The One Probe tooltips — i.e. the point the network reaches
+     * this station from, which is also where the card sits.
+     * <p>
+     * This replaces RS1's {@code INetwork.getPosition()}, which reported the controller and is gone: an RS2 network
+     * is an unanchored graph. Reporting a controller instead would be a poor substitute even where one can be
+     * found — RS2 treats controllers as an energy pool you add to, so a network routinely has several and which one
+     * you got would be arbitrary and liable to change. The Access Point is the thing actually bound to this station.
+     * <p>
+     * Nothing stops several Access Points pointing at one station, so this reports the first; unlike the controller
+     * case that is a genuinely odd setup rather than the norm.
      */
-    public Optional<BlockPos> getNetworkControllerPos() {
+    public Optional<BlockPos> getLinkedAccessPointPos() {
         Network network = getNetwork();
-        if (network == null) {
+        if (network == null || level == null) {
             return Optional.empty();
         }
+        GlobalPos self = GlobalPos.of(level.dimension(), getBlockPos());
         return network.getComponent(GraphNetworkComponent.class).getContainers().stream()
-                .filter(container -> container.getNode() instanceof ControllerNetworkNode)
+                .filter(container -> container.getNode() instanceof KitchenAccessPointNetworkNode accessPoint
+                        && self.equals(accessPoint.getStationPos()))
                 .filter(InWorldNetworkNodeContainer.class::isInstance)
                 .map(container -> ((InWorldNetworkNodeContainer) container).getPosition().pos())
                 .findFirst();

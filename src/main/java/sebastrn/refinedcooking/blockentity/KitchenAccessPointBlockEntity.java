@@ -2,7 +2,6 @@ package sebastrn.refinedcooking.blockentity;
 
 import com.google.common.util.concurrent.RateLimiter;
 import com.refinedmods.refinedstorage.api.network.Network;
-import com.refinedmods.refinedstorage.api.network.impl.node.SimpleNetworkNode;
 import com.refinedmods.refinedstorage.api.network.node.GraphNetworkComponent;
 import com.refinedmods.refinedstorage.common.api.RefinedStorageApi;
 import com.refinedmods.refinedstorage.common.api.support.network.ConnectionSink;
@@ -34,6 +33,7 @@ import sebastrn.refinedcooking.block.KitchenAccessPointBlock;
 import sebastrn.refinedcooking.block.KitchenStationBlock;
 import sebastrn.refinedcooking.container.KitchenAccessPointContainerMenu;
 import sebastrn.refinedcooking.inventory.KitchenNetworkCardInventory;
+import sebastrn.refinedcooking.network.KitchenAccessPointNetworkNode;
 import sebastrn.refinedcooking.network.KitchenStationKey;
 
 import javax.annotation.Nullable;
@@ -52,7 +52,7 @@ import javax.annotation.Nullable;
  * sent once as the menu's extended data ({@link #getMenuData()}). See {@code KitchenAccessPointScreen}.
  */
 public class KitchenAccessPointBlockEntity
-        extends AbstractBaseNetworkNodeContainerBlockEntity<SimpleNetworkNode>
+        extends AbstractBaseNetworkNodeContainerBlockEntity<KitchenAccessPointNetworkNode>
         implements NetworkNodeExtendedMenuProvider<GlobalPos>, BlockEntityWithDrops {
 
     private static final String TAG_NETWORK_CARD_INVENTORY = "nc";
@@ -61,13 +61,9 @@ public class KitchenAccessPointBlockEntity
     private final RateLimiter stateChangeRateLimiter = RateLimiter.create(1);
     private final RateLimiter networkRebuildRetryRateLimiter = RateLimiter.create(1 / 5D);
 
-    /** Where the inserted card points, or null when there is no (bound) card. Mirrors the card's data component. */
-    @Nullable
-    private GlobalPos stationPos;
-
     public KitchenAccessPointBlockEntity(BlockPos pos, BlockState state) {
         super(RefinedCookingBlockEntities.KITCHEN_ACCESS_POINT.get(), pos, state,
-                new SimpleNetworkNode(RefinedCooking.SERVER_CONFIG.getKitchenAccessPoint().getUsage()));
+                new KitchenAccessPointNetworkNode(RefinedCooking.SERVER_CONFIG.getKitchenAccessPoint().getUsage()));
         networkCardInventory.addListener(container -> {
             updateStationLocation();
             if (level != null) {
@@ -79,13 +75,14 @@ public class KitchenAccessPointBlockEntity
     }
 
     @Override
-    protected InWorldNetworkNodeContainer createMainContainer(SimpleNetworkNode networkNode) {
+    protected InWorldNetworkNodeContainer createMainContainer(KitchenAccessPointNetworkNode networkNode) {
         return RefinedStorageApi.INSTANCE.createNetworkNodeContainer(this, networkNode)
                 // All six sides, as every RS1 node did (see KitchenStationBlockEntity), plus the remote link.
                 .connectionStrategy(new SimpleConnectionStrategy(getBlockPos()) {
                     @Override
                     public void addOutgoingConnections(ConnectionSink sink) {
                         super.addOutgoingConnections(sink);
+                        GlobalPos stationPos = mainNetworkNode.getStationPos();
                         if (stationPos != null && mainNetworkNode.isActive()) {
                             sink.tryConnect(stationPos, KitchenStationBlock.class);
                         }
@@ -127,17 +124,18 @@ public class KitchenAccessPointBlockEntity
     public void doWork() {
         super.doWork();
         Network network = mainNetworkNode.getNetwork();
+        GlobalPos stationPos = mainNetworkNode.getStationPos();
         if (!mainNetworkNode.isActive() || network == null || stationPos == null) {
             return;
         }
         if (!isStationInNetwork(network, stationPos) && networkRebuildRetryRateLimiter.tryAcquire()
-                && isStationLoadedInLevel()) {
+                && isStationLoadedInLevel(stationPos)) {
             containers.update(level);
         }
     }
 
-    private boolean isStationLoadedInLevel() {
-        if (level == null || stationPos == null) {
+    private boolean isStationLoadedInLevel(GlobalPos stationPos) {
+        if (level == null) {
             return false;
         }
         MinecraftServer server = level.getServer();
@@ -156,7 +154,7 @@ public class KitchenAccessPointBlockEntity
     }
 
     private void updateStationLocation() {
-        stationPos = networkCardInventory.getStationLocation().orElse(null);
+        mainNetworkNode.setStationPos(networkCardInventory.getStationLocation().orElse(null));
     }
 
     // ---- state, as the Jade / The One Probe tooltips report it ----
@@ -173,6 +171,7 @@ public class KitchenAccessPointBlockEntity
 
     /** Distance to the bound station, or -1 when there is no card, or it is in another dimension. */
     public int getDistance() {
+        GlobalPos stationPos = mainNetworkNode.getStationPos();
         if (stationPos == null || level == null || !level.dimension().equals(stationPos.dimension())) {
             return -1;
         }
@@ -182,6 +181,7 @@ public class KitchenAccessPointBlockEntity
     /** True when a bound card names a station that is actually present in our network. */
     public boolean isTransmitting() {
         Network network = mainNetworkNode.getNetwork();
+        GlobalPos stationPos = mainNetworkNode.getStationPos();
         return stationPos != null && mainNetworkNode.isActive() && network != null
                 && isStationInNetwork(network, stationPos);
     }

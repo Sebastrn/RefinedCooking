@@ -28,7 +28,7 @@ public class KitchenStationComponentProvider implements IBlockComponentProvider,
     @Override
     public void appendServerData(CompoundTag data, BlockAccessor accessor) {
         KitchenStationBlockEntity kitchenStation = (KitchenStationBlockEntity) accessor.getBlockEntity();
-        kitchenStation.getNetworkControllerPos().ifPresent(pos -> {
+        kitchenStation.getLinkedAccessPointPos().ifPresent(pos -> {
             data.putBoolean("isConnectedToNetwork", true);
             data.putString("RSNetworkPosition", "%d, %d, %d".formatted(pos.getX(), pos.getY(), pos.getZ()));
         });

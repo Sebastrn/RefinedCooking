@@ -51,12 +51,12 @@ public class TheOneProbeAddon {
             if (state.getBlock() instanceof KitchenStationBlock) {
                 var kitchenStationBlockEntity = tryGetTileEntity(level, data.getPos(), KitchenStationBlockEntity.class);
                 if (kitchenStationBlockEntity != null) {
-                    var controllerPos = kitchenStationBlockEntity.getNetworkControllerPos();
-                    if (controllerPos.isPresent()) {
+                    var accessPointPos = kitchenStationBlockEntity.getLinkedAccessPointPos();
+                    if (accessPointPos.isPresent()) {
                         info.mcText(Component.translatable("jade.refinedcooking:kitchen_station", "%d, %d, %d".formatted(
-                                        controllerPos.get().getX(),
-                                        controllerPos.get().getY(),
-                                        controllerPos.get().getZ()))
+                                        accessPointPos.get().getX(),
+                                        accessPointPos.get().getY(),
+                                        accessPointPos.get().getZ()))
                                 .withStyle(ChatFormatting.GRAY));
                     } else {
                         info.mcText(Component.translatable("jade.refinedcooking:offline").withStyle(ChatFormatting.GRAY));
