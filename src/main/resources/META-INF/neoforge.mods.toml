@@ -29,21 +29,21 @@ side = "BOTH"
 [[dependencies.refinedcooking]]
 modId = "refinedstorage"
 type = "required"
-versionRange = "[1.12,)"
+versionRange = "[2.0,)"
 ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.refinedcooking]]
 modId = "cookingforblockheads"
 type = "required"
-versionRange = "[18,)"
+versionRange = "[21.1.7,)"
 ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.refinedcooking]]
 modId = "balm"
 type = "required"
-versionRange = "[9,)"
+versionRange = "[21,)"
 ordering = "AFTER"
 side = "BOTH"
 
