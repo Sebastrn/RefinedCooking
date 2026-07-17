@@ -2,6 +2,11 @@
 
 All notable changes to **Refined Cooking** are listed here.
 
+## 5.0.1
+
+### Fixed
+- The **Refined Cooking Guide** item showed Applied Cooking's book icon instead of its own.
+
 ## 5.0.0
 
 First **NeoForge 1.20.4** release, ported from Forge 1.20.1.
