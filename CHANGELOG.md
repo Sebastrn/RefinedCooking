@@ -2,6 +2,21 @@
 
 All notable changes to **Refined Cooking** are listed here.
 
+## 6.1.0
+
+A visual pass on the Kitchen Access Point, bringing its screen and network card fully in line with Refined Storage's
+own Network Transmitter. No gameplay changes beyond the card slot now matching the Transmitter's.
+
+### Added
+- **The Kitchen Access Point screen now matches Refined Storage's own Network Transmitter**: the transmitting
+  animation between the card slot and the status, and a warning marker on the problem states (missing card, unbound
+  card, or a Station it can't reach).
+- **The network card shows a distinct bound/unbound texture**, so you can tell a bound card apart in the inventory.
+
+### Changed
+- **The card slot only accepts a bound card now**, like the Network Transmitter — right-click the card on a Station
+  to bind it first. The bound/unbound texture makes a card that won't go in easy to spot.
+
 ## 6.0.0
 
 Updated to **Minecraft 1.21.1** on NeoForge, and rebuilt on **Refined Storage 2**. Everything from 5.1.0 carries
