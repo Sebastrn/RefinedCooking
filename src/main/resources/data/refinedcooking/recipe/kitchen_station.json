@@ -13,7 +13,7 @@
       "item": "refinedstorage:construction_core"
     },
     "G": {
-      "tag": "forge:glass"
+      "tag": "c:glass_blocks"
     },
     "B": {
       "item": "cookingforblockheads:recipe_book"
@@ -29,6 +29,7 @@
     }
   },
   "result": {
-    "item": "refinedcooking:kitchen_station"
+    "id": "refinedcooking:kitchen_station",
+    "count": 1
   }
 }

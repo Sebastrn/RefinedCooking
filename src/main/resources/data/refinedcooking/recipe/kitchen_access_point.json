@@ -7,7 +7,7 @@
   ],
   "key": {
     "E": {
-      "tag": "forge:ender_pearls"
+      "tag": "c:ender_pearls"
     },
     "B": {
       "item": "cookingforblockheads:recipe_book"
@@ -29,6 +29,7 @@
     }
   },
   "result": {
-    "item": "refinedcooking:kitchen_access_point"
+    "id": "refinedcooking:kitchen_access_point",
+    "count": 1
   }
 }
