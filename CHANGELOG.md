@@ -2,6 +2,24 @@
 
 All notable changes to **Refined Cooking** are listed here.
 
+## 7.0.0
+
+Updated to **Minecraft 26.1.2** on NeoForge, now running on **Java 25**, and on **Refined Storage 2 3.2.1**.
+Everything from 6.0.0 carries over: network items and fluids in the Cooking Table, the configurable power draw,
+the guide book, JEI, and Jade.
+
+### Added
+- **The Kitchen Access Point screen now matches Refined Storage's own Network Transmitter**: the transmitting
+  animation between the card slot and the status, a warning marker on the problem states, and a distinct
+  bound/unbound texture on the network card.
+
+### Changed
+- **The card slot only accepts a bound card now**, like the Network Transmitter — right-click the card on a Station
+  to bind it first.
+- **Requires Java 25** — that is what Minecraft 26.1.2 runs on.
+- **The One Probe support is temporarily removed**: there is no build of The One Probe for 26.1 yet. Jade still
+  gives the same in-world tooltip, and The One Probe support returns once a 26.1 build ships.
+
 ## 6.0.0
 
 Updated to **Minecraft 1.21.1** on NeoForge, and rebuilt on **Refined Storage 2**. Everything from 5.1.0 carries
