@@ -1,6 +1,7 @@
 package sebastrn.refinedcooking.screen;
 
 import com.refinedmods.refinedstorage.common.support.AbstractBaseScreen;
+import com.refinedmods.refinedstorage.common.support.Sprites;
 import com.refinedmods.refinedstorage.common.support.containermenu.PropertyTypes;
 import com.refinedmods.refinedstorage.common.support.widget.RedstoneModeSideButtonWidget;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -16,6 +17,8 @@ import sebastrn.refinedcooking.item.KitchenNetworkCardItem;
 
 import java.util.Optional;
 
+import static net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED;
+
 /**
  * Derives everything it shows from state the client already has: the card in slot 0 (whose bound position rides along
  * as a data component on the synced stack) and the Access Point's own position from the menu's extended data. That
@@ -27,10 +30,13 @@ public class KitchenAccessPointScreen extends AbstractBaseScreen<KitchenAccessPo
     private static final Identifier TEXTURE =
             Identifier.fromNamespaceAndPath(RefinedCooking.ID, "textures/gui/kitchen_access_point.png");
 
+    private final TransmittingIcon icon;
+
     public KitchenAccessPointScreen(KitchenAccessPointContainerMenu menu, Inventory inventory, Component title) {
         // 26.1's imageWidth/imageHeight are final ctor params now, not assignable fields.
         super(menu, inventory, title, 176, 137);
         this.inventoryLabelY = 42;
+        this.icon = new TransmittingIcon(isIconActive());
     }
 
     @Override
@@ -39,12 +45,36 @@ public class KitchenAccessPointScreen extends AbstractBaseScreen<KitchenAccessPo
         addSideButton(new RedstoneModeSideButtonWidget(getMenu().getProperty(PropertyTypes.REDSTONE_MODE)));
     }
 
-    // RS2 3.2.1 routes screen drawing through its own GuiGraphicsExtractor and renamed the label hook to extractLabels;
-    // graphics.text replaces drawString.
+    @Override
+    protected void containerTick() {
+        super.containerTick();
+        icon.tick(isIconActive());
+    }
+
+    private boolean isIconActive() {
+        return getMenu().getStatus().transmitting();
+    }
+
+    // The transmitting indicator (static dot / animated wave) is drawn in the background layer between the card slot
+    // and the status text — the same place and the same way RS's Network Transmitter draws it.
+    @Override
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTicks);
+        icon.render(graphics, leftPos + 29, topPos + 22);
+    }
+
+    // Warning marker + status text, positioned after the icon exactly as RS's Transmitter does (a warning sprite for
+    // the error states, then the message). RS2 3.2.1 renamed the label hook to extractLabels; graphics.text replaces
+    // the old drawString.
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         super.extractLabels(graphics, mouseX, mouseY);
-        graphics.text(font, getStatusText(), 51, 24, 4210752, false);
+        var status = getMenu().getStatus();
+        int x = 25 + 4 + icon.getWidth() + 4;
+        if (status.error()) {
+            graphics.blitSprite(GUI_TEXTURED, Sprites.WARNING, x, 23, Sprites.WARNING_SIZE, Sprites.WARNING_SIZE);
+        }
+        graphics.text(font, getStatusText(), x + (status.error() ? (Sprites.WARNING_SIZE + 4) : 0), 25, -12566464, false);
     }
 
     /**
