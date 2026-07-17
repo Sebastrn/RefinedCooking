@@ -2,6 +2,20 @@
 
 All notable changes to **Refined Cooking** are listed here.
 
+## 5.1.0
+
+### Added
+- **A pot (or any tool) left in the Oven now counts towards Cooking Table recipes**, the same way it already did
+  from your Refined Storage network. Cooking for Blockheads means its Oven to offer its tool and output slots to
+  the kitchen, but never hooked it up on this Minecraft version, so those slots were simply invisible. Refined
+  Cooking now connects it using Cooking for Blockheads' own logic, so the Oven offers exactly what it was meant
+  to — the ingredients you're queuing to cook are still left alone. Fixed upstream in 1.21.1; 1.20.4 never got
+  the fix.
+
+### Changed
+- **The guide book is now crafted with red wool** instead of blue, to match the book's own colour. (Applied
+  Cooking's book uses green, so both remain craftable side by side.)
+
 ## 5.0.1
 
 ### Fixed
