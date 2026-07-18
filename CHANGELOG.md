@@ -2,6 +2,15 @@
 
 All notable changes to **Refined Cooking** are listed here.
 
+## 7.1.0
+
+Recipe-viewer support beyond JEI. No gameplay changes.
+
+### Added
+- **Roughly Enough Items support.** The item info pages that already appeared in JEI — how the Kitchen Station,
+  Kitchen Access Point, and Kitchen Network Card link and work — now show in REI too. (EMI has no Minecraft 26.1
+  build yet, so it isn't included on this version.)
+
 ## 7.0.0
 
 Updated to **Minecraft 26.1.2** on NeoForge, now running on **Java 25**, and on **Refined Storage 2 3.2.1**.
