@@ -2,6 +2,15 @@
 
 All notable changes to **Refined Cooking** are listed here.
 
+## 6.2.0
+
+Recipe-viewer support beyond JEI. No gameplay changes.
+
+### Added
+- **Roughly Enough Items and EMI support.** The item info pages that already appeared in JEI — how the Kitchen
+  Station, Kitchen Access Point, and Kitchen Network Card link and work — now show in REI and EMI too. Use whichever
+  recipe viewer you like; all three are optional.
+
 ## 6.1.0
 
 A visual pass on the Kitchen Access Point, bringing its screen and network card fully in line with Refined Storage's
