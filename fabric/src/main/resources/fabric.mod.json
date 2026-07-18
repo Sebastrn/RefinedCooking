@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": [
+    "${mod_authors}"
+  ],
+  "license": "${mod_license}",
+  "icon": "logo.png",
+  "environment": "*",
+  "accessWidener": "refinedcooking.accesswidener",
+  "entrypoints": {
+    "main": [
+      "sebastrn.refinedcooking.fabric.FabricRefinedCooking"
+    ],
+    "client": [
+      "sebastrn.refinedcooking.fabric.client.FabricRefinedCookingClient"
+    ],
+    "jei_mod_plugin": [
+      "sebastrn.refinedcooking.compat.jei.JEIPlugin"
+    ],
+    "rei_client": [
+      "sebastrn.refinedcooking.compat.rei.REIPlugin"
+    ],
+    "jade": [
+      "sebastrn.refinedcooking.compat.jade.JadePlugin"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=${fabric_loader_version}",
+    "fabric-api": "*",
+    "minecraft": "~26.1.2",
+    "java": ">=${java_version}",
+    "balm-fabric": "*",
+    "refinedstorage": "*",
+    "cookingforblockheads": "*"
+  },
+  "suggests": {
+    "jade": "*",
+    "jei": "*",
+    "roughlyenoughitems": "*",
+    "patchouli": "*"
+  }
+}

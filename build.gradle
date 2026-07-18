@@ -3,6 +3,9 @@
 // is added to this block alongside the fabric module (step: add Fabric), so the NeoForge build never pulls the Fabric
 // toolchain / the loom snapshot marker.
 plugins {
+    // loom 1.14-SNAPSHOT is what CFB's 26.1 line builds Fabric with (Gradle 9 + Java 25 + MC 26.1.2). Older stable
+    // loom (F1's 1.7.4) predates Gradle 9. Resolved from the Fabric maven declared in settings.gradle pluginManagement.
+    id 'net.fabricmc.fabric-loom' version '1.14-SNAPSHOT' apply false
     id 'net.neoforged.moddev' version '2.0.141' apply false
     id 'com.modrinth.minotaur' version '2.9.0' apply false
     // CurseForgeGradle off the old 1.1.28 pin: that was a Java-17/21 workaround (1.2.30+ need a Java 25 JVM to

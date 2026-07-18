@@ -1,0 +1,170 @@
+plugins {
+    id 'multiloader-loader'
+    id 'net.fabricmc.fabric-loom'
+    id 'com.modrinth.minotaur'
+    id 'net.darkhax.curseforgegradle'
+}
+
+base {
+    archivesName = "${mod_id}-fabric-${minecraft_version}"
+}
+
+apply from: rootProject.file('repositories.gradle')
+
+// Which recipe viewer the dev client loads. runClient = JEI; :fabric:runClientRei swaps it (JEI and REI can't
+// coexist). Mirrors the NeoForge module's toggle. (EMI has no 26.1 build, so it is not an option.)
+def selectedViewer = {
+    def requested = gradle.startParameter.taskNames
+    if (requested.any { it.endsWith('runClientRei') }) return 'rei'
+    return (findProperty('viewer') ?: 'jei').toString().toLowerCase()
+}()
+
+tasks.register('runClientRei') {
+    dependsOn 'runClient'
+    group = 'fabric'
+    description = 'Runs the Fabric client with REI as the recipe viewer instead of JEI.'
+}
+
+dependencies {
+    // MC 26.1.2 ships non-obfuscated, so loom 1.14 runs in a "non-obfuscated environment": NO `mappings` line
+    // (officialMojangMappings() is rejected), and mod dependencies use plain implementation/compileOnly/runtimeOnly
+    // rather than the modImplementation/modCompileOnly/modRuntimeOnly of the obfuscated (<=1.21.x) era. Matches CFB's
+    // own 26.1 fabric module.
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+
+    implementation "net.blay09.mods:balm-fabric:${balm_version}"
+    // Refined Storage 2 (Fabric) — a fat mod jar that bundles the whole api/common tree plus RefinedStorageFabricApi.
+    // modmenu is an optional transitive of RS we don't need; excluded to keep the dev classpath lean.
+    implementation("com.refinedmods.refinedstorage:refinedstorage-fabric:${rs_version}") {
+        exclude group: 'com.terraformersmc', module: 'modmenu'
+    }
+    // CFB publishes a clean 26.x fabric coordinate to the TwelveIterations maven (no Modrinth-id pin).
+    implementation "net.blay09.mods:cookingforblockheads-fabric:${cfb_version}"
+
+    // jsr305 (javax.annotation.Nullable) — the common code uses it; it arrives transitively on NeoForge but not here.
+    compileOnly "com.google.code.findbugs:jsr305:3.0.2"
+
+    // Optional integrations — the compat/ plugin classes live in :common, so the Fabric compile needs their APIs on
+    // the classpath. Discovered at runtime via the fabric.mod.json entrypoints (jei_mod_plugin / rei_client / jade).
+    // JEI's common-api is a plain (non-mod) library. No EMI on 26.1.2.
+    compileOnly "mezz.jei:jei-26.1.2-common-api:${jei_version}"
+    compileOnly("me.shedaniel:RoughlyEnoughItems-fabric:${rei_version}") { exclude group: 'mezz.jei' }
+    // REI's EntryIngredients.of(ItemLike) shares a type with an overload that references architectury's FluidStack, so
+    // the compiler needs architectury on the classpath even though we never call that overload. REI 26.1.819 declares
+    // architectury-fabric 20.0.6; it arrives transitively on NeoForge but not through loom's compileOnly here.
+    compileOnly "dev.architectury:architectury-fabric:20.0.6"
+    compileOnly "maven.modrinth:jade:${jade_fabric_version}"
+
+    // Dev-run only (not shipped): loaded in the dev client so the guide book + integrations can be tested. Patchouli
+    // powers the guide book. One viewer (JEI, or REI via runClientRei) exercises the info pages; Jade the HUD. RS + CFB
+    // are already present as implementation deps, so the network bridge itself is testable without anything else.
+    runtimeOnly "maven.modrinth:patchouli:${patchouli_fabric_version}"
+    runtimeOnly "maven.modrinth:jade:${jade_fabric_version}"
+    // Exactly one viewer's full runtime jar is loaded, per selectedViewer above (runClient=JEI, runClientRei, or
+    // -Pviewer=jei|rei). REI needs the full jar and its Fabric build can drag JEI via its JEI-compat, so JEI is
+    // excluded from it (as on NeoForge).
+    switch (selectedViewer) {
+        case 'rei':
+            runtimeOnly("me.shedaniel:RoughlyEnoughItems-fabric:${rei_version}") { exclude group: 'mezz.jei' }
+            break
+        default:
+            runtimeOnly "mezz.jei:jei-26.1.2-fabric:${jei_version}"
+    }
+}
+
+loom {
+    // CreativeModeTab$Output is protected in vanilla; Balm ships only a NeoForge-format access transformer (loom
+    // ignores it), so the loader-neutral common code needs this Fabric access widener to compile + run here.
+    accessWidenerPath = file("src/main/resources/refinedcooking.accesswidener")
+
+    runs {
+        client {
+            client()
+            ideConfigGenerated(true)
+            runDir("runs/client")
+        }
+        server {
+            server()
+            ideConfigGenerated(true)
+            runDir("runs/server")
+        }
+    }
+}
+
+// --- Publishing to Modrinth + CurseForge (Fabric) -------------------------------------------
+// Run manually: ./gradlew :fabric:modrinth  /  :fabric:publishCurseForge . Tokens from GRADLE_USER_HOME or env.
+// Publishes a separate version per loader (…+fabric-26.1.2), the same way the NeoForge module does (…+neoforge-26.1.2).
+// In the non-obfuscated 26.x loom environment the shippable artifact is `jar` (there is no remapJar remap step).
+def changelogFor(File file, String version) {
+    if (!file.exists()) {
+        return 'See the project page for the changelog.'
+    }
+    def wanted = ~('^##\\s+' + java.util.regex.Pattern.quote(version) + '\\s*$')
+    def collected = []
+    def inSection = false
+    for (String line : file.readLines('UTF-8')) {
+        if (line.startsWith('## ')) {
+            if (inSection) {
+                break
+            }
+            inSection = wanted.matcher(line.trim()).matches()
+            continue
+        }
+        if (inSection) {
+            collected << line
+        }
+    }
+    def text = collected.join('\n').trim()
+    return text ?: 'See the project page for the changelog.'
+}
+
+def changelogText = changelogFor(rootProject.file('CHANGELOG.md'), mod_version.toString())
+
+tasks.register('printChangelog') {
+    group = 'publishing'
+    description = 'Prints the changelog section that would be published for the current version.'
+    doLast {
+        println "--- changelog to publish for ${mod_version} ---"
+        println changelogText
+        println '--- end ---'
+    }
+}
+
+modrinth {
+    token = providers.gradleProperty('MODRINTH_TOKEN').orElse(providers.environmentVariable('MODRINTH_TOKEN'))
+    projectId = modrinth_id
+    versionNumber = mod_version + "+fabric-" + minecraft_version
+    versionName = mod_version + " (Fabric " + minecraft_version + ")"
+    versionType = 'release'
+    uploadFile = tasks.named('jar')
+    gameVersions = ['26.1.2']
+    loaders = ['fabric']
+    changelog = changelogText
+    dependencies {
+        required.project 'fabric-api'
+        required.project 'refined-storage'
+        required.project 'cooking-for-blockheads'
+        required.project 'balm'
+        optional.project 'patchouli'
+        optional.project 'jade'
+        optional.project 'jei'
+    }
+}
+
+tasks.register('publishCurseForge', net.darkhax.curseforgegradle.TaskPublishCurseForge) {
+    group = 'publishing'
+    description = 'Uploads the built Fabric jar to CurseForge.'
+    apiToken = findProperty('CURSEFORGE_TOKEN') ?: System.getenv('CURSEFORGE_TOKEN')
+
+    def mainFile = upload(curseforge_id, tasks.named('jar'))
+    mainFile.releaseType = 'release'
+    mainFile.addGameVersion '26.1.2'
+    mainFile.addModLoader 'Fabric'
+    mainFile.addEnvironment 'Client', 'Server'
+    mainFile.changelogType = 'markdown'
+    mainFile.changelog = changelogText
+    mainFile.addRequirement 'fabric-api', 'refined-storage', 'cooking-for-blockheads', 'balm'
+    mainFile.addOptional 'patchouli', 'jade', 'jei'
+}

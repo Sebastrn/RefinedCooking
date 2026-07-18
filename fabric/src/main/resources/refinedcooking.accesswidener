@@ -1,0 +1,5 @@
+accessWidener	v2	official
+# CreativeModeTab.Output is a protected interface in vanilla; NeoForge/Balm widen it via access transformer, but
+# Fabric uses access wideners. Balm ships only an AT (loom does not read it), so widen it here so the loader-neutral
+# common code (RefinedCookingCreativeTab's displayItems callback) compiles + runs on Fabric.
+accessible	class	net/minecraft/world/item/CreativeModeTab$Output
