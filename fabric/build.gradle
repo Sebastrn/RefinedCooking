@@ -1,0 +1,63 @@
+plugins {
+    id 'multiloader-loader'
+    id 'fabric-loom'
+}
+
+base {
+    archivesName = "${mod_id}-fabric-${minecraft_version}"
+}
+
+apply from: rootProject.file('repositories.gradle')
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+
+    modImplementation "net.blay09.mods:balm-fabric:${balm_version}"
+    // Refined Storage 2 (Fabric) — a fat mod jar that bundles the whole api/common tree plus RefinedStorageFabricApi.
+    // modmenu is an optional transitive of RS we don't need; excluded to keep the dev classpath lean.
+    modImplementation("com.refinedmods.refinedstorage:refinedstorage-fabric:${rs_version}") {
+        exclude group: 'com.terraformersmc', module: 'modmenu'
+    }
+    modImplementation "maven.modrinth:cooking-for-blockheads:${cfb_fabric_version}"
+
+    // jsr305 (javax.annotation.Nullable) — the common code uses it; it arrives transitively on NeoForge but not here.
+    compileOnly "com.google.code.findbugs:jsr305:3.0.2"
+
+    // Optional integrations — the compat/ plugin classes live in :common, so the Fabric compile needs their APIs on
+    // the classpath. Discovered at runtime via the fabric.mod.json entrypoints (JEI/REI/Jade) or annotation (EMI).
+    // JEI's common-api is a plain (non-mod) library; the others are mod jars (modCompileOnly).
+    compileOnly "mezz.jei:jei-1.21.1-common-api:${jei_version}"
+    modCompileOnly("me.shedaniel:RoughlyEnoughItems-fabric:${rei_version}") { exclude group: 'mezz.jei' }
+    modCompileOnly "dev.emi:emi-fabric:${emi_version}:api"
+    modCompileOnly "maven.modrinth:jade:${jade_fabric_version}"
+
+    // Dev-run only (not shipped): loaded in the dev client so the guide book + integrations can be tested. Patchouli
+    // powers the guide book (its recipe is unconditional, so without it the guide_book recipe just fails to load — the
+    // same on both loaders). One viewer (JEI) exercises the info pages; Jade the HUD. RS + CFB are already present as
+    // modImplementation deps, so the network bridge itself is testable without anything else here.
+    modRuntimeOnly "vazkii.patchouli:Patchouli:${patchouli_fabric_version}"
+    modRuntimeOnly "maven.modrinth:jade:${jade_fabric_version}"
+    modRuntimeOnly "mezz.jei:jei-1.21.1-fabric:${jei_version}"
+    // Croptopia — for testing whether a fluid (water) in the RS grid can be used as a cooking-table ingredient.
+    // EpheroLib is Croptopia's required Fabric library (hard dep).
+    modRuntimeOnly "curse.maven:croptopia-415438:${croptopia_fabric_file}"
+    modRuntimeOnly "curse.maven:epherolib-885449:${epherolib_fabric_file}"
+}
+
+loom {
+    runs {
+        client {
+            client()
+            ideConfigGenerated(true)
+            runDir("runs/client")
+        }
+        server {
+            server()
+            ideConfigGenerated(true)
+            runDir("runs/server")
+        }
+    }
+}
