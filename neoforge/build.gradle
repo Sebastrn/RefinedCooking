@@ -1,0 +1,199 @@
+plugins {
+    id 'multiloader-loader'
+    id 'net.neoforged.moddev'
+    id 'com.modrinth.minotaur'
+    id 'net.darkhax.curseforgegradle'
+}
+
+base {
+    archivesName = "${mod_id}-neoforge-${minecraft_version}"
+}
+
+apply from: rootProject.file('repositories.gradle')
+
+configurations.configureEach {
+    resolutionStrategy {
+        // REI bundles a JEI-compat module that transitively *strictly*-pins an older JEI (19.25.0.325). ModDevGradle's
+        // consistent resolution would spread that pin across every configuration (compile + all run classpaths) and
+        // collide with our JEI (jei_version). We run REI JEI-free and don't want its compat, so REI's JEI dependency is
+        // excluded (below) and our JEI version is forced here — a consumer force overrides a transitive strict pin.
+        force "mezz.jei:jei-1.21.1-neoforge:${jei_version}"
+    }
+}
+
+neoForge {
+    version = neo_version
+
+    runs {
+        // Single client run; which recipe viewer it loads is chosen with -Pviewer (see dependencies). They can't
+        // coexist, and ModDevGradle's extra client runs don't isolate their mod set, so we toggle the one run instead.
+        client {
+            client()
+        }
+        server {
+            server()
+        }
+        data {
+            data()
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+// Which recipe viewer runClient loads. Chosen by the dedicated task you invoke (runClientRei / runClientEmi) or
+// -Pviewer=jei|rei|emi; defaults to jei. Resolved here at configuration time because it drives which viewer jar is
+// added to the runtime classpath below.
+def selectedViewer = {
+    def requested = gradle.startParameter.taskNames
+    if (requested.any { it.endsWith('runClientRei') }) return 'rei'
+    if (requested.any { it.endsWith('runClientEmi') }) return 'emi'
+    return (findProperty('viewer') ?: 'jei').toString().toLowerCase()
+}()
+
+// runClientRei / runClientEmi: the client run with that viewer instead of JEI. They just drive runClient — the viewer
+// selection above keys off the task name. runClient on its own stays JEI.
+['Rei': 'REI', 'Emi': 'EMI'].each { suffix, label ->
+    tasks.register("runClient${suffix}") {
+        dependsOn 'runClient'
+        group = 'mod development'
+        description = "Runs the game client with ${label} as the recipe viewer instead of JEI."
+    }
+}
+
+dependencies {
+    // Refined Storage 2, from RefinedMods' own CreeperHost maven. -neoforge is the mod itself; its POM declares
+    // nothing but jsr305, so the modules we compile against (-common, -network -> the whole -api tree) are named here.
+    implementation "com.refinedmods.refinedstorage:refinedstorage-neoforge:${rs_version}"
+    implementation "com.refinedmods.refinedstorage:refinedstorage-common:${rs_version}"
+    implementation "com.refinedmods.refinedstorage:refinedstorage-network:${rs_version}"
+
+    implementation "net.blay09.mods:balm-neoforge:${balm_version}"
+    // CFB by Modrinth version id — the TwelveIterations maven stops at 21.1.9+1.21.1 (see gradle.properties).
+    implementation "maven.modrinth:cooking-for-blockheads:${cfb_version}"
+
+    // Optional integrations — compiled against (the compat/ classes reference them) and loaded in the dev client so
+    // they can be tested. The mod still runs without them: the TOP addon is guarded by Balm.isModLoaded and the Jade
+    // @WailaPlugin class is only loaded by Jade's own scan. TOP is NeoForge-only, so its addon lives in :neoforge.
+    // The One Probe transitively depends on JEI; exclude it so it doesn't force JEI onto every run's classpath.
+    implementation("mcjty.theoneprobe:theoneprobe:${top_version}") { exclude group: 'mezz.jei' }
+    implementation "maven.modrinth:jade:${jade_version}"
+
+    // Recipe viewers — JEI, REI, EMI. Compile-only: each viewer discovers its plugin by its own classpath scan, so
+    // none is bundled. REI needs the full jar (BuiltinClientPlugin is in default-plugin, not -api); EMI's :api
+    // classifier carries EmiInfoRecipe. REI's strict JEI pin is dropped by the exclude + the force above.
+    compileOnly "mezz.jei:jei-1.21.1-neoforge:${jei_version}"
+    compileOnly("me.shedaniel:RoughlyEnoughItems-neoforge:${rei_version}") { exclude group: 'mezz.jei' }
+    compileOnly "dev.emi:emi-neoforge:${emi_version}:api"
+
+    // Exactly one viewer's full runtime jar is loaded, per selectedViewer above (runClient=JEI, runClientRei,
+    // runClientEmi, or -Pviewer=jei|rei|emi). runtimeOnly (not clientAdditionalRuntimeClasspath) because MDG's per-run
+    // additional classpath does not reliably load its mods; viewers are client-side and no-op on a dedicated server.
+    switch (selectedViewer) {
+        case 'rei':
+            runtimeOnly("me.shedaniel:RoughlyEnoughItems-neoforge:${rei_version}") { exclude group: 'mezz.jei' }
+            break
+        case 'emi':
+            runtimeOnly "dev.emi:emi-neoforge:${emi_version}"
+            break
+        default:
+            runtimeOnly "mezz.jei:jei-1.21.1-neoforge:${jei_version}"
+    }
+
+    // Patchouli — optional, powers the in-game guide book. Resources only, needed only at runtime.
+    runtimeOnly "vazkii.patchouli:Patchouli:${patchouli_version}"
+
+    // Dev-only test mods — loaded in the dev client to make debugging easier. Not shipped.
+    runtimeOnly "dev.ftb.mods:ftb-library-neoforge:${ftb_library_version}"
+    runtimeOnly "maven.modrinth:pams-harvestcraft-2-food-core:${harvestcraft_foodcore_version}"
+    runtimeOnly "maven.modrinth:pams-harvestcraft-2-crops:${harvestcraft_crops_version}"
+    runtimeOnly "maven.modrinth:pams-harvestcraft-2-trees:${harvestcraft_trees_version}"
+    runtimeOnly "maven.modrinth:pams-harvestcraft-2-food-extended:${harvestcraft_foodextended_version}"
+    runtimeOnly "maven.modrinth:mekanism:${mekanism_version}"
+    runtimeOnly "maven.modrinth:mekanism-generators:${mekanism_generators_version}"
+    runtimeOnly "maven.modrinth:mekanism-tools:${mekanism_tools_version}"
+    runtimeOnly "maven.modrinth:mekanism-additions:${mekanism_additions_version}"
+
+    // SolarFlux Reborn (+ HammerLib) client-only: HammerLib aborts a dedicated server on startup, so it must not be
+    // on the server run classpath. MDG gives each run its own classpath.
+    clientAdditionalRuntimeClasspath "maven.modrinth:solar-flux-reborn:${solarflux_version}"
+    clientAdditionalRuntimeClasspath "maven.modrinth:hammer-lib:${hammerlib_version}"
+}
+
+// --- Publishing to Modrinth + CurseForge (NeoForge) -------------------------------------------
+// Run manually: ./gradlew :neoforge:modrinth  /  :neoforge:publishCurseForge . Tokens from GRADLE_USER_HOME or env.
+def changelogFor(File file, String version) {
+    if (!file.exists()) {
+        return 'See the project page for the changelog.'
+    }
+    def wanted = ~('^##\\s+' + java.util.regex.Pattern.quote(version) + '\\s*$')
+    def collected = []
+    def inSection = false
+    for (String line : file.readLines('UTF-8')) {
+        if (line.startsWith('## ')) {
+            if (inSection) {
+                break
+            }
+            inSection = wanted.matcher(line.trim()).matches()
+            continue
+        }
+        if (inSection) {
+            collected << line
+        }
+    }
+    def text = collected.join('\n').trim()
+    return text ?: 'See the project page for the changelog.'
+}
+
+def changelogText = changelogFor(rootProject.file('CHANGELOG.md'), mod_version.toString())
+
+tasks.register('printChangelog') {
+    group = 'publishing'
+    description = 'Prints the changelog section that would be published for the current version.'
+    doLast {
+        println "--- changelog to publish for ${mod_version} ---"
+        println changelogText
+        println '--- end ---'
+    }
+}
+
+modrinth {
+    token = providers.gradleProperty('MODRINTH_TOKEN').orElse(providers.environmentVariable('MODRINTH_TOKEN'))
+    projectId = modrinth_id
+    versionNumber = mod_version + "+neoforge-" + minecraft_version
+    versionName = mod_version + " (NeoForge " + minecraft_version + ")"
+    versionType = 'release'
+    uploadFile = tasks.named('jar')
+    gameVersions = ['1.21.1']
+    loaders = ['neoforge']
+    changelog = changelogText
+    dependencies {
+        required.project 'refined-storage'
+        required.project 'cooking-for-blockheads'
+        required.project 'balm'
+        optional.project 'patchouli'
+        optional.project 'jade'
+        optional.project 'the-one-probe'
+        optional.project 'jei'
+    }
+}
+
+tasks.register('publishCurseForge', net.darkhax.curseforgegradle.TaskPublishCurseForge) {
+    group = 'publishing'
+    description = 'Uploads the built NeoForge jar to CurseForge.'
+    apiToken = findProperty('CURSEFORGE_TOKEN') ?: System.getenv('CURSEFORGE_TOKEN')
+
+    def mainFile = upload(curseforge_id, tasks.named('jar'))
+    mainFile.releaseType = 'release'
+    mainFile.addGameVersion '1.21.1'
+    mainFile.addModLoader 'NeoForge'
+    mainFile.addEnvironment 'Client', 'Server'
+    mainFile.changelogType = 'markdown'
+    mainFile.changelog = changelogText
+    mainFile.addRequirement 'refined-storage', 'cooking-for-blockheads', 'balm'
+    mainFile.addOptional 'patchouli', 'jade', 'the-one-probe', 'jei'
+}

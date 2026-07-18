@@ -1,0 +1,72 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = "${mod_id}-${project.name}-${minecraft_version}"
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(java_version as int)
+    withSourcesJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'NeoForged'
+        url = 'https://maven.neoforged.net/releases'
+    }
+}
+// The shared mod repositories (repositories.gradle) are applied by each module's own build.gradle, not here:
+// a precompiled convention plugin has no ClassLoaderScope service, so `apply from:` a script fails inside it.
+
+// Declare Gradle capabilities on the outgoing variants so the loader modules can consume :common's classes and its
+// transitive (balm-common / RS-common / CFB) dependencies via `compileOnly(project(':common')) { requireCapability }`.
+['apiElements', 'runtimeElements', 'sourcesElements'].each { variant ->
+    configurations."$variant".outgoing {
+        capability("$group:$mod_id-${project.name}:$version")
+        capability("$group:$mod_id:$version")
+    }
+    publishing.publications.configureEach {
+        suppressPomMetadataWarningsFor(variant)
+    }
+}
+
+// One place to expand template placeholders into the per-loader mod metadata + pack.mcmeta. Runs in every module that
+// applies this convention (common expands its pack.mcmeta; each loader expands its own toml/json plus the pack.mcmeta
+// it pulls in from :common).
+processResources {
+    def expandProps = [
+            version                : mod_version,
+            group                  : project.group,
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            neo_version_range      : neo_version_range,
+            loader_version_range   : loader_version_range,
+            fabric_version         : fabric_version,
+            fabric_loader_version  : fabric_loader_version,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description,
+            java_version           : java_version,
+            balm_version_range     : balm_version_range,
+    ]
+
+    filesMatching(['pack.mcmeta', 'fabric.mod.json', 'META-INF/neoforge.mods.toml']) {
+        expand expandProps
+    }
+    inputs.properties(expandProps)
+}

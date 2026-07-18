@@ -1,0 +1,20 @@
+dependencies {
+    // Balm cross-loader API — the loader-neutral facade the common code registers everything through.
+    compileOnly "net.blay09.mods:balm-common:${balm_version}"
+
+    // Refined Storage 2 — common code compiles against the loader-neutral -common + -network modules, which pull the
+    // whole -api tree (core/resource/storage/network/common) transitively. The loader modules add -neoforge / -fabric.
+    compileOnly "com.refinedmods.refinedstorage:refinedstorage-common:${rs_version}"
+    compileOnly "com.refinedmods.refinedstorage:refinedstorage-network:${rs_version}"
+
+    // Cooking for Blockheads — common only touches its API (KitchenItemProvider). The published jar's api package is
+    // loader-neutral, so it suffices for compilation; each loader module pulls its own CFB runtime jar.
+    compileOnly "maven.modrinth:cooking-for-blockheads:${cfb_version}"
+
+    // Optional viewer/HUD integrations the compat/ classes compile against. Loader-neutral APIs (JEI common-api, the
+    // architectury-based REI/EMI, Jade's IWailaPlugin). TOP is NeoForge-only, so its addon lives in :neoforge, not here.
+    compileOnly "mezz.jei:jei-1.21.1-common-api:${jei_version}"
+    compileOnly("me.shedaniel:RoughlyEnoughItems-neoforge:${rei_version}") { exclude group: 'mezz.jei' }
+    compileOnly "dev.emi:emi-neoforge:${emi_version}:api"
+    compileOnly "maven.modrinth:jade:${jade_version}"
+}

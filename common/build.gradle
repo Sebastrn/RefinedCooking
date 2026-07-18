@@ -1,0 +1,35 @@
+plugins {
+    id 'multiloader-common'
+    id 'net.neoforged.moddev'
+}
+
+base {
+    archivesName = "${mod_id}-common-${minecraft_version}"
+}
+
+// Loader-neutral module: compiled against vanilla Minecraft via NeoForm (Mojang mappings), no NeoForge API. The
+// loader modules recompile these sources against their own classpath and bundle the result.
+neoForge {
+    neoFormVersion = neo_form_version
+}
+
+apply from: rootProject.file('repositories.gradle')
+apply from: 'dependencies.gradle'
+
+// Expose the raw source + resource dirs so :neoforge / :fabric can compile them in and bundle them (see
+// buildSrc multiloader-loader.gradle).
+configurations {
+    commonJava {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+    commonResources {
+        canBeResolved = false
+        canBeConsumed = true
+    }
+}
+
+artifacts {
+    commonJava sourceSets.main.java.sourceDirectories.singleFile
+    commonResources sourceSets.main.resources.sourceDirectories.singleFile
+}

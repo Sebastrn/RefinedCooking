@@ -2,6 +2,10 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+        maven {
             name = 'NeoForged'
             url = 'https://maven.neoforged.net/releases'
         }
@@ -13,3 +17,11 @@ plugins {
 }
 
 rootProject.name = 'refinedcooking'
+
+include('common')
+if (include_neoforge == "true") {
+    include('neoforge')
+}
+if (include_fabric == "true") {
+    include('fabric')
+}
