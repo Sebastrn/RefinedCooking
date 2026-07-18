@@ -1,6 +1,8 @@
 plugins {
     id 'multiloader-loader'
     id 'fabric-loom'
+    id 'com.modrinth.minotaur'
+    id 'net.darkhax.curseforgegradle'
 }
 
 base {
@@ -90,4 +92,80 @@ loom {
             runDir("runs/server")
         }
     }
+}
+
+// --- Publishing to Modrinth + CurseForge (Fabric) -------------------------------------------
+// Run manually: ./gradlew :fabric:modrinth  /  :fabric:publishCurseForge . Tokens from GRADLE_USER_HOME or env.
+// Publishes a separate version per loader (…+fabric-1.21.1), the same way the NeoForge module does (…+neoforge-1.21.1).
+def changelogFor(File file, String version) {
+    if (!file.exists()) {
+        return 'See the project page for the changelog.'
+    }
+    def wanted = ~('^##\\s+' + java.util.regex.Pattern.quote(version) + '\\s*$')
+    def collected = []
+    def inSection = false
+    for (String line : file.readLines('UTF-8')) {
+        if (line.startsWith('## ')) {
+            if (inSection) {
+                break
+            }
+            inSection = wanted.matcher(line.trim()).matches()
+            continue
+        }
+        if (inSection) {
+            collected << line
+        }
+    }
+    def text = collected.join('\n').trim()
+    return text ?: 'See the project page for the changelog.'
+}
+
+def changelogText = changelogFor(rootProject.file('CHANGELOG.md'), mod_version.toString())
+
+tasks.register('printChangelog') {
+    group = 'publishing'
+    description = 'Prints the changelog section that would be published for the current version.'
+    doLast {
+        println "--- changelog to publish for ${mod_version} ---"
+        println changelogText
+        println '--- end ---'
+    }
+}
+
+modrinth {
+    token = providers.gradleProperty('MODRINTH_TOKEN').orElse(providers.environmentVariable('MODRINTH_TOKEN'))
+    projectId = modrinth_id
+    versionNumber = mod_version + "+fabric-" + minecraft_version
+    versionName = mod_version + " (Fabric " + minecraft_version + ")"
+    versionType = 'release'
+    // Loom's remapped jar is the shippable one (not the raw 'jar').
+    uploadFile = tasks.named('remapJar')
+    gameVersions = ['1.21.1']
+    loaders = ['fabric']
+    changelog = changelogText
+    dependencies {
+        required.project 'fabric-api'
+        required.project 'refined-storage'
+        required.project 'cooking-for-blockheads'
+        required.project 'balm'
+        optional.project 'patchouli'
+        optional.project 'jade'
+        optional.project 'jei'
+    }
+}
+
+tasks.register('publishCurseForge', net.darkhax.curseforgegradle.TaskPublishCurseForge) {
+    group = 'publishing'
+    description = 'Uploads the built Fabric jar to CurseForge.'
+    apiToken = findProperty('CURSEFORGE_TOKEN') ?: System.getenv('CURSEFORGE_TOKEN')
+
+    def mainFile = upload(curseforge_id, tasks.named('remapJar'))
+    mainFile.releaseType = 'release'
+    mainFile.addGameVersion '1.21.1'
+    mainFile.addModLoader 'Fabric'
+    mainFile.addEnvironment 'Client', 'Server'
+    mainFile.changelogType = 'markdown'
+    mainFile.changelog = changelogText
+    mainFile.addRequirement 'fabric-api', 'refined-storage', 'cooking-for-blockheads', 'balm'
+    mainFile.addOptional 'patchouli', 'jade', 'jei'
 }
