@@ -1,0 +1,43 @@
+// Shared repositories, applied by every module (common + each loader). Kept out of the convention plugin so loader
+// modules can add loader-specific repos of their own if needed.
+// 26.1.2 note: no TerraformersMC (EMI) and no k-4u (The One Probe) — neither has a 26.1 build, so neither is used.
+repositories {
+    maven {
+        name = 'CreeperHost (Refined Storage 2)'
+        url = 'https://maven.creeperhost.net/release'
+    }
+    maven {
+        name = 'TwelveIterations (Balm, Cooking for Blockheads)'
+        url = 'https://maven.twelveiterations.com/repository/maven-public/'
+    }
+    maven {
+        name = 'Modrinth (Jade, Patchouli, dev test mods)'
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+    }
+    maven {
+        name = 'BlameJared (JEI)'
+        url = 'https://maven.blamejared.com'
+    }
+    maven {
+        name = 'shedaniel (Roughly Enough Items)'
+        url = 'https://maven.shedaniel.me/'
+    }
+    maven {
+        name = 'FTB (dev test mods)'
+        url = 'https://maven.ftb.dev/releases'
+    }
+    maven {
+        name = 'Architectury (transitive dep of FTB Library)'
+        url = 'https://maven.architectury.dev/'
+    }
+    maven {
+        name = 'Fabric'
+        url = 'https://maven.fabricmc.net/'
+    }
+    maven {
+        name = 'CurseMaven'
+        url = 'https://cursemaven.com'
+        content { includeGroup 'curse.maven' }
+    }
+}
