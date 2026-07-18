@@ -2,6 +2,25 @@
 
 All notable changes to **Refined Cooking** are listed here.
 
+## 6.3.0
+
+Refined Cooking is now available on **Fabric**, from a single shared codebase. No gameplay changes for existing
+NeoForge users.
+
+### Added
+- **Fabric support.** Refined Cooking now runs on Fabric as well as NeoForge. On Fabric it integrates with JEI, REI,
+  EMI, Jade, and Patchouli; The One Probe has no Fabric build, so Jade covers the in-world HUD there.
+- **Milk in the grid on Fabric.** A milk bucket can now be emptied into a Refined Storage grid and used as a cooking
+  ingredient, the same as water — matching NeoForge, where milk is already a fluid.
+
+### Changed
+- **Rebuilt as a multi-loader project** (via Balm) so NeoForge and Fabric share one codebase. No gameplay change on
+  NeoForge.
+- **NeoForge config moved to Balm's config system.** The two energy settings are unchanged in value (Kitchen Station 8,
+  Kitchen Access Point 32), but the file is now `config/refinedcooking-common.toml` — previously the per-world
+  `serverconfig/refinedcooking-server.toml`. If you customised those values, set them again once in the new file;
+  default setups are unaffected.
+
 ## 6.2.0
 
 Recipe-viewer support beyond JEI. No gameplay changes.
