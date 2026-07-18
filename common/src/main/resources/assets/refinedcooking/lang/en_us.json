@@ -3,6 +3,7 @@
   "block.refinedcooking.kitchen_station": "Kitchen Station",
   "block.refinedcooking.kitchen_access_point": "Kitchen Access Point",
   "item.refinedcooking.kitchen_network_card": "Kitchen Network Card",
+  "block.balm-fabric.milk": "Milk",
   "gui.refinedcooking.kitchen_access_point": "Kitchen Access Point",
   "gui.refinedcooking.kitchen_access_point.distance": "%d block(s)",
   "gui.refinedcooking.kitchen_access_point.missing_card": "Missing Kitchen Card",

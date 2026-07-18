@@ -8,8 +8,14 @@ import net.blay09.mods.cookingforblockheads.CookingForBlockheads;
 import net.blay09.mods.cookingforblockheads.api.KitchenItemProvider;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.fluid.base.FullItemFluidStorage;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.material.Fluid;
 import sebastrn.refinedcooking.RefinedCooking;
 import sebastrn.refinedcooking.RefinedCookingBlockEntities;
 import sebastrn.refinedcooking.blockentity.KitchenStationBlockEntity;
@@ -49,5 +55,32 @@ public final class FabricRefinedCooking implements ModInitializer {
         kitchenItemProviderLookup.registerForBlockEntities(
                 (blockEntity, context) -> ((KitchenStationBlockEntity) blockEntity).getItemProvider(),
                 RefinedCookingBlockEntities.KITCHEN_STATION.get());
+
+        registerMilkBucketFluidStorage();
+    }
+
+    /**
+     * Makes the vanilla milk bucket drainable through Fabric's Transfer API, so milk can be inserted into a Refined
+     * Storage grid (and then used by the cooking table, exactly like water). This fills a gap left by the platform +
+     * Balm: Balm registers the milk <em>fluid</em> ({@code balm-fabric:milk}, when CFB calls {@code enableMilkFluid})
+     * but no item fluid-storage for the bucket, and vanilla's {@code MilkBucketItem} is not a {@code BucketItem}, so
+     * Fabric API's bucket provider skips it — hence RS finds nothing to drain. NeoForge/Forge already make milk buckets
+     * drainable at the platform level, so this only brings Fabric to parity.
+     * <p>
+     * Drain-only: extracting milk back <em>into</em> an empty bucket isn't cleanly possible on Fabric, because the
+     * empty bucket's item storage is owned by Fabric API and only knows {@code BucketItem} fluids — and insertion is
+     * all the cooking-from-network use case needs. Remove this if Balm/CFB ever ship it upstream (a duplicate
+     * {@code registerForItems} on the milk bucket would then collide).
+     */
+    private static void registerMilkBucketFluidStorage() {
+        FluidStorage.ITEM.registerForItems((itemStack, context) -> {
+            // Read the milk fluid lazily (inside the provider), not at init: CFB's enableMilkFluid() may run after us,
+            // and Fabric's `depends` does not order initializers. By drain time it is always set; guard just in case.
+            final Fluid milk = Balm.getRegistries().getMilkFluid();
+            if (milk == null) {
+                return null;
+            }
+            return new FullItemFluidStorage(context, Items.BUCKET, FluidVariant.of(milk), FluidConstants.BUCKET);
+        }, Items.MILK_BUCKET);
     }
 }
