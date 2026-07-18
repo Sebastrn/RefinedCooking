@@ -9,6 +9,23 @@ base {
 
 apply from: rootProject.file('repositories.gradle')
 
+// Which recipe viewer the dev client loads. runClient = JEI; :fabric:runClientRei / :fabric:runClientEmi swap it (the
+// three can't coexist — EMI hides itself when JEI is present, REI + JEI double up). Mirrors the NeoForge module's toggle.
+def selectedViewer = {
+    def requested = gradle.startParameter.taskNames
+    if (requested.any { it.endsWith('runClientRei') }) return 'rei'
+    if (requested.any { it.endsWith('runClientEmi') }) return 'emi'
+    return (findProperty('viewer') ?: 'jei').toString().toLowerCase()
+}()
+
+['Rei': 'REI', 'Emi': 'EMI'].each { suffix, label ->
+    tasks.register("runClient${suffix}") {
+        dependsOn 'runClient'
+        group = 'fabric'
+        description = "Runs the Fabric client with ${label} as the recipe viewer instead of JEI."
+    }
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     mappings loom.officialMojangMappings()
@@ -40,7 +57,20 @@ dependencies {
     // modImplementation deps, so the network bridge itself is testable without anything else here.
     modRuntimeOnly "vazkii.patchouli:Patchouli:${patchouli_fabric_version}"
     modRuntimeOnly "maven.modrinth:jade:${jade_fabric_version}"
-    modRuntimeOnly "mezz.jei:jei-1.21.1-fabric:${jei_version}"
+    // Exactly one viewer's full runtime jar is loaded, per selectedViewer above (runClient=JEI, runClientRei,
+    // runClientEmi, or -Pviewer=jei|rei|emi). REI needs the full jar and its Fabric build can drag JEI via its
+    // JEI-compat, so JEI is excluded from it (as on NeoForge); EMI needs the full jar, not the :api classifier.
+    switch (selectedViewer) {
+        case 'rei':
+            modRuntimeOnly("me.shedaniel:RoughlyEnoughItems-fabric:${rei_version}") { exclude group: 'mezz.jei' }
+            break
+        case 'emi':
+            // From Modrinth, not TerraformersMC: the latter hosts only EMI's :api classifier, not the full Fabric jar.
+            modRuntimeOnly "maven.modrinth:emi:${emi_fabric_modrinth}"
+            break
+        default:
+            modRuntimeOnly "mezz.jei:jei-1.21.1-fabric:${jei_version}"
+    }
     // Croptopia — for testing whether a fluid (water) in the RS grid can be used as a cooking-table ingredient.
     // EpheroLib is Croptopia's required Fabric library (hard dep).
     modRuntimeOnly "curse.maven:croptopia-415438:${croptopia_fabric_file}"
