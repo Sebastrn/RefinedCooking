@@ -14,6 +14,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import sebastrn.refinedcooking.RefinedCooking;
 import sebastrn.refinedcooking.RefinedCookingBlockEntities;
 import sebastrn.refinedcooking.api.cookingforblockheads.capability.RSKitchenItemProvider;
+import sebastrn.refinedcooking.block.KitchenStationBlock;
+import sebastrn.refinedcooking.block.KitchenStationBlock.LinkState;
 import sebastrn.refinedcooking.network.KitchenAccessPointNetworkNode;
 import sebastrn.refinedcooking.network.KitchenStationKey;
 
@@ -31,8 +33,8 @@ import static java.util.Objects.requireNonNull;
  * {@code ConnectionSink#tryConnect} on our position. We index ourselves under a {@link KitchenStationKey} so the
  * Access Point can confirm we really landed in its graph.
  * <p>
- * The {@code connected} blockstate is driven by the ticker, not from here — see {@code KitchenStationBlock#getTicker},
- * which hands the property to RS's {@code NetworkNodeBlockEntityTicker}.
+ * The {@link KitchenStationBlock#LINK_STATE} blockstate is driven from here via {@link #updateLinkState()}, which the
+ * Station's ticker calls each tick right after RS has updated the node's activeness.
  */
 public class KitchenStationBlockEntity extends AbstractBaseNetworkNodeContainerBlockEntity<SimpleNetworkNode> {
 
@@ -103,6 +105,37 @@ public class KitchenStationBlockEntity extends AbstractBaseNetworkNodeContainerB
     /** On a network with something else on it, and powered — i.e. exactly when the screen is lit. */
     public boolean isActive() {
         return mainNetworkNode.isActive();
+    }
+
+    /**
+     * The three-way link state read by the blockstate model and the Jade/TOP tooltips. Derived, not stored: an active
+     * node means ONLINE (screen lit), being on a network but not active means LINKED_OFFLINE (cabled/linked but no
+     * power), and neither means UNLINKED (alone). This is the split the old {@code connected} boolean could not make.
+     */
+    public LinkState getLinkState() {
+        if (isActive()) {
+            return LinkState.ONLINE;
+        }
+        return isAttachedToNetwork() ? LinkState.LINKED_OFFLINE : LinkState.UNLINKED;
+    }
+
+    /**
+     * Push {@link #getLinkState()} into the blockstate, but only when it actually changes so we do not spam block
+     * updates. Server-only; called from the Station's ticker after RS has refreshed the node's activeness for the tick.
+     */
+    public void updateLinkState() {
+        if (level == null) {
+            return;
+        }
+        BlockState state = level.getBlockState(worldPosition);
+        if (!(state.getBlock() instanceof KitchenStationBlock)) {
+            return;
+        }
+        LinkState current = getLinkState();
+        if (state.getValue(KitchenStationBlock.LINK_STATE) != current) {
+            level.setBlockAndUpdate(worldPosition, state.setValue(KitchenStationBlock.LINK_STATE, current));
+            setChanged();
+        }
     }
 
     /** For {@code RSKitchenItemProvider}, which attributes its storage operations to this node like RS's own do. */

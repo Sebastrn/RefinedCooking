@@ -15,9 +15,9 @@ public class KitchenStationServerDataProvider implements IServerDataProvider<Blo
     @Override
     public void appendServerData(CompoundTag data, BlockAccessor accessor) {
         KitchenStationBlockEntity kitchenStation = (KitchenStationBlockEntity) accessor.getBlockEntity();
-        data.putBoolean("isConnectedToNetwork", kitchenStation.isActive());
+        data.putString("linkState", kitchenStation.getLinkState().getSerializedName());
         kitchenStation.getLinkedAccessPointPos().ifPresent(pos ->
-                data.putString("RSNetworkPosition", "%d, %d, %d".formatted(pos.getX(), pos.getY(), pos.getZ())));
+                data.putString("accessPointPos", "%d, %d, %d".formatted(pos.getX(), pos.getY(), pos.getZ())));
     }
 
     @Override

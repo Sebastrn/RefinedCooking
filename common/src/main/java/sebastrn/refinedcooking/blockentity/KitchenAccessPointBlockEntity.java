@@ -85,20 +85,20 @@ public class KitchenAccessPointBlockEntity
                     @Override
                     public void addOutgoingConnections(ConnectionSink sink) {
                         super.addOutgoingConnections(sink);
+                        // Connect the bound station whenever a card names it, powered or not. This is what lets the
+                        // station tell "linked but the network is offline" (LINKED_OFFLINE / red screen) from "not
+                        // linked at all" (UNLINKED / dark): gating on isActive() dropped the station off the graph the
+                        // instant the network lost power, so it went straight to dark and the offline state was
+                        // unreachable through the normal Access-Point link. The station still only serves items and
+                        // lights up green while its own node is active (see KitchenStationBlockEntity#calculateActive),
+                        // so an unpowered link stays dark-for-cooking, just visibly red instead of vanishing.
                         GlobalPos stationPos = mainNetworkNode.getStationPos();
-                        if (stationPos != null && mainNetworkNode.isActive()) {
+                        if (stationPos != null) {
                             sink.tryConnect(stationPos, KitchenStationBlock.class);
                         }
                     }
                 })
                 .build();
-    }
-
-    @Override
-    protected void activenessChanged(boolean newActive) {
-        super.activenessChanged(newActive);
-        // Going inactive drops the remote link (see the strategy above), so the graph must be rebuilt either way.
-        containers.update(level);
     }
 
     /**
@@ -121,14 +121,16 @@ public class KitchenAccessPointBlockEntity
 
     /**
      * Retries the link when the station is bound but absent from the graph — most often because its chunk had not
-     * loaded when the graph was last built. Rate-limited to once every five seconds, as RS's transmitter does.
+     * loaded when the graph was last built. Runs regardless of power now that the link is maintained whether or not
+     * the network is active, so a station whose chunk loads under an unpowered Access Point still links (as red).
+     * Rate-limited to once every five seconds, as RS's transmitter does.
      */
     @Override
     public void doWork() {
         super.doWork();
         Network network = mainNetworkNode.getNetwork();
         GlobalPos stationPos = mainNetworkNode.getStationPos();
-        if (!mainNetworkNode.isActive() || network == null || stationPos == null) {
+        if (network == null || stationPos == null) {
             return;
         }
         if (!isStationInNetwork(network, stationPos) && networkRebuildRetryRateLimiter.tryAcquire()

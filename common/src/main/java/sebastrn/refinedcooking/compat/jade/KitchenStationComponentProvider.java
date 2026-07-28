@@ -26,13 +26,19 @@ public class KitchenStationComponentProvider implements IBlockComponentProvider 
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
         // 26.1's CompoundTag getters return Optional; use the *Or accessors to keep a plain value.
         CompoundTag data = accessor.getServerData();
-        if (data.contains("RSNetworkPosition")) {
-            tooltip.add(Component.translatable("jade.refinedcooking:kitchen_station",
-                    data.getStringOr("RSNetworkPosition", "")));
-        } else if (data.getBooleanOr("isConnectedToNetwork", false)) {
-            tooltip.add(Component.translatable("jade.refinedcooking:kitchen_station_connected"));
-        } else {
-            tooltip.add(Component.translatable("jade.refinedcooking:offline"));
+        String linkState = data.getStringOr("linkState", "unlinked");
+        String accessPointPos = data.getStringOr("accessPointPos", "");
+        switch (linkState) {
+            case "online" -> {
+                // Cabled straight to the network has no Access Point to name; only show the position when linked.
+                if (accessPointPos.isEmpty()) {
+                    tooltip.add(Component.translatable("jade.refinedcooking:kitchen_station_connected"));
+                } else {
+                    tooltip.add(Component.translatable("jade.refinedcooking:kitchen_station", accessPointPos));
+                }
+            }
+            case "linked_offline" -> tooltip.add(Component.translatable("jade.refinedcooking:linked_offline"));
+            default -> tooltip.add(Component.translatable("jade.refinedcooking:offline"));
         }
     }
 

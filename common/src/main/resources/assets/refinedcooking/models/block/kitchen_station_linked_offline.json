@@ -3,9 +3,9 @@
 	"credit": "Refined Cooking - Kitchen Station",
 	"parent": "block/block",
 	"textures": {
-		"particle": "refinedcooking:block/kitchen_station_body_connected",
-		"body": "refinedcooking:block/kitchen_station_body_connected",
-		"screen": "refinedcooking:block/kitchen_station_screen_connected"
+		"particle": "refinedcooking:block/kitchen_station_body_linked_offline",
+		"body": "refinedcooking:block/kitchen_station_body_linked_offline",
+		"screen": "refinedcooking:block/kitchen_station_screen_linked_offline"
 	},
 	"elements": [
 		{
@@ -292,7 +292,7 @@
 					"texture": "#screen"
 				}
 			},
-			"light_emission": 15
+			"light_emission": 10
 		},
 		{
 			"name": "heat_strip",
