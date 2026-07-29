@@ -2,6 +2,13 @@
 
 All notable changes to **Refined Cooking** are listed here.
 
+## 6.4.1
+
+A small texture fix. No gameplay changes.
+
+### Changed
+- **Restyled the guide book** with a new book texture and item icon.
+
 ## 6.4.0
 
 A visual overhaul of all three blocks. The Kitchen Station and Kitchen Access Point get new models and
