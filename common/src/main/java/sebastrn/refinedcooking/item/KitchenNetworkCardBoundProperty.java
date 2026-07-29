@@ -12,8 +12,8 @@ import sebastrn.refinedcooking.RefinedCooking;
 /**
  * A client-side item-model predicate — 1 when the network card is bound to a station, 0 otherwise — so the card can
  * render a distinct bound/unbound texture, the same way RS's own Network Card does. RS's
- * {@code NetworkCardItemPropertyFunction} is the model; this is the RC equivalent. Registered in {@code ClientSetup};
- * the {@code models/item/kitchen_network_card.json} overrides select on {@link #NAME}.
+ * {@code NetworkCardItemPropertyFunction} is the model; this is the RC equivalent. Registered per loader (the NeoForge and
+ * Fabric client shims); the {@code models/item/kitchen_network_card.json} overrides select on {@link #NAME}.
  */
 public class KitchenNetworkCardBoundProperty implements ClampedItemPropertyFunction {
     public static final ResourceLocation NAME =

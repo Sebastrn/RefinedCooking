@@ -33,8 +33,8 @@ import static java.util.Objects.requireNonNull;
  * {@code ConnectionSink#tryConnect} on our position. We index ourselves under a {@link KitchenStationKey} so the
  * Access Point can confirm we really landed in its graph.
  * <p>
- * The {@code connected} blockstate is driven by the ticker, not from here — see {@code KitchenStationBlock#getTicker},
- * which hands the property to RS's {@code NetworkNodeBlockEntityTicker}.
+ * The {@link KitchenStationBlock#LINK_STATE} blockstate is driven from here via {@link #updateLinkState()}, which the
+ * Station's ticker calls each tick right after RS has updated the node's activeness.
  */
 public class KitchenStationBlockEntity extends AbstractBaseNetworkNodeContainerBlockEntity<SimpleNetworkNode> {
 
