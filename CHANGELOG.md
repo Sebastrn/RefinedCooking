@@ -2,6 +2,14 @@
 
 All notable changes to **Refined Cooking** are listed here.
 
+## 7.3.1
+
+A small model fix. No gameplay changes.
+
+### Fixed
+- **The support block behind the Kitchen Station's screen sat slightly forward of the tilted display.**
+  Nudged it back to meet the screen.
+
 ## 7.3.0
 
 A visual overhaul of all three blocks. The Kitchen Station and Kitchen Access Point get new models and
