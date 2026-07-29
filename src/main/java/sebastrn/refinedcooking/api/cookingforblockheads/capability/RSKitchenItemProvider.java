@@ -50,7 +50,16 @@ public class RSKitchenItemProvider implements KitchenItemProvider {
         this.blockEntity = blockEntity;
     }
 
+    /**
+     * The network the Station can draw from, or null when the Station is not online: not on a network, or on one that
+     * is unpowered/redstone-off (a LINKED_OFFLINE station). Gating on the node being online keeps "green screen" and
+     * "can cook" aligned: a linked-but-offline station stays visibly red but serves nothing. RS keeps its storage live,
+     * so (unlike Applied Cooking against AE2) there is no snapshot to cache; every lookup reads the real thing.
+     */
     private INetwork getNetwork() {
+        if (!blockEntity.getNode().isOnline()) {
+            return null;
+        }
         return blockEntity.getNode().getNetwork();
     }
 

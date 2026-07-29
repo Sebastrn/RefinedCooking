@@ -39,9 +39,37 @@ public class KitchenStationBlockEntity extends NetworkNodeBlockEntity<KitchenSta
         return new KitchenStationNetworkNode(level, pos);
     }
 
-    public void setConnected(boolean connected) {
+    /**
+     * The Station's three-way link state, derived from its Refined Storage node. RS1 has no "isActive means online"
+     * shortcut like RS2: the node's own {@code isActive()} covers only redstone, so "online" is the node being able to
+     * run (on a network that is present and powered), exposed as {@link KitchenStationNetworkNode#isOnline()}.
+     */
+    public KitchenStationBlock.LinkState getLinkState() {
+        KitchenStationNetworkNode node = getNode();
+        if (node.isOnline()) {
+            return KitchenStationBlock.LinkState.ONLINE;
+        }
+        if (node.getNetwork() != null) {
+            return KitchenStationBlock.LinkState.LINKED_OFFLINE;
+        }
+        return KitchenStationBlock.LinkState.UNLINKED;
+    }
+
+    /**
+     * Write {@link KitchenStationBlock#LINK_STATE} to match {@link #getLinkState()} when it has changed. Called from the
+     * node's tick (RS1 ticks nodes itself, so there is no block ticker), so it only writes the blockstate on a real
+     * change rather than every tick.
+     */
+    public void updateLinkState() {
+        if (level == null || level.isClientSide) {
+            return;
+        }
+        KitchenStationBlock.LinkState linkState = getLinkState();
         BlockState state = level.getBlockState(worldPosition);
-        level.setBlockAndUpdate(worldPosition, state.setValue(KitchenStationBlock.CONNECTED, connected));
-        setChanged();
+        if (state.getBlock() instanceof KitchenStationBlock
+                && state.getValue(KitchenStationBlock.LINK_STATE) != linkState) {
+            level.setBlockAndUpdate(worldPosition, state.setValue(KitchenStationBlock.LINK_STATE, linkState));
+            setChanged();
+        }
     }
 }

@@ -51,14 +51,24 @@ public class TheOneProbeAddon {
             if (state.getBlock() instanceof KitchenStationBlock) {
                 var kitchenStationBlockEntity = tryGetTileEntity(level, data.getPos(), KitchenStationBlockEntity.class);
                 if (kitchenStationBlockEntity != null) {
-                    if (kitchenStationBlockEntity.getNode().getNetwork() != null) {
-                        info.mcText(Component.translatable("jade.refinedcooking:kitchen_station", "%d, %d, %d".formatted(
-                                        kitchenStationBlockEntity.getNode().getNetwork().getPosition().getX(),
-                                        kitchenStationBlockEntity.getNode().getNetwork().getPosition().getY(),
-                                        kitchenStationBlockEntity.getNode().getNetwork().getPosition().getZ()))
+                    switch (kitchenStationBlockEntity.getLinkState()) {
+                        case ONLINE -> {
+                            var network = kitchenStationBlockEntity.getNode().getNetwork();
+                            if (network != null) {
+                                info.mcText(Component.translatable("jade.refinedcooking:kitchen_station", "%d, %d, %d".formatted(
+                                                network.getPosition().getX(),
+                                                network.getPosition().getY(),
+                                                network.getPosition().getZ()))
+                                        .withStyle(ChatFormatting.GRAY));
+                            } else {
+                                // On the network without an Access Point, cabled straight to it. See the Jade provider.
+                                info.mcText(Component.translatable("jade.refinedcooking:kitchen_station_connected")
+                                        .withStyle(ChatFormatting.GRAY));
+                            }
+                        }
+                        case LINKED_OFFLINE -> info.mcText(Component.translatable("jade.refinedcooking:linked_offline")
                                 .withStyle(ChatFormatting.GRAY));
-                    } else {
-                        info.mcText(Component.translatable("jade.refinedcooking:offline").withStyle(ChatFormatting.GRAY));
+                        default -> info.mcText(Component.translatable("jade.refinedcooking:offline").withStyle(ChatFormatting.GRAY));
                     }
                 }
             } else if (state.getBlock() instanceof KitchenAccessPointBlock) {

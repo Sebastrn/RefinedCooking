@@ -1,5 +1,6 @@
 package sebastrn.refinedcooking.compat.jade;
 
+import com.refinedmods.refinedstorage.api.network.INetwork;
 import sebastrn.refinedcooking.RefinedCooking;
 import sebastrn.refinedcooking.blockentity.KitchenStationBlockEntity;
 import net.minecraft.nbt.CompoundTag;
@@ -17,22 +18,32 @@ public class KitchenStationComponentProvider implements IBlockComponentProvider,
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-        if (accessor.getServerData().contains("isConnectedToNetwork")) {
-            tooltip.add(Component.translatable("jade.refinedcooking:kitchen_station", accessor.getServerData().getString("RSNetworkPosition")));
-        } else {
-            tooltip.add(Component.translatable("jade.refinedcooking:offline"));
+        CompoundTag data = accessor.getServerData();
+        String linkState = data.getString("linkState");
+        String networkPos = data.getString("RSNetworkPosition");
+        switch (linkState) {
+            case "online" -> {
+                if (networkPos.isEmpty()) {
+                    tooltip.add(Component.translatable("jade.refinedcooking:kitchen_station_connected"));
+                } else {
+                    tooltip.add(Component.translatable("jade.refinedcooking:kitchen_station", networkPos));
+                }
+            }
+            case "linked_offline" -> tooltip.add(Component.translatable("jade.refinedcooking:linked_offline"));
+            default -> tooltip.add(Component.translatable("jade.refinedcooking:offline"));
         }
     }
 
     @Override
     public void appendServerData(CompoundTag data, BlockAccessor accessor) {
         KitchenStationBlockEntity kitchenStation = (KitchenStationBlockEntity) accessor.getBlockEntity();
-        if (kitchenStation.getNode().getNetwork() != null) {
-            data.putBoolean("isConnectedToNetwork", true);
+        data.putString("linkState", kitchenStation.getLinkState().getSerializedName());
+        INetwork network = kitchenStation.getNode().getNetwork();
+        if (network != null) {
             data.putString("RSNetworkPosition", "%d, %d, %d".formatted(
-                    kitchenStation.getNode().getNetwork().getPosition().getX(),
-                    kitchenStation.getNode().getNetwork().getPosition().getY(),
-                    kitchenStation.getNode().getNetwork().getPosition().getZ()));
+                    network.getPosition().getX(),
+                    network.getPosition().getY(),
+                    network.getPosition().getZ()));
         }
     }
 

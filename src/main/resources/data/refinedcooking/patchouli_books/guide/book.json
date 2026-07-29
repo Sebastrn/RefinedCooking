@@ -3,7 +3,7 @@
   "landing_text": "refinedcooking.guide.landing",
   "show_progress": false,
   "version": 1,
-  "book_texture": "refinedcooking:textures/gui/book_maroon.png",
+  "book_texture": "refinedcooking:textures/gui/book.png",
   "model": "refinedcooking:guidebook",
   "i18n": true,
   "index_icon": "refinedcooking:kitchen_station",

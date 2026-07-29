@@ -1,3 +1,3 @@
 {
-  "parent": "refinedcooking:block/kitchen_access_point"
+	"parent": "refinedcooking:block/kitchen_access_point_connected_empty"
 }

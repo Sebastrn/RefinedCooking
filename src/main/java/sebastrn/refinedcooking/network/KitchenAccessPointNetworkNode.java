@@ -149,8 +149,17 @@ public class KitchenAccessPointNetworkNode extends NetworkNode {
         return level.dimension() == receiverDimension;
     }
 
+    /**
+     * Whether the Access Point relays its bound Station into the network graph. It does so whenever a card names a
+     * Station, powered or not: gating this on {@link #canUpdate()} dropped the Station off the graph the instant the
+     * network lost power, so its screen went straight to dark (UNLINKED) and the "linked but the network is offline"
+     * state (LINKED_OFFLINE / red) was unreachable through an Access-Point link. The Station still only serves items and
+     * lights up green while its own node is online (see {@code KitchenStationBlockEntity#getLinkState}), so an unpowered
+     * link stays dark-for-cooking, just visibly red instead of vanishing. The Access Point's own lit state still tracks
+     * {@link #canUpdate()} (see {@link #isConnected()} and {@link #onConnectedStateChange}).
+     */
     private boolean canTransmit() {
-        return canUpdate() && receiver != null && receiverDimension != null;
+        return receiver != null && receiverDimension != null;
     }
 
     @Override
