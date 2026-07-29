@@ -6,6 +6,7 @@ import com.refinedmods.refinedstorage.common.support.AbstractBlockEntityTicker;
 import com.refinedmods.refinedstorage.common.support.network.NetworkNodeBlockEntityTicker;
 import net.blay09.mods.cookingforblockheads.block.BaseKitchenBlock;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -15,40 +16,85 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import sebastrn.refinedcooking.RefinedCookingBlockEntities;
 import sebastrn.refinedcooking.blockentity.KitchenStationBlockEntity;
 
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 public class KitchenStationBlock extends BaseKitchenBlock {
 
     public static final MapCodec<KitchenStationBlock> CODEC = simpleCodec(KitchenStationBlock::new);
 
-    private static final VoxelShape SHAPE_NORTH = Block.box(3, -1, 6, 13, 7.5, 13);
-    private static final VoxelShape SHAPE_SOUTH = Block.box(3, -1, 3, 13, 7.5, 10);
-    private static final VoxelShape SHAPE_EAST = Block.box(3, -1, 3, 10, 7.5, 13);
-    private static final VoxelShape SHAPE_WEST = Block.box(6, -1, 3, 13, 7.5, 13);
-    public static final BooleanProperty CONNECTED = BooleanProperty.create("connected");
+    // Single-box hitbox sized to the model's overall extent. SHAPE_NORTH is the raw model (facing=north, y=0); the
+    // other three are it rotated about the block centre to match the blockstate's y-rotation. The top (y=12.5) is the
+    // peak of the -45-degree screen panel on 1.21.1 / 1.20.4; the 26.1.2 build tilts the panel to -40 (and shifts the
+    // riser back to match) and peaks at 12.0 instead.
+    private static final VoxelShape SHAPE_NORTH = Block.box(1, 0, 1.5, 15, 12.5, 14);
+    private static final VoxelShape SHAPE_EAST = Block.box(2, 0, 1, 14.5, 12.5, 15);
+    private static final VoxelShape SHAPE_SOUTH = Block.box(1, 0, 2, 15, 12.5, 14.5);
+    private static final VoxelShape SHAPE_WEST = Block.box(1.5, 0, 1, 14, 12.5, 15);
 
     /**
-     * Refined Storage 2 ticks its nodes from the block entity, where RS1 ticked them from the network — so unlike the
-     * RS1 version this block has to supply a ticker, or the node would never go active and the Station would never
-     * join a network. Handing {@link #CONNECTED} to the ticker is also what keeps the blockstate in step with the
-     * node's activeness, replacing RS1's {@code setConnected} callback.
+     * The Station's link state, set by the block entity each tick (see {@link KitchenStationBlockEntity#getLinkState()})
+     * and read by the blockstate models and the Jade/TOP tooltips. Three values, replacing the old {@code connected}
+     * boolean which folded the linked-but-unpowered case into "off":
+     * <ul>
+     *   <li>{@link LinkState#UNLINKED} - not on any network (alone), dark screen.</li>
+     *   <li>{@link LinkState#LINKED_OFFLINE} - on a network but not powered/active, red screen.</li>
+     *   <li>{@link LinkState#ONLINE} - active on a live network, green screen with full glow.</li>
+     * </ul>
      */
-    // Lazy field read (not a KITCHEN_STATION::get bound ref): on Fabric, Balm resolves block suppliers immediately,
-    // so this static init runs during block registration — before block entities register — when the field is still
-    // null. The supplier is only invoked later (at getTicker time), by which point the field is set on both loaders.
+    public enum LinkState implements StringRepresentable {
+        UNLINKED("unlinked"),
+        LINKED_OFFLINE("linked_offline"),
+        ONLINE("online");
+
+        private final String name;
+
+        LinkState(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return name;
+        }
+    }
+
+    public static final EnumProperty<LinkState> LINK_STATE = EnumProperty.create("link_state", LinkState.class);
+
+    /**
+     * Refined Storage 2 ticks its nodes from the block entity, so this block has to supply a ticker or the node would
+     * never go active. We keep RS's {@link NetworkNodeBlockEntityTicker} for the node lifecycle, but pass it a
+     * {@code null} activeness property (the old {@code connected} boolean is gone) and drive {@link #LINK_STATE}
+     * ourselves in {@link KitchenStationBlockEntity#updateLinkState()}, run right after the node ticks.
+     */
+    private static final class LinkStateTicker
+            extends NetworkNodeBlockEntityTicker<SimpleNetworkNode, KitchenStationBlockEntity> {
+        private LinkStateTicker(Supplier<BlockEntityType<KitchenStationBlockEntity>> allowedTypeSupplier) {
+            super(allowedTypeSupplier, null); // null activeness property: we own the block model state, not RS
+        }
+
+        @Override
+        public void tick(Level level, BlockPos pos, BlockState state, KitchenStationBlockEntity blockEntity) {
+            super.tick(level, pos, state, blockEntity);
+            blockEntity.updateLinkState();
+        }
+    }
+
+    // Lazy field read (not a KITCHEN_STATION::get bound ref): on Fabric, Balm resolves block suppliers immediately, so
+    // this static init runs during block registration - before block entities register - when the field is still null.
+    // The supplier is only invoked later (at tick time), by which point the field is set on both loaders.
     private static final AbstractBlockEntityTicker<KitchenStationBlockEntity> TICKER =
-            new NetworkNodeBlockEntityTicker<SimpleNetworkNode, KitchenStationBlockEntity>(
-                    () -> RefinedCookingBlockEntities.KITCHEN_STATION.get(), CONNECTED);
+            new LinkStateTicker(() -> RefinedCookingBlockEntities.KITCHEN_STATION.get());
 
     public KitchenStationBlock(Properties properties) {
         super(properties);
-        registerDefaultState(getStateDefinition().any().setValue(CONNECTED, false));
+        registerDefaultState(getStateDefinition().any().setValue(LINK_STATE, LinkState.UNLINKED));
     }
 
     @Override
@@ -59,7 +105,7 @@ public class KitchenStationBlock extends BaseKitchenBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(CONNECTED);
+        builder.add(LINK_STATE);
     }
 
     @Override

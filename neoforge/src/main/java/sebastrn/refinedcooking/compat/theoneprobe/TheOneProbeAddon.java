@@ -52,18 +52,23 @@ public class TheOneProbeAddon {
                 var kitchenStationBlockEntity = tryGetTileEntity(level, data.getPos(), KitchenStationBlockEntity.class);
                 if (kitchenStationBlockEntity != null) {
                     var accessPointPos = kitchenStationBlockEntity.getLinkedAccessPointPos();
-                    if (accessPointPos.isPresent()) {
-                        info.mcText(Component.translatable("jade.refinedcooking:kitchen_station", "%d, %d, %d".formatted(
-                                        accessPointPos.get().getX(),
-                                        accessPointPos.get().getY(),
-                                        accessPointPos.get().getZ()))
+                    switch (kitchenStationBlockEntity.getLinkState()) {
+                        case ONLINE -> {
+                            if (accessPointPos.isPresent()) {
+                                info.mcText(Component.translatable("jade.refinedcooking:kitchen_station", "%d, %d, %d".formatted(
+                                                accessPointPos.get().getX(),
+                                                accessPointPos.get().getY(),
+                                                accessPointPos.get().getZ()))
+                                        .withStyle(ChatFormatting.GRAY));
+                            } else {
+                                // On the network without an Access Point, cabled straight to it. See the Jade provider.
+                                info.mcText(Component.translatable("jade.refinedcooking:kitchen_station_connected")
+                                        .withStyle(ChatFormatting.GRAY));
+                            }
+                        }
+                        case LINKED_OFFLINE -> info.mcText(Component.translatable("jade.refinedcooking:linked_offline")
                                 .withStyle(ChatFormatting.GRAY));
-                    } else if (kitchenStationBlockEntity.isActive()) {
-                        // On the network without an Access Point — cabled straight to it. See the Jade provider.
-                        info.mcText(Component.translatable("jade.refinedcooking:kitchen_station_connected")
-                                .withStyle(ChatFormatting.GRAY));
-                    } else {
-                        info.mcText(Component.translatable("jade.refinedcooking:offline").withStyle(ChatFormatting.GRAY));
+                        default -> info.mcText(Component.translatable("jade.refinedcooking:offline").withStyle(ChatFormatting.GRAY));
                     }
                 }
             } else if (state.getBlock() instanceof KitchenAccessPointBlock) {

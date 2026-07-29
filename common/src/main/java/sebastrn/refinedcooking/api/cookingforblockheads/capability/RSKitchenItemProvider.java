@@ -66,11 +66,16 @@ public class RSKitchenItemProvider implements KitchenItemProvider {
     }
 
     /**
-     * The network's storage, or null when the Station isn't on a network. RS keeps this live, so — unlike Applied
-     * Cooking against AE2 — there is no snapshot to cache: every lookup reads the real thing.
+     * The network's storage, or null when the Station is not active: not on a network, or on one that is
+     * unpowered/redstone-off (a LINKED_OFFLINE station). Gating on {@link KitchenStationBlockEntity#isActive()} keeps
+     * "green screen" and "can cook" exactly aligned: a linked-but-offline station stays visibly red but serves nothing.
+     * RS keeps this live, so there is no snapshot to cache; every lookup reads the real thing.
      */
     @Nullable
     private StorageNetworkComponent getStorage() {
+        if (!blockEntity.isActive()) {
+            return null;
+        }
         Network network = blockEntity.getNetwork();
         return network == null ? null : network.getComponent(StorageNetworkComponent.class);
     }

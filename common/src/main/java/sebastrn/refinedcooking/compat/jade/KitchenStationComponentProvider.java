@@ -25,22 +25,28 @@ public class KitchenStationComponentProvider implements IBlockComponentProvider,
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
         CompoundTag data = accessor.getServerData();
-        if (data.contains("RSNetworkPosition")) {
-            tooltip.add(Component.translatable("jade.refinedcooking:kitchen_station",
-                    data.getString("RSNetworkPosition")));
-        } else if (data.getBoolean("isConnectedToNetwork")) {
-            tooltip.add(Component.translatable("jade.refinedcooking:kitchen_station_connected"));
-        } else {
-            tooltip.add(Component.translatable("jade.refinedcooking:offline"));
+        String linkState = data.getString("linkState");
+        String accessPointPos = data.getString("accessPointPos");
+        switch (linkState) {
+            case "online" -> {
+                // Cabled straight to the network has no Access Point to name; only show the position when linked.
+                if (accessPointPos.isEmpty()) {
+                    tooltip.add(Component.translatable("jade.refinedcooking:kitchen_station_connected"));
+                } else {
+                    tooltip.add(Component.translatable("jade.refinedcooking:kitchen_station", accessPointPos));
+                }
+            }
+            case "linked_offline" -> tooltip.add(Component.translatable("jade.refinedcooking:linked_offline"));
+            default -> tooltip.add(Component.translatable("jade.refinedcooking:offline"));
         }
     }
 
     @Override
     public void appendServerData(CompoundTag data, BlockAccessor accessor) {
         KitchenStationBlockEntity kitchenStation = (KitchenStationBlockEntity) accessor.getBlockEntity();
-        data.putBoolean("isConnectedToNetwork", kitchenStation.isActive());
+        data.putString("linkState", kitchenStation.getLinkState().getSerializedName());
         kitchenStation.getLinkedAccessPointPos().ifPresent(pos ->
-                data.putString("RSNetworkPosition", "%d, %d, %d".formatted(pos.getX(), pos.getY(), pos.getZ())));
+                data.putString("accessPointPos", "%d, %d, %d".formatted(pos.getX(), pos.getY(), pos.getZ())));
     }
 
     @Override
