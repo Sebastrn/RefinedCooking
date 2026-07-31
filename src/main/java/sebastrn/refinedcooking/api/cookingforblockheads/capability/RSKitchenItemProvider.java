@@ -28,19 +28,19 @@ import java.util.function.Predicate;
  * Supplies ingredients to Cooking for Blockheads from the Refined Storage network the Kitchen Station is part of.
  * Implements CFB's {@link KitchenItemProvider} contract. Three ways to satisfy a wanted ingredient, tried in order:
  * <ul>
- *     <li><b>Item</b> — the network's item storage holds the matching item directly (extract/insert as normal).</li>
- *     <li><b>Water/milk fast-path</b> — the fluids CFB recipes actually request, identified by item <em>tag</em>
+ *     <li><b>Item</b>, the network's item storage holds the matching item directly (extract/insert as normal).</li>
+ *     <li><b>Water/milk fast-path</b>, the fluids CFB recipes actually request, identified by item <em>tag</em>
  *     ({@link ModItemTags#WATER}/{@link ModItemTags#MILK}, mirroring CFB's Sink / Milk Jar): if a wanted item carries
  *     the tag and the network's fluid storage holds ≥1000mB of the fluid, drain a bucket and yield the requested item.
  *     Yielding the requested item (not the fluid's own bucket) satisfies modded variants (water bottles,
  *     {@code freshmilkitem}, …), and milk is reliable via Balm's milk fluid rather than a bucket lookup.</li>
- *     <li><b>Fluid (network-driven fallback)</b> — for any other fluid stored (lava, modded), build its bucket and
+ *     <li><b>Fluid (network-driven fallback)</b>, for any other fluid stored (lava, modded), build its bucket and
  *     ask the recipe whether it satisfies the ingredient; if so, synthesize the bucket by draining 1000mB. CFB
  *     produces no recipe remainders, so the container is virtual: {@code consume()} spends the fluid and hands back
  *     the item, {@code restore()} refunds it.</li>
  * </ul>
  * The item path is tried first, so real stored items are preferred over synthesized fluid containers. RS keeps its
- * item/fluid storage lists live, so (unlike AE2) no per-tick snapshot is needed — the lists are queried directly.
+ * item/fluid storage lists live, so (unlike AE2) no per-tick snapshot is needed, the lists are queried directly.
  */
 public class RSKitchenItemProvider implements KitchenItemProvider {
 
@@ -70,7 +70,7 @@ public class RSKitchenItemProvider implements KitchenItemProvider {
             return null;
         }
 
-        // Item path first — real stored items are preferred over synthesized fluid containers.
+        // Item path first, real stored items are preferred over synthesized fluid containers.
         ItemStack[] items = ingredient.getItems();
         for (ItemStack candidate : items) {
             IngredientToken token = findMatching(network, candidate, ingredientTokens);
@@ -260,8 +260,8 @@ public class RSKitchenItemProvider implements KitchenItemProvider {
             // Return crafting remainders (e.g. empty buckets) to the network.
             ItemStack remainder = Balm.getHooks().getCraftingRemainingItem(consumed);
             if (!remainder.isEmpty()) {
-                // insertItem hands back whatever wouldn't fit. If the network won't take it — full, or filtered so
-                // nothing accepts it — drop it at the station rather than silently destroying the player's bucket.
+                // insertItem hands back whatever wouldn't fit. If the network won't take it, full, or filtered so
+                // nothing accepts it, drop it at the station rather than silently destroying the player's bucket.
                 dropAtStation(network.insertItem(remainder, remainder.getCount(), Action.PERFORM));
             }
             return consumed;
@@ -310,7 +310,7 @@ public class RSKitchenItemProvider implements KitchenItemProvider {
             }
             FluidStack extracted = network.extractFluid(new FluidStack(fluid, amountPerItem), amountPerItem, Action.PERFORM);
             if (extracted.getAmount() < amountPerItem) {
-                // Not enough after all — put back whatever we drained and give up (no partial loss).
+                // Not enough after all, put back whatever we drained and give up (no partial loss).
                 if (extracted.getAmount() > 0) {
                     network.insertFluid(extracted, extracted.getAmount(), Action.PERFORM);
                 }

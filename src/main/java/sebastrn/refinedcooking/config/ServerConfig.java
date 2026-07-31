@@ -34,7 +34,7 @@ public class ServerConfig {
         public KitchenStation() {
             builder.push("kitchenStation");
 
-            usage = builder.comment("The energy used by the Kitchen Station (0 by default, matching RS's Network Receiver — the passive remote end of the link)").defineInRange("usage", 0, 0, Integer.MAX_VALUE);
+            usage = builder.comment("The energy used by the Kitchen Station (0 by default, matching RS's Network Receiver, the passive remote end of the link)").defineInRange("usage", 0, 0, Integer.MAX_VALUE);
 
             builder.pop();
         }
@@ -50,7 +50,7 @@ public class ServerConfig {
         public KitchenAccessPoint() {
             builder.push("kitchenAccessPoint");
 
-            usage = builder.comment("The energy used by the Kitchen Access Point (64 by default, matching RS's Network Transmitter — the device that projects the network to a remote station)").defineInRange("usage", 64, 0, Integer.MAX_VALUE);
+            usage = builder.comment("The energy used by the Kitchen Access Point (64 by default, matching RS's Network Transmitter, the device that projects the network to a remote station)").defineInRange("usage", 64, 0, Integer.MAX_VALUE);
 
             builder.pop();
         }

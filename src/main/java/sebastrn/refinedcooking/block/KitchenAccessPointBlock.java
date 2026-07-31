@@ -39,7 +39,7 @@ public class KitchenAccessPointBlock extends NetworkNodeBlock {
     public KitchenAccessPointBlock() {
         super(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).sound(SoundType.METAL).strength(2.5f));
         // Pin CONNECTED false too: any() defaults booleans to true, and NetworkNodeBlock's own default (which does
-        // set CONNECTED false) is clobbered by this call — so without this a freshly placed block reads "connected".
+        // set CONNECTED false) is clobbered by this call, so without this a freshly placed block reads "connected".
         registerDefaultState(getStateDefinition().any()
                 .setValue(getDirection().getProperty(), Direction.NORTH)
                 .setValue(NetworkNodeBlock.CONNECTED, false)
@@ -49,7 +49,7 @@ public class KitchenAccessPointBlock extends NetworkNodeBlock {
     /**
      * Makes the block rotatable. RS's {@link com.refinedmods.refinedstorage.block.BaseBlock} adds the {@code direction}
      * property (and handles rotation) for anything that isn't {@link BlockDirection#NONE}, and its
-     * {@code BaseBlockItem} turns the block to face the player on placement — so the item must be a
+     * {@code BaseBlockItem} turns the block to face the player on placement, so the item must be a
      * {@code BaseBlockItem} for placement to set this (see RefinedCookingItems).
      */
     @Override

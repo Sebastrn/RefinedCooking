@@ -69,7 +69,7 @@ public class KitchenAccessPointNetworkNode extends NetworkNode {
 
     /**
      * Keep the block's {@code connected} state in sync with whether the node is actually active. RS only writes
-     * that blockstate from {@link #update()}, which stops running once the node leaves the network — so on
+     * that blockstate from {@link #update()}, which stops running once the node leaves the network, so on
      * disconnect the antennas would stay lit. This hook fires on every connectivity change (connect, disconnect,
      * power/redstone flip), so we re-derive the real active state from {@link #canUpdate()} and darken the block
      * when it drops off the network.
@@ -117,7 +117,7 @@ public class KitchenAccessPointNetworkNode extends NetworkNode {
         return networkCard;
     }
 
-    /** True when the node is actually active — on a network, powered, and redstone-enabled (mirrors the block's lit state). */
+    /** True when the node is actually active, on a network, powered, and redstone-enabled (mirrors the block's lit state). */
     public boolean isConnected() {
         return canUpdate();
     }

@@ -74,7 +74,7 @@ public final class RefinedCooking {
 
     /**
      * Registers Cooking for Blockheads' <em>own</em> Oven against its <em>own</em> item provider capability, which
-     * CFB forgot to do here — every other complex block entity of theirs (sink, milk jar, fridge, cutting board) is
+     * CFB forgot to do here, every other complex block entity of theirs (sink, milk jar, fridge, cutting board) is
      * registered, and the Oven is registered for its energy capability two lines away, but never for this one. The
      * result is that the Oven's tool and output slots are invisible to the Cooking Table: a pot sitting in the Oven
      * does not count towards a recipe, though the same pot in a Refined Storage network does.
@@ -89,8 +89,8 @@ public final class RefinedCooking {
      * Tagging the Oven into {@code kitchen_item_providers} does exactly that, and would additionally break when
      * {@code disallowOvenAutomation} is enabled, since that makes {@code getContainer()} return null.
      * <p>
-     * Applied Cooking ships the identical fix. If both mods are present each registers the Oven, which is harmless —
-     * NeoForge tries registrations in turn until one returns non-null — but a player running only one of them still
+     * Applied Cooking ships the identical fix. If both mods are present each registers the Oven, which is harmless, 
+     * NeoForge tries registrations in turn until one returns non-null, but a player running only one of them still
      * gets a working Oven, which is the point.
      */
     private void registerOvenItemProvider(RegisterCapabilitiesEvent event,

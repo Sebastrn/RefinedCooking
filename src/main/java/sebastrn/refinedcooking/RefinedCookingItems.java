@@ -18,7 +18,7 @@ public final class RefinedCookingItems {
             registerBlockItemFor(RefinedCookingBlocks.KITCHEN_STATION);
     /**
      * The Access Point is rotatable, and RS's {@link BaseBlockItem} is what turns the block to face the player on
-     * placement — a plain BlockItem would leave it stuck on the default facing. (The Station doesn't need this: CFB's
+     * placement, a plain BlockItem would leave it stuck on the default facing. (The Station doesn't need this: CFB's
      * BaseKitchenBlock sets its own facing on placement.)
      */
     public static final DeferredHolder<Item, BaseBlockItem> KITCHEN_ACCESS_POINT =

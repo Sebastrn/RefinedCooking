@@ -12,7 +12,7 @@ import sebastrn.refinedcooking.RefinedCookingItems;
 
 /**
  * REI integration: the same "info" pages the JEI plugin attaches, so REI users get the how-to on the three Refined
- * Cooking items. REI reuses the existing {@code jei.refinedcooking.*} text — the keys are viewer-agnostic. Discovered
+ * Cooking items. REI reuses the existing {@code jei.refinedcooking.*} text, the keys are viewer-agnostic. Discovered
  * only when REI is present (its {@code @REIPluginClient} scan never touches this class otherwise), so REI stays
  * optional.
  */
