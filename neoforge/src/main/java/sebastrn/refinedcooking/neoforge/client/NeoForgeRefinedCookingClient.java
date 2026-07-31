@@ -13,7 +13,7 @@ import sebastrn.refinedcooking.item.KitchenNetworkCardBoundProperty;
 
 /**
  * NeoForge client entry: boots the loader-neutral client init through Balm (the Access Point screen), then registers
- * the network-card bound/unbound item-model condition the NeoForge way — through
+ * the network-card bound/unbound item-model condition the NeoForge way, through
  * {@link RegisterConditionalItemModelPropertyEvent}. On Fabric the same condition is registered by adding it to
  * {@code ConditionalItemModelProperties.ID_MAPPER}.
  */

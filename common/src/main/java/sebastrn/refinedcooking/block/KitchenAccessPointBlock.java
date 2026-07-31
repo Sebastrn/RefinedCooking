@@ -31,9 +31,9 @@ import sebastrn.refinedcooking.network.KitchenAccessPointNetworkNode;
 import javax.annotation.Nullable;
 
 /**
- * Extends RS's {@link AbstractDirectionalBlock}, which brings the rotatable {@code direction} property — the same
+ * Extends RS's {@link AbstractDirectionalBlock}, which brings the rotatable {@code direction} property, the same
  * property name and north/east/south/west values RS1's {@code BlockDirection.HORIZONTAL} used, so the blockstate JSON
- * and models carry over unchanged — places the block facing the player, and (through {@code AbstractBaseBlock}) opens
+ * and models carry over unchanged, places the block facing the player, and (through {@code AbstractBaseBlock}) opens
  * the block entity's menu on right-click and drops the card on break.
  */
 public class KitchenAccessPointBlock extends AbstractDirectionalBlock<HorizontalDirection> implements EntityBlock {
@@ -78,7 +78,7 @@ public class KitchenAccessPointBlock extends AbstractDirectionalBlock<Horizontal
      * <p>
      * RS quietly flipped this convention between versions: RS1's {@code BlockDirection.HORIZONTAL} stored
      * {@code player.getDirection().getOpposite()}, whereas RS2's {@code HorizontalDirectionType} stores the player's
-     * facing as-is — while both map {@code direction} to the same model rotations. Inheriting RS2's behaviour would
+     * facing as-is, while both map {@code direction} to the same model rotations. Inheriting RS2's behaviour would
      * therefore turn this block 180° from where it has always sat, with nothing to show for it in a compile.
      */
     @Override

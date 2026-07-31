@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import sebastrn.refinedcooking.RefinedCooking;
 
 /**
- * A client-side item-model condition — true when the network card is bound to a station — so the card can render a
+ * A client-side item-model condition, true when the network card is bound to a station, so the card can render a
  * distinct bound/unbound texture, the same way RS's own Network Card does. Registered per loader (the NeoForge and
  * Fabric client shims); the {@code items/kitchen_network_card.json} model selects on {@link #NAME}.
  */

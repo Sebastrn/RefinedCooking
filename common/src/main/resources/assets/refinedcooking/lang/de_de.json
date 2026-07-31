@@ -48,10 +48,10 @@
   "config.jade.plugin_refinedcooking.kitchen_access_point": "Küchen-Zugangspunkt",
   "jade.refinedcooking:kitchen_station": "Mit Netzwerk verbunden bei %s",
   "jade.refinedcooking:kitchen_station_connected": "Mit Netzwerk verbunden",
-  "jade.refinedcooking:linked_offline": "Im Netzwerk – Keine Energie",
-  "jade.refinedcooking:online_transmitting": "Mit Netzwerk verbunden – Sendet",
-  "jade.refinedcooking:online_no_transmission": "Mit Netzwerk verbunden – Sendet nicht",
-  "jade.refinedcooking:online_no_card": "Mit Netzwerk verbunden – Keine Karte",
-  "jade.refinedcooking:offline_with_card": "Nicht mit Netzwerk verbunden – Karte eingesetzt",
+  "jade.refinedcooking:linked_offline": "Im Netzwerk-Keine Energie",
+  "jade.refinedcooking:online_transmitting": "Mit Netzwerk verbunden-Sendet",
+  "jade.refinedcooking:online_no_transmission": "Mit Netzwerk verbunden-Sendet nicht",
+  "jade.refinedcooking:online_no_card": "Mit Netzwerk verbunden-Keine Karte",
+  "jade.refinedcooking:offline_with_card": "Nicht mit Netzwerk verbunden-Karte eingesetzt",
   "jade.refinedcooking:offline": "Nicht mit Netzwerk verbunden"
 }

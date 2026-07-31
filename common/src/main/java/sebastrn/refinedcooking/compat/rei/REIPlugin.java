@@ -11,10 +11,10 @@ import sebastrn.refinedcooking.RefinedCookingItems;
 
 /**
  * REI integration: the same "info" pages the JEI plugin attaches, so REI users get the how-to on the three Refined
- * Cooking items. REI reuses the existing {@code jei.refinedcooking.*} text — the keys are viewer-agnostic. Loader-neutral
+ * Cooking items. REI reuses the existing {@code jei.refinedcooking.*} text, the keys are viewer-agnostic. Loader-neutral
  * (no discovery annotation) so it compiles on both loaders: NeoForge discovers it via the {@code @REIPluginClient}
  * subclass {@code NeoForgeREIPlugin}, Fabric via the {@code rei_client} entrypoint. Only touched when REI is present.
- * (EMI has no 26.1 build, so there is no EMI plugin on this branch — see the build script.)
+ * (EMI has no 26.1 build, so there is no EMI plugin on this branch, see the build script.)
  */
 public class REIPlugin implements REIClientPlugin {
 

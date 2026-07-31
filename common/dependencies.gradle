@@ -1,19 +1,19 @@
 dependencies {
-    // Balm cross-loader API — the loader-neutral facade the common code registers everything through.
+    // Balm cross-loader API, the loader-neutral facade the common code registers everything through.
     compileOnly "net.blay09.mods:balm-common:${balm_version}"
 
     // Apply Balm's bundled access transformer to the neoform-decompiled Minecraft so the loader-neutral code can use
     // members NeoForge widens in production but raw vanilla keeps hidden. Balm's AT makes
-    // net.minecraft.world.item.CreativeModeTab$Output public — needed for the creative tab's displayItems callback.
+    // net.minecraft.world.item.CreativeModeTab$Output public, needed for the creative tab's displayItems callback.
     // (In neoform mode MDG doesn't auto-apply a dependency's AT; the loader modules get it from balm-neoforge/-fabric.)
     accessTransformers "net.blay09.mods:balm-common:${balm_version}"
 
-    // Refined Storage 2 — common code compiles against the loader-neutral -common + -network modules, which pull the
+    // Refined Storage 2, common code compiles against the loader-neutral -common + -network modules, which pull the
     // whole -api tree (core/resource/storage/network/common) transitively. The loader modules add -neoforge / -fabric.
     compileOnly "com.refinedmods.refinedstorage:refinedstorage-common:${rs_version}"
     compileOnly "com.refinedmods.refinedstorage:refinedstorage-network:${rs_version}"
 
-    // Cooking for Blockheads — common only touches its API (KitchenItemProvider). The loader-neutral -common jar
+    // Cooking for Blockheads, common only touches its API (KitchenItemProvider). The loader-neutral -common jar
     // carries that api package, so it suffices for compilation; each loader module pulls its own CFB runtime jar.
     compileOnly "net.blay09.mods:cookingforblockheads-common:${cfb_version}"
 

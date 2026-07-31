@@ -22,7 +22,7 @@ import static net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED;
 /**
  * Derives everything it shows from state the client already has: the card in slot 0 (whose bound position rides along
  * as a data component on the synced stack) and the Access Point's own position from the menu's extended data. That
- * keeps the label live as a card is inserted or taken out, with no status packet — where RS1 needed two watched
+ * keeps the label live as a card is inserted or taken out, with no status packet, where RS1 needed two watched
  * block-entity parameters to do the same job.
  */
 public class KitchenAccessPointScreen extends AbstractBaseScreen<KitchenAccessPointContainerMenu> {
@@ -56,7 +56,7 @@ public class KitchenAccessPointScreen extends AbstractBaseScreen<KitchenAccessPo
     }
 
     // The transmitting indicator (static dot / animated wave) is drawn in the background layer between the card slot
-    // and the status text — the same place and the same way RS's Network Transmitter draws it.
+    // and the status text, the same place and the same way RS's Network Transmitter draws it.
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         super.extractBackground(graphics, mouseX, mouseY, partialTicks);
@@ -79,7 +79,7 @@ public class KitchenAccessPointScreen extends AbstractBaseScreen<KitchenAccessPo
 
     /**
      * The status itself is synced (only the server can tell "unreachable" from "transmitting"), but the distance and
-     * dimension are read straight off the card in the slot — so they stay live as the card is inserted or removed
+     * dimension are read straight off the card in the slot, so they stay live as the card is inserted or removed
      * without anything extra crossing the wire.
      */
     private String getStatusText() {

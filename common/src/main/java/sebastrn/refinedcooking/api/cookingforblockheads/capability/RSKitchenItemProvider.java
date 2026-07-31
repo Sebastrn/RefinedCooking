@@ -34,19 +34,19 @@ import java.util.function.Predicate;
  * <p>
  * Three ways to satisfy a wanted ingredient, tried in order:
  * <ul>
- *     <li><b>Item</b> — the network holds the matching item directly (extract/insert as normal).</li>
- *     <li><b>Water/milk fast-path</b> — the fluids CFB recipes actually request, identified by item <em>tag</em>
+ *     <li><b>Item</b>, the network holds the matching item directly (extract/insert as normal).</li>
+ *     <li><b>Water/milk fast-path</b>, the fluids CFB recipes actually request, identified by item <em>tag</em>
  *     ({@link ModItemTags#WATER}/{@link ModItemTags#MILK}, mirroring CFB's Sink / Milk Jar): if a wanted item carries
  *     the tag and the network holds ≥1 bucket of the fluid, drain a bucket and yield the requested item. Yielding the
  *     requested item (not the fluid's own bucket) satisfies modded variants (water bottles, {@code freshmilkitem}, …),
  *     and milk is reliable this way because it never depends on the milk fluid's {@code getBucket()}.</li>
- *     <li><b>Fluid (network-driven fallback)</b> — for any other fluid stored (lava, modded), build its bucket and ask
+ *     <li><b>Fluid (network-driven fallback)</b>, for any other fluid stored (lava, modded), build its bucket and ask
  *     the recipe whether it satisfies the ingredient; if so, synthesize the bucket by draining a bucket's worth.</li>
  * </ul>
  * The item path is tried first, so real stored items are preferred over synthesized fluid containers.
  * <p>
  * <b>Refined Storage 2 is resource-agnostic</b>, so items and fluids are both {@link ResourceKey}s read through one
- * {@code RootStorage} — RS1's separate {@code getItemStorageCache()}/{@code getFluidStorageCache()} are gone, and with
+ * {@code RootStorage}, RS1's separate {@code getItemStorageCache()}/{@code getFluidStorageCache()} are gone, and with
  * them the duplicated fluid plumbing this class used to carry.
  * <p>
  * <b>Greedy mode.</b> CFB's {@code findIngredient} takes a {@code greedy} flag (added in the 26.1 API): a greedy token
@@ -56,11 +56,11 @@ import java.util.function.Predicate;
  * accounting therefore sums {@code reservedCount()} rather than counting one per token.
  * <p>
  * <b>Crafting remainders belong to CFB, not to us.</b> Its crafting handler assembles the recipe and then offers each
- * remainder back through {@link IngredientToken#restore}, once per crafting-grid slot — passing {@code EMPTY} for the
+ * remainder back through {@link IngredientToken#restore}, once per crafting-grid slot, passing {@code EMPTY} for the
  * slots that left no remainder. So {@code consume()} must not return remainders itself, and {@code restore()} must key
  * off the stack it is handed rather than assume it means "undo". CFB did neither at 18.0.9 (its handler ignored
  * remainders entirely), which is why this class used to do both; doing them now would refund everything twice. This is
- * why the mod requires CFB 21.1.7+ — below that neither side returns remainders and they would simply be voided.
+ * why the mod requires CFB 21.1.7+, below that neither side returns remainders and they would simply be voided.
  */
 public class RSKitchenItemProvider implements KitchenItemProvider {
 
@@ -73,11 +73,11 @@ public class RSKitchenItemProvider implements KitchenItemProvider {
     }
 
     /**
-     * The network's storage, or null when the Station is not <em>active</em> — i.e. not on a network, or on one that is
+     * The network's storage, or null when the Station is not <em>active</em>, i.e. not on a network, or on one that is
      * unpowered/redstone-off (a LINKED_OFFLINE station). Gating on {@link KitchenStationBlockEntity#isActive()} keeps
      * "green screen" and "can cook" exactly aligned: a linked-but-offline station stays visibly red but serves nothing,
      * the way its item access dropped out when losing power used to drop it off the network entirely. RS keeps this
-     * live, so — unlike Applied Cooking against AE2 — there is no snapshot to cache: every lookup reads the real thing.
+     * live, so, unlike Applied Cooking against AE2, there is no snapshot to cache: every lookup reads the real thing.
      */
     @Nullable
     private StorageNetworkComponent getStorage() {
@@ -105,7 +105,7 @@ public class RSKitchenItemProvider implements KitchenItemProvider {
             return null;
         }
 
-        // Item path first — real stored items are preferred over synthesized fluid containers.
+        // Item path first, real stored items are preferred over synthesized fluid containers.
         // 26.1 dropped Ingredient.getItems(); items() yields the accepted item holders, one plain stack each.
         List<ItemStack> items = ingredient.items().map(holder -> new ItemStack(holder.value())).toList();
         for (ItemStack candidate : items) {
@@ -200,7 +200,7 @@ public class RSKitchenItemProvider implements KitchenItemProvider {
     /**
      * Water/milk fast-path: if the network holds at least a bucket of {@code fluid} (after fluid already reserved) and
      * one of {@code candidates} carries {@code tag}, return a token that drains a bucket and yields that requested
-     * item. Returns null — leaving the fluid to {@link #findFluidIngredient} — when the fluid is absent or
+     * item. Returns null, leaving the fluid to {@link #findFluidIngredient}, when the fluid is absent or
      * unregistered, or no candidate carries the tag.
      */
     @Nullable
@@ -266,7 +266,7 @@ public class RSKitchenItemProvider implements KitchenItemProvider {
     /** A reference to one item in the RS network. Doubles as its own {@link CacheHint}. */
     public class RSIngredientToken implements IngredientToken, CacheHint {
         private final ItemResource resource;
-        /** Items this token lays claim to for reservation accounting — the full amount when greedy, else 1. */
+        /** Items this token lays claim to for reservation accounting, the full amount when greedy, else 1. */
         private final int count;
 
         private RSIngredientToken(ItemResource resource, int count) {
@@ -295,7 +295,7 @@ public class RSKitchenItemProvider implements KitchenItemProvider {
                 return ItemStack.EMPTY;
             }
             // Crafting remainders are NOT handled here: CFB hands each one back through restore(). Returning them
-            // here as well would insert every remainder twice — see the class note on restore().
+            // here as well would insert every remainder twice, see the class note on restore().
             return resource.toItemStack(extracted);
         }
 
@@ -330,7 +330,7 @@ public class RSKitchenItemProvider implements KitchenItemProvider {
         private final FluidResource resource;
         private final long amountPerItem;
         private final ItemStack resultItem;
-        /** Result items this token lays claim to (each backed by {@link #amountPerItem}) — full amount when greedy, else 1. */
+        /** Result items this token lays claim to (each backed by {@link #amountPerItem}), full amount when greedy, else 1. */
         private final int count;
 
         private RSFluidIngredientToken(FluidResource resource, long amountPerItem, ItemStack resultItem, int count) {
@@ -357,7 +357,7 @@ public class RSKitchenItemProvider implements KitchenItemProvider {
             }
             long extracted = storage.extract(resource, amountPerItem, Action.EXECUTE, actor);
             if (extracted < amountPerItem) {
-                // Not enough after all — put back whatever we drained and give up (no partial loss).
+                // Not enough after all, put back whatever we drained and give up (no partial loss).
                 if (extracted > 0) {
                     storage.insert(resource, extracted, Action.EXECUTE, actor);
                 }
@@ -386,7 +386,7 @@ public class RSKitchenItemProvider implements KitchenItemProvider {
                 return ItemStack.EMPTY;
             }
 
-            // Anything else is the recipe's remainder for the container we synthesized — the empty bucket left behind
+            // Anything else is the recipe's remainder for the container we synthesized, the empty bucket left behind
             // by a water bucket we made out of stored fluid. That container never existed, so putting it in the
             // network would mint a bucket from nothing. Swallow it; the fluid stays spent, as it should.
             return ItemStack.EMPTY;

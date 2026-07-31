@@ -15,7 +15,7 @@ configurations.configureEach {
     resolutionStrategy {
         // REI bundles a JEI-compat module that transitively pins JEI; MDG's consistent resolution would spread that
         // pin across the classpath and collide with our JEI. We run one viewer at a time and don't want REI's compat,
-        // so JEI is excluded from REI (below) and our JEI version is forced here — a consumer force wins.
+        // so JEI is excluded from REI (below) and our JEI version is forced here, a consumer force wins.
         force "mezz.jei:jei-26.1.2-neoforge:${jei_version}"
     }
 }
@@ -55,7 +55,7 @@ def selectedViewer = {
     return (findProperty('viewer') ?: 'jei').toString().toLowerCase()
 }()
 
-// runClientRei: the client run with REI instead of JEI. It just drives runClient — the viewer selection above keys
+// runClientRei: the client run with REI instead of JEI. It just drives runClient, the viewer selection above keys
 // off the task name. runClient on its own stays JEI.
 tasks.register('runClientRei') {
     dependsOn 'runClient'
@@ -74,12 +74,12 @@ dependencies {
     // CFB publishes a clean 26.x build to the TwelveIterations maven, so no Modrinth-id pin (unlike the 1.21.1 line).
     implementation "net.blay09.mods:cookingforblockheads-neoforge:${cfb_version}"
 
-    // Optional integrations — compiled against (the compat/ classes reference them) and loaded in the dev client so
+    // Optional integrations, compiled against (the compat/ classes reference them) and loaded in the dev client so
     // they can be tested. The Jade @WailaPlugin class is only loaded by Jade's own scan when Jade is present.
-    // The One Probe is DISABLED for 26.1.2 (no 26.1 build) — its addon in :neoforge compat/theoneprobe is stubbed.
+    // The One Probe is DISABLED for 26.1.2 (no 26.1 build), its addon in :neoforge compat/theoneprobe is stubbed.
     implementation "maven.modrinth:jade:${jade_version}"
 
-    // Recipe viewers — JEI and REI (EMI has no 26.1 build). Each carries the same item info pages (compat/{jei,rei}).
+    // Recipe viewers, JEI and REI (EMI has no 26.1 build). Each carries the same item info pages (compat/{jei,rei}).
     // Compile-only: each viewer finds its plugin by its own scan (@JeiPlugin / @REIPluginClient), so neither is bundled.
     // REI needs the full jar, not -api: BuiltinClientPlugin is in REI's default-plugin module. REI's strict JEI pin is
     // dropped by the exclude + the force above.
@@ -97,11 +97,11 @@ dependencies {
             runtimeOnly "mezz.jei:jei-26.1.2-neoforge:${jei_version}"
     }
 
-    // Patchouli — optional, powers the in-game guide book. Resources only, needed only at runtime. From Modrinth
-    // (pinned by version id — BlameJared has no 26.1 build).
+    // Patchouli, optional, powers the in-game guide book. Resources only, needed only at runtime. From Modrinth
+    // (pinned by version id, BlameJared has no 26.1 build).
     runtimeOnly "maven.modrinth:patchouli:${patchouli_version}"
 
-    // Dev-only test mods — loaded in the dev client to make debugging easier. Not shipped.
+    // Dev-only test mods, loaded in the dev client to make debugging easier. Not shipped.
     // ⚠️ ALL COMMENTED OUT for 26.1.2: the version ids are still 1.21.1 builds. Re-pin to a 26.1.2 build and un-comment
     // when a run needs one. None is shipped or on the compile classpath, so this does not affect compileJava.
     // runtimeOnly "dev.ftb.mods:ftb-library-neoforge:${ftb_library_version}"

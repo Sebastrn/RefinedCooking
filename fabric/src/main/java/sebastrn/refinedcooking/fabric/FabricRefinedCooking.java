@@ -21,7 +21,7 @@ import sebastrn.refinedcooking.RefinedCookingBlockEntities;
 import sebastrn.refinedcooking.blockentity.KitchenStationBlockEntity;
 
 /**
- * Fabric entry point. Boots the loader-neutral mod through Balm, then does the Fabric-only provider wiring — the
+ * Fabric entry point. Boots the loader-neutral mod through Balm, then does the Fabric-only provider wiring, the
  * {@code BlockApiLookup} analogs of the NeoForge capabilities registered in {@code NeoForgeRefinedCooking}.
  */
 public final class FabricRefinedCooking implements ModInitializer {
@@ -31,7 +31,7 @@ public final class FabricRefinedCooking implements ModInitializer {
         Balm.initializeMod(RefinedCooking.ID, FabricLoadContext.INSTANCE, RefinedCooking::initialize);
 
         // RS network-node discovery. Fabric has no NeoForge capabilities, so RS exposes a BlockApiLookup for the same
-        // loader-neutral NetworkNodeContainerProvider; RS scans it at each position to build the network graph — the
+        // loader-neutral NetworkNodeContainerProvider; RS scans it at each position to build the network graph, the
         // exact analog of NeoForgeRefinedCooking's getNetworkNodeContainerProviderCapability() registration.
         // We fetch the lookup by RS's own id (refinedstorage:network_node_container_provider) rather than via
         // RefinedStorageFabricApi.INSTANCE: the latter's proxy throws "Fabric API not loaded yet" if our initializer
@@ -48,7 +48,7 @@ public final class FabricRefinedCooking implements ModInitializer {
 
         // Expose the Kitchen Station as CFB's KitchenItemProvider on the same BlockApiLookup CFB scans. CFB registers
         // that class under the id cookingforblockheads:kitchen_item_provider (see its FabricCookingForBlockheads), and
-        // BlockApiLookup.get returns the shared instance for that id — so registering here is found by CFB's kitchen.
+        // BlockApiLookup.get returns the shared instance for that id, so registering here is found by CFB's kitchen.
         BlockApiLookup<KitchenItemProvider, Void> kitchenItemProviderLookup = BlockApiLookup.get(
                 Identifier.fromNamespaceAndPath(CookingForBlockheads.MOD_ID, "kitchen_item_provider"),
                 KitchenItemProvider.class, Void.class);
@@ -64,12 +64,12 @@ public final class FabricRefinedCooking implements ModInitializer {
      * Storage grid (and then used by the cooking table, exactly like water). This fills a gap left by the platform +
      * Balm: Balm registers the milk <em>fluid</em> (via CFB's {@code enableMilkFluid}) but no item fluid-storage for the
      * bucket, and vanilla's {@code MilkBucketItem} is not a {@code BucketItem}, so Fabric API's bucket provider skips it
-     * — hence RS finds nothing to drain. NeoForge/Forge already make milk buckets drainable at the platform level, so
+     *, hence RS finds nothing to drain. NeoForge/Forge already make milk buckets drainable at the platform level, so
      * this only brings Fabric to parity. Carried from the 1.21.1 Fabric port (F1); remove if Balm/CFB ship it upstream
      * (a duplicate {@code registerForItems} on the milk bucket would then collide).
      * <p>
      * Drain-only: extracting milk back <em>into</em> an empty bucket isn't cleanly possible on Fabric, because the empty
-     * bucket's item storage is owned by Fabric API and only knows {@code BucketItem} fluids — and insertion is all the
+     * bucket's item storage is owned by Fabric API and only knows {@code BucketItem} fluids, and insertion is all the
      * cooking-from-network use case needs.
      */
     private static void registerMilkBucketFluidStorage() {

@@ -39,7 +39,7 @@ import javax.annotation.Nullable;
 
 /**
  * The near end of the link: a node inside a Refined Storage network that projects it to a remote Kitchen Station.
- * Modelled on RS's own Network Transmitter, which is the same concept — a node with a network-card slot and a GUI
+ * Modelled on RS's own Network Transmitter, which is the same concept, a node with a network-card slot and a GUI
  * that reaches out to a remote receiver.
  * <p>
  * The remote link is made in {@link #createMainContainer}: the connection strategy adds an outgoing connection to
@@ -104,7 +104,7 @@ public class KitchenAccessPointBlockEntity
     /**
      * Drives both blockstate properties from one place. RS's transmitter does the same for its state enum; going
      * through the ticker (rather than writing the blockstate the moment a card changes) keeps the write rate-limited
-     * and off the network-graph callback. The ticker is registered without an activeness property for this reason —
+     * and off the network-graph callback. The ticker is registered without an activeness property for this reason, 
      * otherwise it and this method would both write {@code connected} and fight.
      */
     public void updateStateInLevel(BlockState state) {
@@ -120,7 +120,7 @@ public class KitchenAccessPointBlockEntity
     }
 
     /**
-     * Retries the link when the station is bound but absent from the graph — most often because its chunk had not
+     * Retries the link when the station is bound but absent from the graph, most often because its chunk had not
      * loaded when the graph was last built. Runs regardless of power now that the link is maintained whether or not
      * the network is active, so a station whose chunk loads under an unpowered Access Point still links (as red).
      * Rate-limited to once every five seconds, as RS's transmitter does.
@@ -164,7 +164,7 @@ public class KitchenAccessPointBlockEntity
 
     // ---- state, as the Jade / The One Probe tooltips report it ----
 
-    /** True when the node is on a network, powered and redstone-enabled — i.e. when the block reads as lit. */
+    /** True when the node is on a network, powered and redstone-enabled, i.e. when the block reads as lit. */
     public boolean isConnected() {
         return mainNetworkNode.isActive();
     }
@@ -217,7 +217,7 @@ public class KitchenAccessPointBlockEntity
 
     // ---- persistence ----
 
-    // 26.1 BE serialization is ValueInput/ValueOutput, and RS2 3.2.1 dropped ContainerUtil — the card slot round-trips
+    // 26.1 BE serialization is ValueInput/ValueOutput, and RS2 3.2.1 dropped ContainerUtil, the card slot round-trips
     // through the vanilla ItemContainerContents data component, exactly as RS's own Network Transmitter does.
     @Override
     public void saveAdditional(ValueOutput output) {
@@ -260,7 +260,7 @@ public class KitchenAccessPointBlockEntity
 
     /**
      * Drops the inserted card when the block is broken. RS2 3.2.1 dropped the {@code BlockEntityWithDrops} interface,
-     * so the card is dropped here the vanilla way — the same as RS's own Network Transmitter.
+     * so the card is dropped here the vanilla way, the same as RS's own Network Transmitter.
      */
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {

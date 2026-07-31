@@ -1,6 +1,6 @@
 // Shared repositories, applied by every module (common + each loader). Kept out of the convention plugin so loader
 // modules can add loader-specific repos of their own if needed.
-// 26.1.2 note: no TerraformersMC (EMI) and no k-4u (The One Probe) — neither has a 26.1 build, so neither is used.
+// 26.1.2 note: no TerraformersMC (EMI) and no k-4u (The One Probe), neither has a 26.1 build, so neither is used.
 repositories {
     maven {
         name = 'CreeperHost (Refined Storage 2)'

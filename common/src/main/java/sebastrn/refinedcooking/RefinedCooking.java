@@ -5,8 +5,8 @@ import sebastrn.refinedcooking.config.ServerConfig;
 
 /**
  * Loader-agnostic entry point. Each loader's shim ({@code NeoForgeRefinedCooking} / {@code FabricRefinedCooking})
- * calls {@code Balm.initializeMod} with {@link #initialize(BalmRegistrars)}; the loader-specific wiring —
- * capability/lookup registration for the Refined Storage network node and CFB's {@code KitchenItemProvider} — stays
+ * calls {@code Balm.initializeMod} with {@link #initialize(BalmRegistrars)}; the loader-specific wiring, 
+ * capability/lookup registration for the Refined Storage network node and CFB's {@code KitchenItemProvider}, stays
  * in the shims. (The One Probe integration is disabled on 26.1.2: no 26.1 TOP build.)
  */
 public final class RefinedCooking {

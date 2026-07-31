@@ -20,7 +20,7 @@ import sebastrn.refinedcooking.RefinedCookingBlockEntities;
 /**
  * NeoForge entry point. Boots the loader-neutral mod through Balm, then does the NeoForge-only capability wiring
  * (moved here from the old single-module {@code RefinedCooking}). See {@link #registerCapabilities}. The One Probe
- * integration is disabled for 26.1.2 (no 26.1 build) — see {@code compat.theoneprobe.TheOneProbeAddon}.
+ * integration is disabled for 26.1.2 (no 26.1 build), see {@code compat.theoneprobe.TheOneProbeAddon}.
  */
 @Mod(RefinedCooking.ID)
 public final class NeoForgeRefinedCooking {
@@ -34,7 +34,7 @@ public final class NeoForgeRefinedCooking {
     /**
      * Wires the block entities' capabilities on NeoForge (there is no {@code getCapability} override anymore):
      * <ul>
-     *     <li>both blocks expose their network-node container to Refined Storage — without it nothing connects, because
+     *     <li>both blocks expose their network-node container to Refined Storage, without it nothing connects, because
      *     RS looks the capability up at each position rather than walking block entities;</li>
      *     <li>the Kitchen Station exposes CFB's {@link KitchenItemProvider}. Balm 26.1 dropped the
      *     getProviders()/NeoForgeBalmProviders route; CFB now backs its {@code kitchen_item_provider} capability with a
@@ -54,7 +54,7 @@ public final class NeoForgeRefinedCooking {
                 (blockEntity, context) -> blockEntity.getItemProvider());
 
         // 26.1's Capabilities.Item.BLOCK is the new ResourceHandler<ItemResource>, not IItemHandler, so wrap the card
-        // slot (a vanilla Container) via NeoForge's VanillaContainerWrapper — the same adapter RS2 uses for its disks.
+        // slot (a vanilla Container) via NeoForge's VanillaContainerWrapper, the same adapter RS2 uses for its disks.
         event.registerBlockEntity(Capabilities.Item.BLOCK, RefinedCookingBlockEntities.KITCHEN_ACCESS_POINT.value(),
                 (blockEntity, context) -> VanillaContainerWrapper.of(blockEntity.getNetworkCardInventory()));
     }
