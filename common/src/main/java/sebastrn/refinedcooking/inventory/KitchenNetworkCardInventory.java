@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 
 /**
  * The Access Point's single card slot. Mirrors RS's own {@code NetworkCardInventory}, which is package-private and so
- * cannot be reused — but {@code FilteredContainer} is public, which is all it was built on.
+ * cannot be reused, but {@code FilteredContainer} is public, which is all it was built on.
  * <p>
  * Bound-only, exactly like RS's slot: an unbound card cannot be inserted. This is discoverable rather than silent
  * because the card carries a distinct bound/unbound item texture, so a card that won't go in shows why in the hand.

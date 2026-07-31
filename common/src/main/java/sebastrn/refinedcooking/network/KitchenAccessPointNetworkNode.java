@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 /**
  * A plain {@link SimpleNetworkNode} that also remembers which station its card points at.
  * <p>
- * This is not a revival of the Refined Storage 1 node class that used to live here — that one existed to carry an
+ * This is not a revival of the Refined Storage 1 node class that used to live here, that one existed to carry an
  * RS1 node id, connect/disconnect callbacks and an energy usage, all of which RS2 handles for us. This one exists
  * for one reason: the network graph hands out {@code NetworkNodeContainer#getNode()}, so making the node a distinct
  * type is what lets a Kitchen Station find the Access Point that linked it. A bare {@code SimpleNetworkNode} is

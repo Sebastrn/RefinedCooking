@@ -6,7 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 /**
  * The animated "transmitting" indicator between the card slot and the status text, mirroring RS's own Network
  * Transmitter: a static dot when not transmitting, an expanding wave animation when it is. RS's {@code TransmittingIcon}
- * is package-private, so this is a faithful copy — but it reuses RS's own GUI sprites ({@code refinedstorage:transmitting/*}),
+ * is package-private, so this is a faithful copy, but it reuses RS's own GUI sprites ({@code refinedstorage:transmitting/*}),
  * which are always present because Refined Storage is a required dependency, so no textures of our own are needed.
  */
 class TransmittingIcon {

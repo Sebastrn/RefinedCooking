@@ -23,7 +23,7 @@ import sebastrn.refinedcooking.inventory.KitchenNetworkCardInventory;
 import javax.annotation.Nullable;
 
 /**
- * Carries no status of its own. The card sits in a real slot, so its bound position — a data component — is synced to
+ * Carries no status of its own. The card sits in a real slot, so its bound position, a data component, is synced to
  * the client with the stack; combined with {@link #getAccessPointPos()}, which arrives once as the menu's extended
  * data, the screen can work out everything it displays without a packet. See {@code KitchenAccessPointScreen}.
  */
@@ -31,7 +31,7 @@ public class KitchenAccessPointContainerMenu extends AbstractBaseContainerMenu {
 
     /**
      * Carries {@link KitchenAccessPointStatus} to the client. Properties are int-backed over a vanilla
-     * {@code DataSlot}, so this syncs live and only when it changes — no packet of our own, which is why the status
+     * {@code DataSlot}, so this syncs live and only when it changes, no packet of our own, which is why the status
      * is an enum rather than the richer record RS's Transmitter pushes.
      */
     public static final PropertyType<KitchenAccessPointStatus> STATUS = new PropertyType<>(
@@ -92,7 +92,7 @@ public class KitchenAccessPointContainerMenu extends AbstractBaseContainerMenu {
         return accessPointPos;
     }
 
-    /** The inserted card, on either side — the screen reads its bound position straight off the synced stack. */
+    /** The inserted card, on either side, the screen reads its bound position straight off the synced stack. */
     public ItemStack getNetworkCard() {
         return cardSlot.getItem();
     }

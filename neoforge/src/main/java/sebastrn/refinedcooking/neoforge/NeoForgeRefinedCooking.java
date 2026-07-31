@@ -37,7 +37,7 @@ public final class NeoForgeRefinedCooking {
      * Wires the block entities' capabilities on NeoForge:
      * <ul>
      *     <li>both blocks expose their network-node container to Refined Storage (see
-     *     {@link #registerNetworkNodeContainerProvider}) — without it nothing connects, because RS looks the capability
+     *     {@link #registerNetworkNodeContainerProvider}), without it nothing connects, because RS looks the capability
      *     up at each position rather than walking block entities;</li>
      *     <li>the Kitchen Station exposes CFB's {@link KitchenItemProvider}; CFB keeps that block capability private but
      *     registers it with Balm, so it is obtained from Balm here;</li>
@@ -55,7 +55,7 @@ public final class NeoForgeRefinedCooking {
         event.registerBlockEntity(kitchenItemProvider, RefinedCookingBlockEntities.KITCHEN_STATION.get(),
                 (blockEntity, context) -> blockEntity.getItemProvider());
 
-        // RS2's card slot is a vanilla Container (RS1's was an IItemHandler) — wrap it so hoppers/pipes can still
+        // RS2's card slot is a vanilla Container (RS1's was an IItemHandler), wrap it so hoppers/pipes can still
         // insert and pull the card.
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, RefinedCookingBlockEntities.KITCHEN_ACCESS_POINT.get(),
                 (blockEntity, context) -> new InvWrapper(blockEntity.getNetworkCardInventory()));

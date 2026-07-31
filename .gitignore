@@ -25,5 +25,5 @@ runs
 # Files from Forge MDK
 forge*changelog.txt
 
-# Internal NeoForge-migration working notes — kept local, never committed/pushed
+# Internal NeoForge-migration working notes, kept local, never committed/pushed
 MIGRATION_NOTES.md

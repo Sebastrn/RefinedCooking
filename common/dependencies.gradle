@@ -1,13 +1,13 @@
 dependencies {
-    // Balm cross-loader API — the loader-neutral facade the common code registers everything through.
+    // Balm cross-loader API, the loader-neutral facade the common code registers everything through.
     compileOnly "net.blay09.mods:balm-common:${balm_version}"
 
-    // Refined Storage 2 — common code compiles against the loader-neutral -common + -network modules, which pull the
+    // Refined Storage 2, common code compiles against the loader-neutral -common + -network modules, which pull the
     // whole -api tree (core/resource/storage/network/common) transitively. The loader modules add -neoforge / -fabric.
     compileOnly "com.refinedmods.refinedstorage:refinedstorage-common:${rs_version}"
     compileOnly "com.refinedmods.refinedstorage:refinedstorage-network:${rs_version}"
 
-    // Cooking for Blockheads — common only touches its API (KitchenItemProvider). The published jar's api package is
+    // Cooking for Blockheads, common only touches its API (KitchenItemProvider). The published jar's api package is
     // loader-neutral, so it suffices for compilation; each loader module pulls its own CFB runtime jar.
     compileOnly "maven.modrinth:cooking-for-blockheads:${cfb_version}"
 

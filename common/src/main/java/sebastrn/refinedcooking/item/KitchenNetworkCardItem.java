@@ -23,7 +23,7 @@ import java.util.Optional;
  * The position lives in a data component rather than item NBT, which no longer exists for this. We reuse Refined
  * Storage's own {@code networkLocation} component instead of registering one: it is public, typed exactly
  * {@code DataComponentType<GlobalPos>}, and is what RS's own Network Card stores. (Applied Cooking does the same
- * with AE2's {@code WIRELESS_LINK_TARGET}.) Only ever read inside a method, never a static initialiser — the
+ * with AE2's {@code WIRELESS_LINK_TARGET}.) Only ever read inside a method, never a static initialiser, the
  * component is supplied by RS at mod init, so touching it earlier would throw.
  */
 public class KitchenNetworkCardItem extends Item {

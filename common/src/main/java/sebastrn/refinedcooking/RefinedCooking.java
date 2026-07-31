@@ -5,9 +5,9 @@ import sebastrn.refinedcooking.config.ServerConfig;
 
 /**
  * Loader-agnostic entry point. Each loader's shim ({@code NeoForgeRefinedCooking} / {@code FabricRefinedCooking})
- * calls {@link Balm#initialize} with {@link #initialize()}; the loader-specific wiring — capability/lookup
+ * calls {@link Balm#initialize} with {@link #initialize()}; the loader-specific wiring, capability/lookup
  * registration for the Refined Storage network node and CFB's {@code KitchenItemProvider}, plus the IMC to The One
- * Probe — stays in the shims.
+ * Probe, stays in the shims.
  */
 public final class RefinedCooking {
 
